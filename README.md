@@ -2,14 +2,13 @@
 
 ## Backend
 
-Database connection details must be provided on a file named `db.cnf` on the backend project root. An example configuration is shown below:
+Various configuration details must be provided in a .env file in the backend project's root directory as shown below:
 
 ```
-# my.cnf
-[client]
-database = NAME
-host = HOST
-user = USER
-password = PASSWORD
-default-character-set = utf8
+SECRET_KEY=key
+DB_NAME=name
+DB_HOST=host
+DB_USER=user
+DB_PASS=pass
+DB_CHAR_SET=utf8
 ```

@@ -38,3 +38,18 @@
     transform: rotate(360deg);
   }
 }
+
+#sidebar-wrapper {
+  min-height: 100vh !important;
+  width: 20vh;
+  margin-left: -1rem;
+  -webkit-transition: margin 0.25s ease-out;
+  -moz-transition: margin 0.25s ease-out;
+  -o-transition: margin 0.25s ease-out;
+  transition: margin 0.25s ease-out;
+}
+
+#page-content {
+  min-width: 0;
+  width: 100%;
+}

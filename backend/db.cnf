@@ -1,0 +1,6 @@
+[client]
+database = rumergy_test
+host = localhost
+user = rumergy-dev
+password = password
+default-character-set = utf8

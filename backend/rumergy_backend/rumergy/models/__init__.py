@@ -1,2 +1,3 @@
-from .user import User
-from .user_profile_manager import UserProfileManager
+from .user import User, UserProfileManager
+from .access_request import AccessRequest
+from .data_log import DataLog

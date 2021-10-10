@@ -10,6 +10,7 @@ markdown = "*"
 django-filter = "*"
 mysqlclient = "*"
 djangorestframework-simplejwt = "*"
+python-decouple = "*"
 
 [dev-packages]
 

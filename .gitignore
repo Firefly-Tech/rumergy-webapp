@@ -25,3 +25,6 @@ yarn-error.log*
 
 .vscode/
 .eslintrc.json
+
+db.cnf
+.env

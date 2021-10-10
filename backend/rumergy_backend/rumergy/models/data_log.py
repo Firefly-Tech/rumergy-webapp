@@ -1,4 +1,5 @@
 from django.db import models
+from . import User
 
 class DataLog(models.Model):
-    pass
+    user = models.ForeignKey(User, on_delete=models.PROTECT)

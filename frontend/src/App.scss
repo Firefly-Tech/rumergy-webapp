@@ -1,55 +1,13 @@
-@import "~bootstrap/scss/bootstrap";
+@import "./components/sidebar.scss";
+
+$body-bg: #f2f3f8;
 
 .App {
-  text-align: center;
+
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.main-container {
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}
-
-.App-link {
-  color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-#sidebar-wrapper {
-  min-height: 100vh !important;
-  width: 20vh;
-  margin-left: -1rem;
-  -webkit-transition: margin 0.25s ease-out;
-  -moz-transition: margin 0.25s ease-out;
-  -o-transition: margin 0.25s ease-out;
-  transition: margin 0.25s ease-out;
-}
-
-#page-content {
-  min-width: 0;
-  width: 100%;
-}
+// Leave at end
+@import "~bootstrap/scss/bootstrap";

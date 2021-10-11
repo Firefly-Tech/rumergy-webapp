@@ -1,11 +1,43 @@
 .sidebar {
-    position: fixed;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    min-height: 100vh !important;
-    z-index: 100;
-    padding: 48px 0 0;
-    box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
-    background-color: #004F2D;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  min-height: 100vh !important;
+  z-index: 100;
+  width: 20vh;
+  padding: 10px;
+  background-color: #004f2d;
+  -moz-box-shadow: -3px 0 5px 0 #555;
+  -webkit-box-shadow: -3px 0 5px 0 #555;
+  box-shadow: -3px 0 5px 0 #555;
+}
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  text-align: center;
+  color: white;
+  h2 {
+    padding-left: 7px;
+  }
+}
+
+.nav-container {
+}
+
+.sidebar-item {
+  padding-top: 5px;
+  padding-bottom: 5px;
+  a {
+    display: flex;
+    align-items: center;
+    color: white;
+  }
+
+  h3 {
+      padding-left: 10px;
+  }
 }

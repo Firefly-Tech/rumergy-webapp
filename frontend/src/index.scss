@@ -18,15 +18,20 @@ code {
 
 h1 {
   font: "Open Sans";
-  font-size: 30px;
+  font-size: 2em !important;
 }
 
 h2 {
   font: "Open Sans";
-  font-size: 26px;
+  font-size: 1.7em !important;
 }
 
 h3 {
   font: "Open Sans";
-  font-size: 20px !important;
+  font-size: 1em !important;
+}
+
+span {
+  font: "Pontano Sans" !important;
+  font-size: 1em !important;
 }

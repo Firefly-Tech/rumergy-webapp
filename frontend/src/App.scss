@@ -1,6 +1,15 @@
-@import "./components/sidebar.scss";
+// Variables
 
 $body-bg: #f2f3f8;
+$light-grey: #F2F2F2;
+$dark-grey: #A0A0A0;
+$dark-green: #004F2D;
+$soft-green: #BAD9BB;
+$blinding-green: #D2F898;
+$special-red: #FF4242;
+
+@import "./components/sidebar.scss";
+@import "./components/help.scss";
 
 .App {
 

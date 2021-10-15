@@ -12,6 +12,8 @@ $nav-link-hover-color: $dark-grey;
   z-index: 100;
   width: 25vh;
   padding: 10px 0 10px 0;
+  overflow-x: hidden;
+  overflow-y: auto; 
   background-color: $dark-green;
   -moz-box-shadow: -3px 0 5px 0 #555;
   -webkit-box-shadow: -3px 0 5px 0 #555;

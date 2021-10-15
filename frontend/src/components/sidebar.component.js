@@ -12,8 +12,6 @@ import {
 import { Link, useLocation } from "react-router-dom";
 import Help from "./help.component";
 
-// TODO: Remove sidebar from container
-
 const sidebarData = [
   {
     menuName: "Dashboard",

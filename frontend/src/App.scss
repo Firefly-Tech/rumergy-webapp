@@ -1,40 +1,22 @@
-@import "~bootstrap/scss/bootstrap";
+// Variables
+
+$body-bg: #f2f3f8;
+$light-grey: #F2F2F2;
+$dark-grey: #A0A0A0;
+$dark-green: #004F2D;
+$soft-green: #BAD9BB;
+$blinding-green: #D2F898;
+$special-red: #FF4242;
+
+@import "./components/sidebar.scss";
+@import "./components/help.scss";
 
 .App {
-  text-align: center;
+
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.main-container {
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}
-
-.App-link {
-  color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
+// Leave at end
+@import "~bootstrap/scss/bootstrap";

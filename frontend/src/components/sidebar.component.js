@@ -9,10 +9,8 @@ import {
   FaSignInAlt,
   FaSignOutAlt,
 } from "react-icons/fa";
-import { Link, useLocation } from "react-router-dom";
+import { Link, NavLink, useLocation } from "react-router-dom";
 import Help from "./help.component";
-
-// TODO: Remove sidebar from container
 
 const sidebarData = [
   {
@@ -52,8 +50,8 @@ function Sidebar(props) {
         {sidebarData.map((item, index) => {
           return (
             checkRestrictions(item.userRestrictions) && (
-              <Nav.Item className="sidebar-item">
-                <Nav.Link href={item.link}>
+              <Nav.Item className="sidebar-item" key={index}>
+                <Nav.Link as={NavLink} to={item.link}>
                   {item.icon}
                   <span id="sidebar-menu-span">{item.menuName}</span>
                 </Nav.Link>

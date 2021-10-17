@@ -8,9 +8,9 @@ $soft-green: #bad9bb;
 $blinding-green: #d2f898;
 $special-red: #ff4242;
 
-@import "./components/sidebar.scss";
-@import "./components/help.scss";
-@import "./components/dashboard.scss";
+@import "./components/Sidebar.scss";
+@import "./components/Help.scss";
+@import "./components/Dashboard.scss";
 
 .content-card {
   display: flex;

@@ -10,7 +10,7 @@ import {
   FaSignOutAlt,
 } from "react-icons/fa";
 import { Link, NavLink, useLocation } from "react-router-dom";
-import Help from "./help.component";
+import Help from "./Help";
 
 const sidebarData = [
   {

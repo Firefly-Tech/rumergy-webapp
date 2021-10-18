@@ -26,11 +26,13 @@ function App() {
       <Container fluid className="main-container">
         <Row>
           <Col sm={2} className="">
-            <Sidebar userRole="GEN" />
+            <Sidebar userRole={userRole} />
           </Col>
           <Col offset={2} id="page-content">
             <Route path="/dashboard">
-              <Dashboard />
+              {(userRole === roles.Admin && (
+                <Redirect to="/admin/manage-meters" />
+              )) || <Dashboard />}
             </Route>
           </Col>
         </Row>

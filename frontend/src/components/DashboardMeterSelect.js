@@ -1,6 +1,12 @@
 import React from "react";
 
-function DashboardMeterSelect() {
+function DashboardMeterSelect(props) {
+
+    return (
+        <div className="content-card">
+
+        </div>
+    )
 
 }
 

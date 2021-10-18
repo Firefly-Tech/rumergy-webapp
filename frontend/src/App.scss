@@ -8,14 +8,19 @@ $soft-green: #bad9bb;
 $blinding-green: #d2f898;
 $special-red: #ff4242;
 
+$hover-transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,
+  border-color 0.15s ease-in-out;
+
 @import "./components/Sidebar.scss";
 @import "./components/Help.scss";
 @import "./components/Dashboard.scss";
+@import "./components/IconButton.scss";
 
 .content-card {
   display: flex;
   background-color: $soft-green;
   padding: 10px;
+  border-radius: 20px;
 }
 
 .section-header {

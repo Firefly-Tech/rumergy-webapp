@@ -1,0 +1,14 @@
+.icon-button {
+  display: flex;
+  align-items: center;
+  border: none; /* Remove borders */
+  background-color: transparent;
+  color: white; /* White text */
+  font-size: 1.3em;
+  cursor: pointer; /* Mouse pointer on hover */
+}
+
+.icon-button:hover {
+    color: $dark-grey;
+    transition: $hover-transition;
+}

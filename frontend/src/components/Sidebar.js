@@ -43,7 +43,7 @@ function Sidebar(props) {
       {/* Header */}
       <div className="sidebar-header">
         <FaBolt />
-        <h2>RUMergy</h2>
+        <h2 className="bold mb-0">RUMergy</h2>
       </div>
       {/* Nav */}
       <Nav className="flex-column nav-container" activeKey={location.pathname}>

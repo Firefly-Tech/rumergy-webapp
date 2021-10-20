@@ -6,7 +6,12 @@ import DashboardSelectedMeters from "./DashboardSelectedMeters";
 
 function Dashboard(props) {
   const [meterList, setMeterList] = useState({}); // Available meters, name keys
-  const [selectedMeters, setSelectedMeters] = useState(["test"]); // List of selected meters
+  const [selectedMeters, setSelectedMeters] = useState([
+    "test",
+    "hey",
+    "yo",
+    "tesifj",
+  ]); // List of selected meters
 
   const selectMeter = (name) => {
     setSelectedMeters([...selectedMeters, name]);
@@ -16,6 +21,10 @@ function Dashboard(props) {
     setSelectedMeters(selectedMeters.filter((meterName) => meterName !== name));
   };
 
+  const clearSelected = () => {
+    setSelectedMeters([]);
+  };
+
   // TODO: meter list fetch, get meter data req
 
   return (
@@ -23,17 +32,20 @@ function Dashboard(props) {
       <Row>
         <Col xs={12}>
           <div className="section-header">
-            <h1>Dashboard</h1>
+            <h1 className="bold">Dashboard</h1>
           </div>
         </Col>
       </Row>
-      <Row>
-        <Col xs={3}>
+      <Row className="flex-grow-1">
+        <Col xs={3} className="d-flex flex-column">
           <DashboardMeterSelect />
-          <DashboardSelectedMeters
-            selectedMeters={selectedMeters}
-            deselectMeter={deselectMeter}
-          />
+          <div className="my-auto">
+            <DashboardSelectedMeters
+              selectedMeters={selectedMeters}
+              deselectMeter={deselectMeter}
+              clearSelected={clearSelected}
+            />
+          </div>
         </Col>
       </Row>
     </div>

@@ -1,7 +1,5 @@
-@import url("https://fonts.googleapis.com/css2?family=Antic+Slab&family=Open+Sans&family=Pontano+Sans&display=swap");
-@import "./App.scss";
+@import url("https://fonts.googleapis.com/css2?family=Antic+Slab&family=Open+Sans:wght@300;400;600;700&family=Pontano+Sans&display=swap");
 
-// TODO: Get bold font open sans
 body {
   margin: 0;
   padding: 0;
@@ -29,10 +27,16 @@ h2 {
 
 h3 {
   font: "Open Sans";
-  font-size: 1em !important;
+  font-size: 1.3em !important;
 }
 
 span {
   font: "Pontano Sans" !important;
   font-size: 1em !important;
 }
+
+.bold {
+  font-weight: bold;
+}
+
+@import "./App.scss";

@@ -3,6 +3,8 @@
 body {
   margin: 0;
   padding: 0;
+  height: 100%;
+  overflow: hidden;
   font-family: "Antic Slab", serif;
   font-family: "Open Sans", sans-serif;
   font-family: "Pontano Sans", sans-serif;
@@ -13,26 +15,6 @@ body {
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
-}
-
-h1 {
-  font: "Open Sans";
-  font-size: 2em !important;
-}
-
-h2 {
-  font: "Open Sans";
-  font-size: 1.7em !important;
-}
-
-h3 {
-  font: "Open Sans";
-  font-size: 1.3em !important;
-}
-
-span {
-  font: "Pontano Sans" !important;
-  font-size: 1em !important;
 }
 
 .bold {

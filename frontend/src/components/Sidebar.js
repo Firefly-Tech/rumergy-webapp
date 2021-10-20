@@ -39,14 +39,20 @@ function Sidebar(props) {
   };
 
   return (
-    <div className="sidebar">
+    <div className="sidebar d-flex flex-sm-column flex-row flex-grow-1 align-items-center align-items-sm-start px-3 pt-2">
       {/* Header */}
-      <div className="sidebar-header">
-        <FaBolt />
+      <div className="d-flex justify-content-center align-items-center text-white p-xl-3 gap-2">
+        <div className="header-logo">
+          <FaBolt />
+        </div>
         <h2 className="bold mb-0">RUMergy</h2>
       </div>
       {/* Nav */}
-      <Nav className="flex-column nav-container" activeKey={location.pathname}>
+      <Nav
+        variant="pills"
+        className="flex-column nav-fill"
+        activeKey={location.pathname}
+      >
         {sidebarData.map((item, index) => {
           return (
             checkRestrictions(item.userRestrictions) && (
@@ -61,14 +67,14 @@ function Sidebar(props) {
         })}
       </Nav>
       {/* Footer */}
-      <div className="sidebar-footer">
+      <div className="d-flex flex-row align-items-center mt-sm-auto mt-xl-auto">
         <div className="sidebar-login-logout">
           <Link to={isLoggedIn() ? "/logout" : "/login"}>
             {isLoggedIn() ? <FaSignOutAlt /> : <FaSignInAlt />}
             <span>{isLoggedIn() ? "Logout" : "Login"}</span>
           </Link>
         </div>
-        <div className="sidebar-help">
+        <div className="sidebar-help ml-xl-auto">
           <Help />
         </div>
       </div>

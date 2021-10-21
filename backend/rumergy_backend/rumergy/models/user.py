@@ -74,7 +74,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         ),
     )
     USERNAME_FIELD = "email"
-    REQUIRED_FIELDS = ["first_name", "last_name", "role", "password"]
+    REQUIRED_FIELDS = ["email", "first_name", "last_name", "role", "password"]
 
     def __str__(self):
         """Return string representation of our user"""

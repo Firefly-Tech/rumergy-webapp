@@ -8,4 +8,4 @@ class AccessRequest(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     timestamp = models.DateTimeField(auto_now_add=True)
     ocupation = models.CharField(max_length=20)
-    justification = modles.CharField(max_length=200)
+    justification = models.CharField(max_length=200)

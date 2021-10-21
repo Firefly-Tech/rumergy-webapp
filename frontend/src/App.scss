@@ -7,6 +7,9 @@ $dark-green: #004f2d;
 $soft-green: #bad9bb;
 $blinding-green: #d2f898;
 $special-red: #ff4242;
+$theme-colors: (
+  "primary": $dark-green
+);
 
 $hover-transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,
   border-color 0.15s ease-in-out;
@@ -26,6 +29,3 @@ $hover-transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,
 .section-header {
   padding-bottom: 20px;
 }
-
-// Leave at end
-@import "~bootstrap/scss/bootstrap";

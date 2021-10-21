@@ -1,16 +1,8 @@
 @import url("https://fonts.googleapis.com/css2?family=Antic+Slab&family=Open+Sans:wght@300;400;600;700&family=Pontano+Sans&display=swap");
 
-body {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-  overflow: hidden;
-  font-family: "Antic Slab", serif;
-  font-family: "Open Sans", sans-serif;
-  font-family: "Pontano Sans", sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
+$font-family-sans-serif: "Open Sans" !default;
+$font-family-serif: "Antic Slab" !default;
+$font-family-base: $font-family-sans-serif !default;
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
@@ -21,4 +13,9 @@ code {
   font-weight: bold;
 }
 
+html {
+  font-size: 1rem;
+}
+
 @import "./App.scss";
+@import "~bootstrap/scss/bootstrap";

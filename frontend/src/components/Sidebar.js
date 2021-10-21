@@ -39,9 +39,9 @@ function Sidebar(props) {
   };
 
   return (
-    <div className="sidebar d-flex flex-sm-column flex-row flex-grow-1 align-items-center align-items-sm-start px-3 pt-2">
+    <div className="sidebar d-flex flex-column flex-grow-1">
       {/* Header */}
-      <div className="d-flex justify-content-center align-items-center text-white p-xl-3 gap-2">
+      <div className="d-flex align-self-center justify-content-center align-items-center text-white p-xl-3 pb-sm-3 gap-2">
         <div className="header-logo">
           <FaBolt />
         </div>
@@ -49,7 +49,6 @@ function Sidebar(props) {
       </div>
       {/* Nav */}
       <Nav
-        variant="pills"
         className="flex-column nav-fill"
         activeKey={location.pathname}
       >
@@ -57,9 +56,9 @@ function Sidebar(props) {
           return (
             checkRestrictions(item.userRestrictions) && (
               <Nav.Item className="sidebar-item" key={index}>
-                <Nav.Link as={NavLink} to={item.link}>
+                <Nav.Link as={NavLink} to={item.link} className="d-flex gap-2 align-items-center">
                   {item.icon}
-                  <span id="sidebar-menu-span">{item.menuName}</span>
+                  <span>{item.menuName}</span>
                 </Nav.Link>
               </Nav.Item>
             )

@@ -6,7 +6,6 @@ import Sidebar from "./components/Sidebar";
 import { roles } from "./resources/constants";
 import Dashboard from "./components/Dashboard";
 
-// TODO: Fix content going under sidebar
 function App() {
   const [userRole, setUserRole] = useState(roles.General);
 
@@ -25,14 +24,10 @@ function App() {
       </Route>
       <Container fluid className="overflow-hidden">
         <Row className="vh-100 overflow-auto">
-          <Col
-            sm={3}
-            xl={2}
-            className="d-flex flex-column pr-sm-2 px-xl-0 px-0 sticky-top"
-          >
+          <Col sm={3} xl={2} className="d-flex flex-column sticky-top px-0 pr-sm-2">
             <Sidebar userRole={userRole} />
           </Col>
-          <Col id="page-content">
+          <Col>
             <Route path="/dashboard">
               {(userRole === roles.Admin && (
                 <Redirect to="/admin/manage-meters" />

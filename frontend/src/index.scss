@@ -1,37 +1,21 @@
-@import url("https://fonts.googleapis.com/css2?family=Antic+Slab&family=Open+Sans&family=Pontano+Sans&display=swap");
-@import "./App.scss";
+@import url("https://fonts.googleapis.com/css2?family=Antic+Slab&family=Open+Sans:wght@300;400;600;700&family=Pontano+Sans&display=swap");
 
-body {
-  margin: 0;
-  padding: 0;
-  font-family: "Antic Slab", serif;
-  font-family: "Open Sans", sans-serif;
-  font-family: "Pontano Sans", sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
+$font-family-sans-serif: "Open Sans" !default;
+$font-family-serif: "Antic Slab" !default;
+$font-family-base: $font-family-sans-serif !default;
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
 }
 
-h1 {
-  font: "Open Sans";
-  font-size: 2em !important;
+.bold {
+  font-weight: bold;
 }
 
-h2 {
-  font: "Open Sans";
-  font-size: 1.7em !important;
+html {
+  font-size: 1rem;
 }
 
-h3 {
-  font: "Open Sans";
-  font-size: 1em !important;
-}
-
-span {
-  font: "Pontano Sans" !important;
-  font-size: 1em !important;
-}
+@import "./App.scss";
+@import "~bootstrap/scss/bootstrap";

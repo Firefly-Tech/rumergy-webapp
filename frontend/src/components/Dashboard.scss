@@ -1,0 +1,51 @@
+// TODO: content card out of here somehow
+.dashboard-container {
+  padding-top: 20px;
+}
+
+.content-card {
+  flex-direction: column;
+  margin-bottom: 30px;
+}
+
+.content-card-header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.meter-select-search-button {
+  margin-left: auto;
+  .icon-button {
+    color: black;
+    font-size: 1.1em;
+  }
+}
+
+.meter-select-footer-button {
+  margin-left: auto;
+  .icon-button {
+    color: black;
+    font-size: 1em;
+  }
+}
+
+.meter-item {
+  display: flex;
+  align-items: center;
+  background-color: $light-grey;
+  padding: 5px 5px 5px 10px;
+  border-radius: 20px;
+
+  .meter-name {
+    padding-left: 10px;
+  }
+
+  .meter-item-button {
+    margin-left: auto;
+    .icon-button {
+      color: black;
+      font-size: 1.1em;
+    }
+  }
+}

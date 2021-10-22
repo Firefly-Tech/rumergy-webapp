@@ -1,6 +1,7 @@
-.help-button {
+.icon-button {
   display: flex;
   align-items: center;
+  gap:8px;
   border: none; /* Remove borders */
   background-color: transparent;
   color: white; /* White text */
@@ -8,8 +9,7 @@
   cursor: pointer; /* Mouse pointer on hover */
 }
 
-.help-button:hover {
+.icon-button:hover {
     color: $dark-grey;
-    transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,
-      border-color 0.15s ease-in-out;
+    transition: $hover-transition;
 }

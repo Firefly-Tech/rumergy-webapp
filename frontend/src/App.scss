@@ -1,22 +1,31 @@
 // Variables
 
 $body-bg: #f2f3f8;
-$light-grey: #F2F2F2;
-$dark-grey: #A0A0A0;
-$dark-green: #004F2D;
-$soft-green: #BAD9BB;
-$blinding-green: #D2F898;
-$special-red: #FF4242;
+$light-grey: #f2f2f2;
+$dark-grey: #a0a0a0;
+$dark-green: #004f2d;
+$soft-green: #bad9bb;
+$blinding-green: #d2f898;
+$special-red: #ff4242;
+$theme-colors: (
+  "primary": $dark-green
+);
 
-@import "./components/sidebar.scss";
-@import "./components/help.scss";
+$hover-transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,
+  border-color 0.15s ease-in-out;
 
-.App {
+@import "./components/Sidebar.scss";
+@import "./components/Help.scss";
+@import "./components/Dashboard.scss";
+@import "./components/IconButton.scss";
 
+.content-card {
+  display: flex;
+  background-color: $soft-green;
+  padding: 10px;
+  border-radius: 20px;
 }
 
-.main-container {
+.section-header {
+  padding-bottom: 20px;
 }
-
-// Leave at end
-@import "~bootstrap/scss/bootstrap";

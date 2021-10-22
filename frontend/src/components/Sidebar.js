@@ -17,13 +17,13 @@ const sidebarData = [
     menuName: "Dashboard",
     link: "/dashboard",
     userRestrictions: [roles.General, roles.Advanced],
-    icon: <FaChartLine />,
+    icon: <FaChartLine className="fs-5" />,
   },
   {
     menuName: "About",
     link: "/about",
     userRestrictions: [roles.General, roles.Advanced],
-    icon: <FaInfoCircle />,
+    icon: <FaInfoCircle className="fs-5" />,
   },
 ];
 
@@ -39,26 +39,30 @@ function Sidebar(props) {
   };
 
   return (
-    <div className="sidebar d-flex flex-column flex-grow-1">
+    <div className="sidebar d-flex flex-sm-column flex-grow-1 align-items-sm-stretch align-items-center">
       {/* Header */}
-      <div className="d-flex align-self-center justify-content-center align-items-center text-white p-xl-3 pb-sm-3 gap-2">
-        <div className="header-logo">
-          <FaBolt />
-        </div>
-        <h2 className="bold mb-0">RUMergy</h2>
+      <div className="d-flex flex-row justify-content-center align-items-center text-white p-sm-3 px-3 gap-2">
+        <FaBolt className="fs-5" />
+        <h2 className="bold mb-0 d-none d-sm-inline">RUMergy</h2>
       </div>
       {/* Nav */}
       <Nav
-        className="flex-column nav-fill"
+        className=" flex-sm-column flex-row flex-nowrap flex-shrink-1 flex-sm-grow-0 flex-grow-1 mb-sm-auto mb-0 justify-content-center align-items-center align-items-sm-stretch"
         activeKey={location.pathname}
       >
         {sidebarData.map((item, index) => {
           return (
             checkRestrictions(item.userRestrictions) && (
               <Nav.Item className="sidebar-item" key={index}>
-                <Nav.Link as={NavLink} to={item.link} className="d-flex gap-2 align-items-center">
+                <Nav.Link
+                  as={NavLink}
+                  to={item.link}
+                  className="d-flex gap-2 align-items-center"
+                >
                   {item.icon}
-                  <span>{item.menuName}</span>
+                  <span className="ms-1 d-none d-sm-inline">
+                    {item.menuName}
+                  </span>
                 </Nav.Link>
               </Nav.Item>
             )
@@ -66,16 +70,21 @@ function Sidebar(props) {
         })}
       </Nav>
       {/* Footer */}
-      <div className="d-flex flex-row align-items-center mt-sm-auto mt-xl-auto">
-        <div className="sidebar-login-logout">
-          <Link to={isLoggedIn() ? "/logout" : "/login"}>
-            {isLoggedIn() ? <FaSignOutAlt /> : <FaSignInAlt />}
-            <span>{isLoggedIn() ? "Logout" : "Login"}</span>
-          </Link>
-        </div>
-        <div className="sidebar-help ml-xl-auto">
-          <Help />
-        </div>
+      <div className="sidebar-footer d-flex flex-sm-row flex-column align-items-center mt-sm-auto p-sm-3 px-3 gap-sm-0 gap-3">
+        <Link
+          className="d-flex align-items-center text-decoration-none me-sm-auto gap-2"
+          to={isLoggedIn() ? "/logout" : "/login"}
+        >
+          {isLoggedIn() ? (
+            <FaSignOutAlt className="fs-5" />
+          ) : (
+            <FaSignInAlt className="fs-5" />
+          )}
+          <span className="d-none d-sm-inline">
+            {isLoggedIn() ? "Logout" : "Login"}
+          </span>
+        </Link>
+        <Help />
       </div>
     </div>
   );

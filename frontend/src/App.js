@@ -27,7 +27,7 @@ function App() {
           <Col sm={3} xl={2} className="d-flex flex-column sticky-top px-0 pr-sm-2">
             <Sidebar userRole={userRole} />
           </Col>
-          <Col>
+          <Col className="pt-4 pt-sm-0">
             <Route path="/dashboard">
               {(userRole === roles.Admin && (
                 <Redirect to="/admin/manage-meters" />

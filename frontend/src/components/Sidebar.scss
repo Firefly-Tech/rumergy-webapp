@@ -24,14 +24,14 @@ $nav-link-hover-color: $dark-grey;
 }
 
 .sidebar-footer {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  margin-top: auto;
-  padding: 10px 10px 15px 10px;
-  color: white;
-  h2 {
-    padding-left: 7px;
+  a {
+    color: white;
+  }
+
+  a:hover {
+    color: $dark-grey;
+    transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,
+      border-color 0.15s ease-in-out;
   }
 }
 
@@ -43,43 +43,5 @@ $nav-link-hover-color: $dark-grey;
 
   .active {
     background-color: #003f24;
-    box-shadow: inset;
-    // box-shadow: 2px 1px 4px 1px rgba(0, 0, 0, 0.34) inset;
-    // -webkit-box-shadow: 2px 1px 4px 1px rgba(0, 0, 0, 0.34) inset;
-    // -moz-box-shadow: 2px 1px 4px 1px rgba(0, 0, 0, 0.34) inset;
   }
-
-  #sidebar-menu-span {
-    padding-left: 10px;
-    font-size: 1.1em !important;
-  }
-}
-
-.sidebar-login-logout {
-  display: flex;
-  align-items: center;
-
-  a {
-    display: flex;
-    align-items: center;
-    color: white;
-    text-decoration: none;
-
-    span {
-      padding-left: 10px;
-    }
-  }
-
-  a:hover {
-    color: $dark-grey;
-    transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,
-      border-color 0.15s ease-in-out;
-  }
-}
-
-.sidebar-help {
-  display: flex;
-  align-items: center;
-  align-self: flex-end;
-  margin-left: auto;
 }

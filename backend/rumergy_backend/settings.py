@@ -95,7 +95,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-AUTH_USER_MODEL = "rumergy.User"
+AUTH_USER_MODEL = "auth.User"
 
 
 # Internationalization

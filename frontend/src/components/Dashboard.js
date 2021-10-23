@@ -28,8 +28,8 @@ function Dashboard(props) {
   // TODO: meter list fetch, get meter data req
 
   return (
-    <div className="dashboard-container">
-      <Row>
+    <Row className="pt-4 h-100">
+      <Row className="flex-shrink-1">
         <Col xs={12}>
           <div className="section-header">
             <h1 className="bold">Dashboard</h1>
@@ -37,18 +37,16 @@ function Dashboard(props) {
         </Col>
       </Row>
       <Row className="flex-grow-1">
-        <Col xs={3} className="d-flex flex-column">
+        <Col xs={3} className="d-flex flex-column justify-content-evenly">
           <DashboardMeterSelect />
-          <div className="my-auto">
-            <DashboardSelectedMeters
-              selectedMeters={selectedMeters}
-              deselectMeter={deselectMeter}
-              clearSelected={clearSelected}
-            />
-          </div>
+          <DashboardSelectedMeters
+            selectedMeters={selectedMeters}
+            deselectMeter={deselectMeter}
+            clearSelected={clearSelected}
+          />
         </Col>
       </Row>
-    </div>
+    </Row>
   );
 }
 

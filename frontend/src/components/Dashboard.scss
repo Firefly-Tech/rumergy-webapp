@@ -1,17 +1,10 @@
 // TODO: content card out of here somehow
-.dashboard-container {
-  padding-top: 20px;
-}
 
-.content-card {
-  flex-direction: column;
-  margin-bottom: 30px;
-}
+$card-border-color: transparent;
+$card-bg: $soft-green;
 
-.content-card-header {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
+.meter-list-card {
+  border-radius: 1rem;
 }
 
 .meter-select-search-button {

@@ -19,13 +19,6 @@ $hover-transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,
 @import "./components/Dashboard.scss";
 @import "./components/IconButton.scss";
 
-.content-card {
-  display: flex;
-  background-color: $soft-green;
-  padding: 10px;
-  border-radius: 20px;
-}
-
 .section-header {
   padding-bottom: 20px;
 }

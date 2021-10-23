@@ -5,6 +5,11 @@ $card-bg: $soft-green;
 
 .meter-list-card {
   border-radius: 1rem;
+
+  .meter-list-card-content {
+    height:0px;
+    max-height: 75%;
+  }
 }
 
 .meter-select-search-button {

@@ -25,7 +25,7 @@ function DashboardSelectedMeters(props) {
   };
 
   return (
-    <Card className="meter-list-card mb-sm-5 flex-fill">
+    <Card className="meter-list-card mb-sm-4 flex-fill">
       <Card.Title className="d-flex flex-row align-items-center px-3 pt-3">
         {(searchActive && (
           <SearchBar label={"Search"} searchFunction={meterSearch} />
@@ -38,7 +38,7 @@ function DashboardSelectedMeters(props) {
           />
         </div>
       </Card.Title>
-      <Card.Body className="d-flex flex-column mt-3 px-6">
+      <Card.Body className="meter-list-card-content d-flex flex-column overflow-auto mt-3 px-6">
         {props.selectedMeters.length !== 0 ? (
           searchActive ? (
             searchResults.map((meterName, index) => {
@@ -64,10 +64,11 @@ function DashboardSelectedMeters(props) {
             })
           )
         ) : (
-          <h5 className="text-center">No meters selected</h5>
+          <h5 className="text-center my-auto">No meters selected</h5>
         )}
+      </Card.Body>
         {props.selectedMeters.length !== 0 && !searchActive && (
-          <div className="meter-select-footer-button mt-auto">
+          <div className="d-flex flex-row flex-shrink-1 meter-select-footer-button mt-auto mb-3 px-3">
             <IconButton
               icon={<FaTimes />}
               optionalText={"Clear all"}
@@ -75,7 +76,6 @@ function DashboardSelectedMeters(props) {
             />
           </div>
         )}
-      </Card.Body>
     </Card>
   );
 }

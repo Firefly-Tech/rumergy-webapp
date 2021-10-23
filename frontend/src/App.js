@@ -23,8 +23,12 @@ function App() {
         <Redirect to={rootRedirect(userRole)} />
       </Route>
       <Container fluid className="overflow-hidden">
-        <Row className="vh-100 overflow-auto">
-          <Col sm={3} xl={2} className="d-flex flex-column sticky-top px-0 pr-sm-2">
+        <Row className="vh-100 overflow-hidden">
+          <Col
+            sm={3}
+            xl={2}
+            className="d-flex flex-column sticky-top px-0 pr-sm-2"
+          >
             <Sidebar userRole={userRole} />
           </Col>
           <Col className="pt-4 pt-sm-0">

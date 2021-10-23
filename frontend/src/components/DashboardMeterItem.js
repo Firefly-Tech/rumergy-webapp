@@ -5,7 +5,7 @@ import { FaPlus, FaMinus } from "react-icons/fa";
 
 function DashboardMeterItem(props) {
   return (
-    <div className="meter-item mb-2">
+    <div className="meter-item mb-3">
       <span className="meter-name">{props.meterName}</span>
       <div className="meter-item-button">
         <IconButton

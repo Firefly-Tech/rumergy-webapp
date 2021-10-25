@@ -8,6 +8,9 @@ import {
   FaInfoCircle,
   FaSignInAlt,
   FaSignOutAlt,
+  FaClipboardList,
+  FaClipboardCheck,
+  FaSatelliteDish,
 } from "react-icons/fa";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import Help from "./Help";
@@ -25,6 +28,25 @@ const sidebarData = [
     userRestrictions: [roles.General, roles.Advanced],
     icon: <FaInfoCircle className="fs-5" />,
   },
+  {
+    menuName: "Data Logging Scheduler",
+    link: "/data-logging-scheduler",
+    userRestrictions: [roles.Advanced],
+    icon: <FaClipboardList className="fs-5" />,
+  },
+  {
+    menuName: "Data Logs",
+    link: "/data-logs",
+    userRestrictions: [roles.Advanced],
+    icon: <FaClipboardCheck className="fs-5" />,
+  },
+  {
+    menuName: "Real Time Monitor",
+    link: "/real-time-monitor",
+    userRestrictions: [roles.Advanced],
+    icon: <FaSatelliteDish className="fs-5" />,
+  },
+
 ];
 
 function Sidebar(props) {

@@ -5,10 +5,11 @@ import { Container, Row, Col } from "react-bootstrap";
 import Sidebar from "./components/Sidebar";
 import { roles } from "./resources/constants";
 import Dashboard from "./components/Dashboard";
+import DataLoggingScheduler from "./components/DataLoggingScheduler";
 
 function App() {
-  const [userRole, setUserRole] = useState(roles.General);
-
+  const [userRole, setUserRole] = useState(roles.Advanced);
+  //Remember to change this to roles.General before push
   const rootRedirect = (role) => {
     return (
       ((userRole === roles.General || userRole === roles.Advanced) &&
@@ -33,6 +34,11 @@ function App() {
                 <Redirect to="/admin/manage-meters" />
               )) || <Dashboard />}
             </Route>
+            <Route path = "/data-logging-scheduler">
+            {(userRole === roles.Admin && (
+                <Redirect to="/admin/manage-meters" />
+              )) || <DataLoggingScheduler />}
+            </Route>  
           </Col>
         </Row>
       </Container>

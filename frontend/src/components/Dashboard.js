@@ -1,54 +1,73 @@
-import { React, useState } from "react";
+import { React, useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { Col, Row } from "react-bootstrap";
 import DashboardMeterSelect from "./DashboardMeterSelect";
 import DashboardSelectedMeters from "./DashboardSelectedMeters";
 
+const testMeterList = [
+  { id: 1, name: "Stefani 1" },
+  { id: 2, name: "Chardon 1" },
+  { id: 3, name: "Stefani 2" },
+];
 function Dashboard(props) {
-  const [meterList, setMeterList] = useState({}); // Available meters, name keys
-  const [selectedMeters, setSelectedMeters] = useState([
-    "test",
-    "hey",
-    "yo",
-    "tesifj",
-  ]); // List of selected meters
+  const [meterList, setMeterList] = useState([]);
+  const [selectedMeters, setSelectedMeters] = useState([]);
+  const [meterNames, setMeterNames] = useState([]);
 
+  // TODO: Add meter list fetch here
+  useEffect(() => {
+    setMeterList(testMeterList);
+    setMeterNames(
+      meterList.map((meter) => {
+        return meter.name;
+      })
+    );
+  }, [meterList]);
+
+  // Meter list handling functions
   const selectMeter = (name) => {
     setSelectedMeters([...selectedMeters, name]);
+    setMeterNames(meterNames.filter((meterName) => meterName !== name));
   };
-
   const deselectMeter = (name) => {
     setSelectedMeters(selectedMeters.filter((meterName) => meterName !== name));
+    setMeterNames([...meterNames, name]);
   };
-
   const clearSelected = () => {
+    setMeterNames([...meterNames, ...selectedMeters]);
     setSelectedMeters([]);
+  };
+  const selectAllMeters = () => {
+    setSelectedMeters([...selectedMeters, ...meterNames]);
+    setMeterNames([]);
   };
 
   // TODO: meter list fetch, get meter data req
 
   return (
-    <div className="dashboard-container">
-      <Row>
-        <Col xs={12}>
-          <div className="section-header">
+    <Row className="h-100">
+      <Col className="d-flex flex-column px-4 pt-4">
+        <Row>
+          <Col sm={12} className="pb-4">
             <h1 className="bold">Dashboard</h1>
-          </div>
-        </Col>
-      </Row>
-      <Row className="flex-grow-1">
-        <Col xs={3} className="d-flex flex-column">
-          <DashboardMeterSelect />
-          <div className="my-auto">
+          </Col>
+        </Row>
+        <Row className="flex-grow-1">
+          <Col sm={3} className="d-flex flex-column justify-content-evenly">
+            <DashboardMeterSelect
+              meterList={meterNames}
+              selectMeter={selectMeter}
+              selectAll={selectAllMeters}
+            />
             <DashboardSelectedMeters
               selectedMeters={selectedMeters}
               deselectMeter={deselectMeter}
               clearSelected={clearSelected}
             />
-          </div>
-        </Col>
-      </Row>
-    </div>
+          </Col>
+        </Row>
+      </Col>
+    </Row>
   );
 }
 

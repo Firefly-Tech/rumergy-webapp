@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import { Col, Row } from "react-bootstrap";
 import DashboardMeterSelect from "./DashboardMeterSelect";
 import DashboardSelectedMeters from "./DashboardSelectedMeters";
+import DashboardVisualization from "./DashboardVisualization";
 
 const testMeterList = [
   { id: 1, name: "Stefani 1" },
@@ -64,6 +65,9 @@ function Dashboard(props) {
               deselectMeter={deselectMeter}
               clearSelected={clearSelected}
             />
+          </Col>
+          <Col sm={9} className="d-flex flex-column justify-content-evenly">
+            <DashboardVisualization />
           </Col>
         </Row>
       </Col>

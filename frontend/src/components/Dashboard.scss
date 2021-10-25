@@ -7,7 +7,7 @@ $card-bg: $soft-green;
   border-radius: 1rem;
 
   .meter-list-card-content {
-    height:0px;
+    height: 0px;
     max-height: 75%;
   }
 }
@@ -46,4 +46,8 @@ $card-bg: $soft-green;
       font-size: 1.1em;
     }
   }
+}
+
+.dashboard-data-visualization-card {
+  border-radius: 1rem;
 }

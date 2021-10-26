@@ -16,6 +16,7 @@ $theme-colors: (
 $hover-transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,
   border-color 0.15s ease-in-out;
 
+
 @import "./components/Sidebar.scss";
 @import "./components/Help.scss";
 @import "./components/Dashboard.scss";

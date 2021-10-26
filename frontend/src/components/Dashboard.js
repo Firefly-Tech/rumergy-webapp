@@ -1,6 +1,6 @@
 import { React, useState, useEffect } from "react";
 import PropTypes from "prop-types";
-import { Col, Row } from "react-bootstrap";
+import { Col, Row, Modal, Button, Spinner } from "react-bootstrap";
 import DashboardMeterSelect from "./DashboardMeterSelect";
 import DashboardSelectedMeters from "./DashboardSelectedMeters";
 import DashboardVisualization from "./DashboardVisualization";
@@ -23,13 +23,35 @@ const testData = {
     },
   ],
 };
+const DAY_IN_MILLISECONDS = 24 * 60 * 60 * 1000;
+
 function Dashboard(props) {
   const [meterList, setMeterList] = useState([]);
-  const [selectedMeters, setSelectedMeters] = useState([]);
   const [meterNames, setMeterNames] = useState([]);
-  const [selectedTimeframe, setSelectedTimeframe] = useState("24h");
-  const [selectedDatatype, setSelectedDatatype] = useState("consumption");
   const [meterData, setMeterData] = useState({});
+  const [meterIDList, setMeterIDList] = useState([]);
+  const [selectedTimeframe, setSelectedTimeframe] = useState();
+  const [selectedDatatype, setSelectedDatatype] = useState("consumption");
+  const [selectedMeters, setSelectedMeters] = useState([]);
+
+  const [show, setShow] = useState(false);
+  const [errorName, setErrorName] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const [loading, setLoading] = useState(false);
+
+  /* HOOKS */
+
+  useEffect(() => {
+    var idList = meterList
+      .filter((meter) => {
+        return selectedMeters.includes(meter.name);
+      })
+      .map((meter) => {
+        return meter.id;
+      });
+    setMeterIDList(idList);
+  }, [selectedMeters]);
 
   // TODO: Add meter list fetch here
   useEffect(() => {
@@ -41,7 +63,8 @@ function Dashboard(props) {
     );
   }, [meterList]);
 
-  // Meter list handling functions
+  /* METER LIST HANDLERS */
+
   const selectMeter = (name) => {
     setSelectedMeters([...selectedMeters, name]);
     setMeterNames(meterNames.filter((meterName) => meterName !== name));
@@ -59,41 +82,90 @@ function Dashboard(props) {
     setMeterNames([]);
   };
 
-  // TODO: meter list fetch, get meter data req
+  /* ERROR MODAL HANDLERS */
+  const handleClose = () => setShow(false);
+  const handleShow = () => setShow(true);
+
+  /* METER DATA FETCH HANDLERS */
+  const handleFetch = () => {
+    if (!(selectedMeters.length > 0)) {
+      handleShow();
+      setErrorName("No meters selected");
+      setErrorMessage("Select at least one meter to sync the data.");
+    } else fetchData();
+  };
+  // TODO: Add data fetch here
+  // Two cases: single meter, multiple
+  // For single: get data depending on time frame
+  // For multiple: aggregation, should be done in backen
+  const fetchData = () => {
+    setLoading(true);
+
+    var startingDateTime = new Date(Date.now() - selectedTimeframe).toISOString()
+    console.log(new Date(Date.now()).toISOString())
+    console.log(startingDateTime)
+
+    if (meterIDList.length > 1) {
+    } else {
+    }
+
+    setMeterData(testData);
+    setLoading(false);
+  };
 
   return (
-    <Row className="h-100">
-      <Col className="d-flex flex-column px-4 pt-4">
-        <Row>
-          <Col sm={12} className="pb-4">
-            <h1 className="bold">Dashboard</h1>
-          </Col>
-        </Row>
-        <Row className="flex-grow-1">
-          <Col sm={3} className="d-flex flex-column justify-content-evenly">
-            <DashboardMeterSelect
-              meterList={meterNames}
-              selectMeter={selectMeter}
-              selectAll={selectAllMeters}
-            />
-            <DashboardSelectedMeters
-              selectedMeters={selectedMeters}
-              deselectMeter={deselectMeter}
-              clearSelected={clearSelected}
-            />
-          </Col>
-          <Col sm={9} className="d-flex flex-column justify-content-evenly">
-            <DashboardVisualization
-              selectedDatatype={selectedDatatype}
-              selectedTimeframe={selectedTimeframe}
-              setSelectedDatatype={setSelectedDatatype}
-              setSelectedTimeframe={setSelectedTimeframe}
-              data={meterData}
-            />
-          </Col>
-        </Row>
-      </Col>
-    </Row>
+    <>
+      <Row className="h-100">
+        <Col className="d-flex flex-column px-4 pt-4">
+          <Row>
+            <Col
+              sm={12}
+              className="d-flex flex-row align-items-center pb-4 gap-4"
+            >
+              <h1 className="bold mb-0">Dashboard</h1>
+              {loading && <Spinner variant="secondary" animation="border" />}
+            </Col>
+          </Row>
+          <Row className="flex-grow-1">
+            <Col sm={3} className="d-flex flex-column justify-content-evenly">
+              <DashboardMeterSelect
+                meterList={meterNames}
+                selectMeter={selectMeter}
+                selectAll={selectAllMeters}
+              />
+              <DashboardSelectedMeters
+                selectedMeters={selectedMeters}
+                deselectMeter={deselectMeter}
+                clearSelected={clearSelected}
+              />
+            </Col>
+            <Col sm={9} className="d-flex flex-column justify-content-evenly">
+              <DashboardVisualization
+                selectedDatatype={selectedDatatype}
+                selectedTimeframe={selectedTimeframe}
+                setSelectedDatatype={setSelectedDatatype}
+                setSelectedTimeframe={setSelectedTimeframe}
+                data={meterData}
+                handleFetch={handleFetch}
+              />
+            </Col>
+          </Row>
+        </Col>
+      </Row>
+      <Modal centered size="lg" show={show} onHide={handleClose}>
+        <Modal.Header closeButton>
+          <Modal.Title>
+            <h4 className="bold">{errorName}</h4>
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>{errorMessage}</Modal.Body>
+        <Modal.Footer>
+          <Button variant="primary" onClick={handleClose}>
+            Okay
+          </Button>
+        </Modal.Footer>
+      </Modal>
+    </>
   );
 }
 

@@ -10,10 +10,26 @@ const testMeterList = [
   { id: 2, name: "Chardon 1" },
   { id: 3, name: "Stefani 2" },
 ];
+
+const testData = {
+  labels: ["1", "2", "3", "4", "5", "6"],
+  datasets: [
+    {
+      label: "# of Votes",
+      data: [12, 19, 3, 5, 2, 3],
+      fill: false,
+      backgroundColor: "rgb(255, 99, 132)",
+      borderColor: "rgba(255, 99, 132, 0.2)",
+    },
+  ],
+};
 function Dashboard(props) {
   const [meterList, setMeterList] = useState([]);
   const [selectedMeters, setSelectedMeters] = useState([]);
   const [meterNames, setMeterNames] = useState([]);
+  const [selectedTimeframe, setSelectedTimeframe] = useState("24h");
+  const [selectedDatatype, setSelectedDatatype] = useState("consumption");
+  const [meterData, setMeterData] = useState({});
 
   // TODO: Add meter list fetch here
   useEffect(() => {
@@ -67,7 +83,13 @@ function Dashboard(props) {
             />
           </Col>
           <Col sm={9} className="d-flex flex-column justify-content-evenly">
-            <DashboardVisualization />
+            <DashboardVisualization
+              selectedDatatype={selectedDatatype}
+              selectedTimeframe={selectedTimeframe}
+              setSelectedDatatype={setSelectedDatatype}
+              setSelectedTimeframe={setSelectedTimeframe}
+              data={meterData}
+            />
           </Col>
         </Row>
       </Col>

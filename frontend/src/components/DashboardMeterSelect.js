@@ -1,9 +1,9 @@
-import { React, useState, useEffect } from "react";
 import PropTypes from "prop-types";
+import { React, useEffect, useState } from "react";
+import { Card } from "react-bootstrap";
+import { FaPlus, FaSearch } from "react-icons/fa";
 import DashboardMeterItem from "./DashboardMeterItem";
-import { FaSearch, FaTimes, FaPlus } from "react-icons/fa";
 import IconButton from "./IconButton";
-import { Row, Col, Card } from "react-bootstrap";
 import SearchBar from "./SearchBar";
 
 function DashboardSelectedMeters(props) {

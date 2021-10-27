@@ -94,19 +94,21 @@ function Dashboard(props) {
       setErrorMessage("Select at least one meter to sync the data.");
     } else fetchData();
   };
+
   // TODO: Add data fetch here
-  // Two cases: single meter, multiple
-  // For single: get data depending on time frame
-  // For multiple: aggregation, should be done in backen
   const fetchData = () => {
     setLoading(true);
 
-    var startingDateTime = new Date(Date.now() - selectedTimeframe).toISOString()
-    console.log(new Date(Date.now()).toISOString())
-    console.log(startingDateTime)
+    var startingDateTime = new Date(
+      Date.now() - selectedTimeframe
+    ).toISOString();
 
     if (meterIDList.length > 1) {
+      // Multiple meters
+
+
     } else {
+      // Single meter
     }
 
     setMeterData(testData);

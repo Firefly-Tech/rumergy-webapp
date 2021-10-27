@@ -103,7 +103,7 @@ AUTH_USER_MODEL = "rumergy.User"
 
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = "America/Puerto_Rico"
+TIME_ZONE = "UTC"
 
 USE_I18N = True
 

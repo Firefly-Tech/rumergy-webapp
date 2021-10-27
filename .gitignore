@@ -28,4 +28,4 @@ yarn-error.log*
 
 db.cnf
 .env
-**/__pycache__
+__pycache__/

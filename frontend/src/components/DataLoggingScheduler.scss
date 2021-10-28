@@ -1,8 +1,14 @@
-.dataLoggingScheduler-container{
-    padding-top: 20px;
-}
+$card-border-color: transparent;
+$card-bg: $soft-green;
 
-content-card-DL {
-    flex-direction: column;
-    margin-bottom: 30px;
+.DLS-card {
+    border-radius: 1rem;
+    
+
+    .building-content{
+    height: 0px;
+    max-height: 75%;
+    
+
+    }
   }

@@ -9,8 +9,10 @@ class RumergyObtainPairSerializer(TokenObtainPairSerializer):
         data["access"] = str(refresh.access_token)
 
         # Extra responses
-        data["id"] = self.user.id
-        data["username"] = self.user.username
-        data["role"] = self.user.profile.role
+        data["user"] = {
+            "id": self.user.id,
+            "username": self.user.username,
+            "role": self.user.profile.role,
+        }
 
         return data

@@ -30,7 +30,7 @@ function Dashboard(props) {
   const [meterNames, setMeterNames] = useState([]);
   const [meterData, setMeterData] = useState({});
   const [meterIDList, setMeterIDList] = useState([]);
-  const [selectedTimeframe, setSelectedTimeframe] = useState();
+  const [selectedTimeframe, setSelectedTimeframe] = useState(DAY_IN_MILLISECONDS);
   const [selectedDatatype, setSelectedDatatype] = useState("consumption");
   const [selectedMeters, setSelectedMeters] = useState([]);
 

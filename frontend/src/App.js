@@ -1,10 +1,16 @@
 import { React, useState } from "react";
 import "./App.scss";
-import { BrowserRouter as Router, Route, Redirect } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Route,
+  Redirect,
+  Switch,
+} from "react-router-dom";
 import { Container, Row, Col } from "react-bootstrap";
 import Sidebar from "./components/Sidebar";
 import { roles } from "./resources/constants";
 import Dashboard from "./components/Dashboard";
+import Login from "./components/Login";
 
 function App() {
   const [userRole, setUserRole] = useState(roles.General);
@@ -29,14 +35,21 @@ function App() {
             xl={2}
             className="d-flex flex-column sticky-top px-0 pr-sm-2"
           >
-            <Sidebar userRole={userRole} />
+            <Route path={/^(?!.*login).*$/}>
+              <Sidebar userRole={userRole} />
+            </Route>
           </Col>
           <Col className="pt-4 pt-sm-0">
-            <Route path="/dashboard">
-              {(userRole === roles.Admin && (
-                <Redirect to="/admin/manage-meters" />
-              )) || <Dashboard />}
-            </Route>
+            <Switch>
+              <Route path="/dashboard">
+                {(userRole === roles.Admin && (
+                  <Redirect to="/admin/manage-meters" />
+                )) || <Dashboard />}
+              </Route>
+              <Route path="/login">
+                <Login />
+              </Route>
+            </Switch>
           </Col>
         </Row>
       </Container>

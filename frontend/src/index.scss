@@ -19,3 +19,15 @@ html {
 
 @import "./App.scss";
 @import "~bootstrap/scss/bootstrap";
+
+@include media-breakpoint-up(sm) {
+  .login-form {
+    padding: 0 100px 0 100px;
+  }
+}
+
+@include media-breakpoint-up(xl) {
+  .login-form {
+    padding: 0 300px 0 300px;
+  }
+}

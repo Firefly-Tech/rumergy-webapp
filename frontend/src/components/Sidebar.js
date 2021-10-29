@@ -11,6 +11,7 @@ import {
 } from "react-icons/fa";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import Help from "./Help";
+import { useAuth } from "../resources/use-auth";
 
 const sidebarData = [
   {
@@ -29,13 +30,14 @@ const sidebarData = [
 
 function Sidebar(props) {
   const location = useLocation();
+  const auth = useAuth();
 
   const checkRestrictions = (restrictions) => {
-    return restrictions.includes(props.userRole);
+    return restrictions.includes(auth.role);
   };
 
   const isLoggedIn = () => {
-    return props.userRole !== roles.General;
+    return auth.user !== null;
   };
 
   return (
@@ -89,9 +91,5 @@ function Sidebar(props) {
     </div>
   );
 }
-
-Sidebar.propTypes = {
-  userRole: PropTypes.string,
-};
 
 export default Sidebar;

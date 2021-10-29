@@ -1,4 +1,4 @@
-import { React, useState } from "react";
+import { React } from "react";
 import "./App.scss";
 import {
   BrowserRouter as Router,
@@ -11,43 +11,50 @@ import Sidebar from "./components/Sidebar";
 import { roles } from "./resources/constants";
 import Dashboard from "./components/Dashboard";
 import Login from "./components/Login";
+import { useAuth } from "./resources/use-auth";
 
 function App() {
-  const [userRole, setUserRole] = useState(roles.General);
+  const auth = useAuth();
 
-  const rootRedirect = (role) => {
+  const rootRedirect = () => {
     return (
-      ((userRole === roles.General || userRole === roles.Advanced) &&
+      ((auth.role === roles.General || auth.role === roles.Advanced) &&
         "/dashboard") ||
       "/admin/manage-meters"
     );
   };
 
+  console.log(auth.role);
+
   return (
     <Router>
-      <Route path="/" exact>
-        <Redirect to={rootRedirect(userRole)} />
-      </Route>
       <Container fluid className="overflow-hidden">
         <Row className="vh-100 overflow-hidden">
-          <Col
-            sm={3}
-            xl={2}
-            className="d-flex flex-column sticky-top px-0 pr-sm-2"
-          >
-            <Route path={/^(?!.*login).*$/}>
-              <Sidebar userRole={userRole} />
-            </Route>
-          </Col>
-          <Col className="pt-4 pt-sm-0">
+          <Route path={/^(?!.*login).*$/}>
+            <Col
+              sm={3}
+              xl={2}
+              className="d-flex flex-column sticky-top px-0 pr-sm-2"
+            >
+              <Sidebar />
+            </Col>
+          </Route>
+          <Col className="pt-sm-4 pt-sm-0">
             <Switch>
               <Route path="/dashboard">
-                {(userRole === roles.Admin && (
+                {(auth.role === roles.Admin && (
                   <Redirect to="/admin/manage-meters" />
                 )) || <Dashboard />}
               </Route>
               <Route path="/login">
                 <Login />
+              </Route>
+              <Route path="/" exact>
+                <Redirect to={rootRedirect()} />
+              </Route>
+              {/* TODO: Add 404 page */}
+              <Route path="*">
+                <h3>Page not found</h3>
               </Route>
             </Switch>
           </Col>

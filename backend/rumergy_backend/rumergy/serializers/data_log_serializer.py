@@ -1,7 +1,10 @@
 from rest_framework import serializers
-from .models.data_points import DataLog
+from rumergy_backend.rumergy.models import DataLog
 
 class DataLogSerializer(serializers.ModelSerializer):
+    meters = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+    users = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+    
     class Meta:
         model = DataLog
-        fields = '__all__'
+        fields = ['start_date', 'end_date', 'meters', 'users']

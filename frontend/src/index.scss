@@ -20,6 +20,8 @@ html {
 @import "./App.scss";
 @import "~bootstrap/scss/bootstrap";
 
+// Things that use media queries must go under here
+
 @include media-breakpoint-up(sm) {
   .login-form {
     padding: 0 100px 0 100px;
@@ -29,5 +31,12 @@ html {
 @include media-breakpoint-up(xl) {
   .login-form {
     padding: 0 300px 0 300px;
+  }
+}
+
+@include media-breakpoint-up(xl) {
+  .login-rumergy-logo {
+    max-width: 60%;
+    height: auto;
   }
 }

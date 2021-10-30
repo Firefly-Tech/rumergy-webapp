@@ -13,6 +13,8 @@ import Dashboard from "./components/Dashboard";
 import Login from "./components/Login";
 import { useAuth } from "./resources/use-auth";
 
+const includeSidebar = ["/dashboard*", "/admin*", "/advanced*", "/about*"];
+
 function App() {
   const auth = useAuth();
 
@@ -30,7 +32,7 @@ function App() {
     <Router>
       <Container fluid className="overflow-hidden">
         <Row className="vh-100 overflow-hidden">
-          <Route path={/^(?!.*login).*$/}>
+          <Route path={includeSidebar}>
             <Col
               sm={3}
               xl={2}
@@ -39,7 +41,7 @@ function App() {
               <Sidebar />
             </Col>
           </Route>
-          <Col className="pt-sm-4 pt-sm-0">
+          <Col className="pt-sm-0">
             <Switch>
               <Route path="/dashboard">
                 {(auth.role === roles.Admin && (

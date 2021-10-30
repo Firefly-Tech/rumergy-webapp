@@ -18,6 +18,7 @@ const includeSidebar = ["/dashboard*", "/admin*", "/advanced*", "/about*"];
 function App() {
   const auth = useAuth();
 
+  // TODO: Add redirect for INA user
   const rootRedirect = () => {
     return (
       ((auth.role === roles.General || auth.role === roles.Advanced) &&
@@ -25,8 +26,6 @@ function App() {
       "/admin/manage-meters"
     );
   };
-
-  console.log(auth.role);
 
   return (
     <Router>

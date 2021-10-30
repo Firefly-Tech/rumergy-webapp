@@ -1,33 +1,63 @@
 import { Formik } from "formik";
 import { React, useState } from "react";
 import { Button, Col, Form, InputGroup, Row, Spinner } from "react-bootstrap";
+import ErrorModal from "./ErrorModal";
 import { FaArrowLeft } from "react-icons/fa";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import * as Yup from "yup";
 import logo from "../resources/RUMergy-logos_black.png";
 import { useAuth } from "../resources/use-auth";
-import axios from "axios"
+import axios from "axios";
 
 const loginFormSchema = Yup.object().shape({
   username: Yup.string()
     .min(4, "Must be at least 4 characters")
     .max(20, "Must be less than 20 characters")
     .required("Username required")
-    .matches(/^[a-zA-Z0-9]+$/, "Cannot contain special characters or spaces"),
+    .matches(
+      /^[a-zA-Z0-9]+([._]?[a-zA-Z0-9]+)*$/,
+      "Cannot contain special characters or spaces"
+    ),
   password: Yup.string()
     .min(8, "Must be at least 8 characters")
     .required("Password required"),
 });
 
 export default function Login() {
-  const [loading, setLoading] = useState(false);
-  const auth = useAuth();
-  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+  const [show, setShow] = useState(false);
+  const [errorName, setErrorName] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
-  const handleSubmit = async (e) => {
+  const [loading, setLoading] = useState(false);
+
+  const auth = useAuth();
+  const history = useHistory();
+
+  const handleClose = () => setShow(false);
+  const handleShow = () => setShow(true);
+
+  const handleSignin = async (username, password) => {
+    let status = await auth.signin(username, password);
+    if (status !== "OK") {
+      if (status === "Unauthorized") {
+        setErrorName("Invalid credentials");
+        setErrorMessage("Provided credentials are invalid.");
+      } else {
+        setErrorName("Error");
+        setErrorMessage("An error occurred. Please try again.");
+      }
+      return handleShow;
+    } else {
+      return () => history.push("/");
+    }
+  };
+
+  const handleSubmit = async (values, { setSubmitting }) => {
     setLoading(true);
-    await sleep(1000);
+    let resultAction = await handleSignin(values.username, values.password);
+    setSubmitting(false);
     setLoading(false);
+    resultAction();
   };
 
   return (
@@ -117,6 +147,12 @@ export default function Login() {
           </div>
         </Col>
       </Row>
+      <ErrorModal
+        show={show}
+        handleClose={handleClose}
+        errorMessage={errorMessage}
+        errorName={errorName}
+      />
     </>
   );
 }

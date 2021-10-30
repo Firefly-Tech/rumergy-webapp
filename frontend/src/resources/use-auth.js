@@ -1,11 +1,10 @@
 import React, { useState, useEffect, useContext, createContext } from "react";
 import PropTypes from "prop-types";
-import dotenv from "dotenv";
 import axios from "axios";
 import { roles } from "./constants";
 
 const authContext = createContext();
-const apiHost = dotenv.config("API_HOST");
+const apiHost = process.env.REACT_APP_API_HOST;
 
 // Provider component that wraps your app and makes auth object ...
 // ... available to any child component that calls useAuth().
@@ -31,23 +30,26 @@ function useProvideAuth() {
 
   const signin = (username, password) => {
     return axios
-      .post(`${apiHost}/api/token`, {
+      .post(`${apiHost}/api/token/`, {
         username: username,
         password: password,
       })
       .then((res) => {
-        if (!("user" in res.data)) {
-          return false;
-        }
         setAccessToken(res.data.access);
         setUser(res.data.user);
         setRole(res.data.user.role);
         localStorage.setItem("refresh", res.data.refresh);
 
-        return true;
+        return "OK";
       })
-      .catch((err) => {
-        return false;
+      .catch((error) => {
+        if (error.response) {
+          return "Unauthorized";
+        } else if (error.request) {
+          return "No response";
+        } else {
+          return "Unknown error";
+        }
       });
   };
   const signup = (username, password, email, firstName, lastName) => {};
@@ -59,7 +61,9 @@ function useProvideAuth() {
 
     return true;
   };
-  const getBearer = () => {};
+  const getAuthBearer = () => {
+    return `Bearer ${accessToken}`;
+  };
   const sendPasswordResetEmail = (email) => {};
   const confirmPasswordReset = (code, password) => {};
 
@@ -68,17 +72,28 @@ function useProvideAuth() {
   // ... component that utilizes this hook to re-render with the ...
   // ... latest auth object.
 
-  // TODO: Here should go refresh token validity check (onEveryMount)
+  // TODO: Add error catching and other cases
   useEffect(() => {
-    // const unsubscribe = firebase.auth().onAuthStateChanged((user) => {
-    //   if (user) {
-    //     setUser(user);
-    //   } else {
-    //     setUser(false);
-    //   }
-    // });
-    // // Cleanup subscription on unmount
-    // return () => unsubscribe();
+    const unsubscribe = () => {
+      axios
+        .post(`${apiHost}/api/refresh/`, {
+          refresh: localStorage.getItem("refresh"),
+        })
+        .then((res) => {
+          setAccessToken(res.data.access);
+        });
+      axios
+        .get(`${apiHost}/api/users/get_user_from_auth`, {
+          headers: { Authorization: getAuthBearer() },
+        })
+        .then((res) => {
+          let temp = res.data.user;
+          const { profile, ...user } = temp;
+          setUser(user);
+          setRole(profile.role);
+        });
+    };
+    return () => unsubscribe();
   }, []);
   // Return the user object and auth methods
   return {

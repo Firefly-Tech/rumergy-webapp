@@ -1,4 +1,5 @@
 from django.db import models
+# from . import Model
 
 class DataPoints(models.Model):
     name = models.CharField(max_length=100)
@@ -28,4 +29,4 @@ class DataPoints(models.Model):
 
     register_type = models.CharField(max_length=4,choices=REGISTER_TYPE, default=HOLDING)   
 
-    # model = models.ForeignKey(Model, on_delete=models.PROTECT)
+    # model = models.ForeignKey(Model, related_name='data_points' on_delete=models.PROTECT)

@@ -7,17 +7,13 @@ import { Link, useHistory } from "react-router-dom";
 import * as Yup from "yup";
 import logo from "../resources/RUMergy-logos_black.png";
 import { useAuth } from "../resources/use-auth";
-import axios from "axios";
 
 const loginFormSchema = Yup.object().shape({
   username: Yup.string()
     .min(4, "Must be at least 4 characters")
     .max(20, "Must be less than 20 characters")
     .required("Username required")
-    .matches(
-      /^[a-zA-Z0-9]+([._]?[a-zA-Z0-9]+)*$/,
-      "Cannot contain special characters or spaces"
-    ),
+    .matches(/^[a-zA-Z0-9]+([._]?[a-zA-Z0-9]+)*$/, "Invalid username format"),
   password: Yup.string()
     .min(8, "Must be at least 8 characters")
     .required("Password required"),

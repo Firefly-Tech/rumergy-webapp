@@ -1,7 +1,7 @@
 from django.db import models
 # from . import Model
 
-class DataPoints(models.Model):
+class DataPoint(models.Model):
     name = models.CharField(max_length=100)
     unit = models.CharField(max_length=10)
     start_address = models.PositiveSmallIntegerField()
@@ -14,7 +14,7 @@ class DataPoints(models.Model):
                 (FLOAT, 'Float'),
                 ]
     
-    data_type = models.CharField(max_length=3, choices= DATA_TYPES, default=INTEGER)
+    data_type = models.CharField(max_length=3, choices= DATA_TYPES, default=FLOAT)
 
     COIL = 'COIL'
     DISCRETE = 'DISC'

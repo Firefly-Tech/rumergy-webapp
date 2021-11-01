@@ -2,12 +2,14 @@
 
 $card-border-color: transparent;
 $card-bg: $soft-green;
+$btn-active-bg-tint-amount: 70%;
+$btn-active-border-tint-amount: 70%;
 
 .meter-list-card {
   border-radius: 1rem;
 
   .meter-list-card-content {
-    height:0px;
+    height: 0px;
     max-height: 75%;
   }
 }
@@ -46,4 +48,20 @@ $card-bg: $soft-green;
       font-size: 1.1em;
     }
   }
+}
+
+.dashboard-data-visualization-card {
+  border-radius: 1rem;
+}
+
+.timeframe-button {
+  border-radius: 1rem;
+}
+
+.chart {
+  border-radius: 1rem;
+}
+
+.chart-bg-color {
+  background-color: $light-grey;
 }

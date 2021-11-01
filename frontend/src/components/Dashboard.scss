@@ -1,0 +1,49 @@
+// TODO: content card out of here somehow
+
+$card-border-color: transparent;
+$card-bg: $soft-green;
+
+.meter-list-card {
+  border-radius: 1rem;
+
+  .meter-list-card-content {
+    height:0px;
+    max-height: 75%;
+  }
+}
+
+.meter-select-search-button {
+  margin-left: auto;
+  .icon-button {
+    color: black;
+    font-size: 1.1em;
+  }
+}
+
+.meter-select-footer-button {
+  margin-left: auto;
+  .icon-button {
+    color: black;
+    font-size: 1em;
+  }
+}
+
+.meter-item {
+  display: flex;
+  align-items: center;
+  background-color: $light-grey;
+  padding: 5px 5px 5px 10px;
+  border-radius: 20px;
+
+  .meter-name {
+    padding-left: 10px;
+  }
+
+  .meter-item-button {
+    margin-left: auto;
+    .icon-button {
+      color: black;
+      font-size: 1.1em;
+    }
+  }
+}

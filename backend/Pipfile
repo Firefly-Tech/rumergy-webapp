@@ -11,6 +11,8 @@ django-filter = "*"
 mysqlclient = "*"
 djangorestframework-simplejwt = "*"
 python-decouple = "*"
+pyjwt = "~=2.1.0"
+django-cors-headers = "*"
 
 [dev-packages]
 

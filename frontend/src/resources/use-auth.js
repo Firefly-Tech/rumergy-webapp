@@ -28,6 +28,11 @@ function useProvideAuth() {
   const [role, setRole] = useState(roles.General);
   const [accessToken, setAccessToken] = useState(null);
 
+  // App user
+  // For non-logged in requests
+  const [appAccessToken, setAppAccessToken] = useState(null);
+  const [appRefreshToken, setAppRefreshToken] = useState(null);
+
   const signin = (username, password) => {
     return axios
       .post(`${apiHost}/api/token/`, {
@@ -67,6 +72,12 @@ function useProvideAuth() {
   const sendPasswordResetEmail = (email) => {};
   const confirmPasswordReset = (code, password) => {};
 
+  const withAppUser = () => {
+    if (!appRefreshToken) {
+      // Login and get tokens
+    }
+  };
+
   // Subscribe to user on mount
   // Because this sets state in the callback it will cause any ...
   // ... component that utilizes this hook to re-render with the ...
@@ -74,26 +85,23 @@ function useProvideAuth() {
 
   // TODO: Add error catching and other cases
   useEffect(() => {
-    const unsubscribe = () => {
-      axios
-        .post(`${apiHost}/api/refresh/`, {
-          refresh: localStorage.getItem("refresh"),
-        })
-        .then((res) => {
-          setAccessToken(res.data.access);
-        });
-      axios
-        .get(`${apiHost}/api/users/get_user_from_auth`, {
-          headers: { Authorization: getAuthBearer() },
-        })
-        .then((res) => {
-          let temp = res.data.user;
-          const { profile, ...user } = temp;
-          setUser(user);
-          setRole(profile.role);
-        });
-    };
-    return () => unsubscribe();
+    axios
+      .post(`${apiHost}/api/refresh/`, {
+        refresh: localStorage.getItem("refresh"),
+      })
+      .then((res) => {
+        setAccessToken(res.data.access);
+      });
+    axios
+      .get(`${apiHost}/api/users/get_user_from_auth`, {
+        headers: { Authorization: getAuthBearer() },
+      })
+      .then((res) => {
+        let temp = res.data.user;
+        const { profile, ...user } = temp;
+        setUser(user);
+        setRole(profile.role);
+      });
   }, []);
   // Return the user object and auth methods
   return {

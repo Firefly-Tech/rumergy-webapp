@@ -5,7 +5,7 @@ from rumergy_backend.rumergy import views
 from rest_framework.routers import DefaultRouter
 
 router = DefaultRouter()
-router.register(r"api/users", views.UserViewSet)
+router.register(r"api/users", views.UserViewSet, basename="users")
 
 urlpatterns = [
     path("", include(router.urls)),

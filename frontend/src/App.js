@@ -10,7 +10,7 @@ import { Container, Row, Col } from "react-bootstrap";
 import Sidebar from "./components/Sidebar";
 import { roles } from "./resources/constants";
 import Dashboard from "./components/Dashboard";
-import Login from "./components/Login";
+import LoginPages from "./components/LoginPages";
 import { useAuth } from "./resources/use-auth";
 
 const includeSidebar = ["/dashboard*", "/admin*", "/advanced*", "/about*"];
@@ -48,7 +48,7 @@ function App() {
                 )) || <Dashboard />}
               </Route>
               <Route path="/login">
-                <Login />
+                <LoginPages />
               </Route>
               <Route path="/" exact>
                 <Redirect to={rootRedirect()} />

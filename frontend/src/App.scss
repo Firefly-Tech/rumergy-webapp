@@ -9,7 +9,7 @@ $blinding-green: #d2f898;
 $special-red: #ff4242;
 $theme-colors: (
   "primary": $blinding-green,
-  "secondary": $dark-green,
+  "secondary": $dark-grey,
   "light": $light-grey,
 );
 $input-bg: white;
@@ -23,7 +23,3 @@ $hover-transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,
 @import "./components/Dashboard.scss";
 @import "./components/IconButton.scss";
 @import "./components/Login.scss";
-
-.section-header {
-  padding-bottom: 20px;
-}

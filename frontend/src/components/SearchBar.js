@@ -2,8 +2,6 @@ import React from "react";
 import PropsTypes from "prop-types";
 import { FloatingLabel, Form } from "react-bootstrap";
 
-// TODO: Finish props, actions, styling
-
 function SearchBar(props) {
   return (
     <Form

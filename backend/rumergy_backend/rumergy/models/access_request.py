@@ -6,7 +6,9 @@ from . import UserProfile
 class AccessRequest(models.Model):
     """Access request model"""
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="access_request"
+    )
     timestamp = models.DateTimeField(auto_now_add=True)
     ocupation = models.CharField(max_length=20, default="None")
     justification = models.CharField(

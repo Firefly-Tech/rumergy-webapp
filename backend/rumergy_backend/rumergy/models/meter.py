@@ -10,8 +10,8 @@ class Meter(models.Model):
     """Database model for meters in the system"""
 
     name = models.CharField(max_length=30)
-    meter_model = models.ForeignKey(MeterModel, on_delete=models.RESTRICT)
-    building = models.ForeignKey(Building, on_delete=models.RESTRICT)
+    meter_model = models.ForeignKey(MeterModel, related_name='meters', on_delete=models.RESTRICT)
+    building = models.ForeignKey(Building, related_name='meters', on_delete=models.RESTRICT)
     ip = forms.GenericIPAddressField()
     port = models.IntegerField(default=502)
     substation = models.CharField(max_length=60)

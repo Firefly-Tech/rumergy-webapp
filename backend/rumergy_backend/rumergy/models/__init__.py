@@ -5,3 +5,5 @@ from .meter_model import MeterModel
 from .building import Building
 from .meter import Meter
 from .meter_data import MeterData
+from .access_request import AccessRequest
+from .data_log_measures import DataLogMeasures

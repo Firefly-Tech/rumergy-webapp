@@ -7,4 +7,4 @@ class MeterDataViewSet(viewsets.ModelViewSet):
     """A viewset for viewing and editing meter data instances."""
 
     serializer_class = MeterDataSerializer
-    queryset = MeterData.objects.all()  # TODO: Check if need permissions and check objects
+    queryset = MeterData.objects.all()

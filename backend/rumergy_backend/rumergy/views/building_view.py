@@ -7,4 +7,4 @@ class BuildingViewSet(viewsets.ModelViewSet):
     """A viewset for viewing and editing building instances."""
 
     serializer_class = BuildingSerializer
-    queryset = Building.objects.all()  # TODO: Check if need permissions and check objects
+    queryset = Building.objects.all()

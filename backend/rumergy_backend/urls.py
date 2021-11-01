@@ -15,8 +15,20 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from backend.rumergy_backend.rumergy import views
+from rest_framework.routers import DefaultRouter
 
+router = DefaultRouter()
+router.register(r"api/access-request", views.AccessRequestViewSet)
+router.register(r"api/access-request/accepted", views.AccessRequestAcceptedViewSet)
+router.register(r"api/access-request/denied", views.AccessRequestDeniedViewSet)
+router.register(r"api/building", views.BuildingViewSet)
+router.register(r"api/data-log-measures", views.DataLogMeasuresViewSet)
+router.register(r"api/meter-data", views.MeterDataViewSet)
+router.register(r"api/meter-model", views.MeterModelViewSet)
+router.register(r"api/meter", views.MeterViewSet)
 urlpatterns = [
+    path("", include(router.urls)),
     path("admin/", admin.site.urls),
     path("api-auth/", include("rest_framework.urls")),
 ]

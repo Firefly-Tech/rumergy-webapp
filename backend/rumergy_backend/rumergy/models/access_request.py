@@ -1,11 +1,15 @@
+from django.contrib.auth.models import User
 from django.db import models
-from . import User
+from . import UserProfile
+
 
 
 class AccessRequest(models.Model):
     """Access request model"""
 
-    user = models.ForeignKey(User, related_name='access_request', on_delete=models.CASCADE)  # TODO: Check Cascade
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     timestamp = models.DateTimeField(auto_now_add=True)
-    occupation = models.CharField(max_length=20)
-    justification = models.CharField(max_length=200)
+    ocupation = models.CharField(max_length=20, default="None")
+    justification = models.CharField(
+        max_length=200, default="No justification provided"
+    )

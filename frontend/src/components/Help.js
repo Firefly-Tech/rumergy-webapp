@@ -1,11 +1,10 @@
 import React from "react";
 import { FaQuestionCircle } from "react-icons/fa";
+import IconButton from "./IconButton";
 
 function Help(props) {
   return (
-    <button className="help-button">
-      <FaQuestionCircle />
-    </button>
+    <IconButton icon={<FaQuestionCircle />} clickAction={() => {console.log("clicky clik")}}/>
   );
 }
 

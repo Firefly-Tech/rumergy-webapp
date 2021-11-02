@@ -8,8 +8,8 @@ from rumergy_backend.rumergy.views.data_point_view import DataPointViewSet
 
 router = DefaultRouter()
 router.register(r"api/users", views.UserViewSet)
-router.register(r"api/data_points", DataPointViewSet)
-router.register(r"api/data_logs", DataLogViewSet)
+router.register(r"api/data-points", DataPointViewSet)
+router.register(r"api/data-logs", DataLogViewSet)
 
 
 urlpatterns = [

@@ -1,6 +1,7 @@
-from backend.rumergy_backend.rumergy.models import MeterModel
+from rumergy_backend.rumergy.models import MeterModel
 from rest_framework import viewsets
-from backend.rumergy_backend.rumergy.serializers import MeterModelSerializer
+from rest_framework import permissions
+from rumergy_backend.rumergy.serializers import MeterModelSerializer
 
 
 class MeterModelViewSet(viewsets.ModelViewSet):
@@ -8,3 +9,4 @@ class MeterModelViewSet(viewsets.ModelViewSet):
 
     serializer_class = MeterModelSerializer
     queryset = MeterModel.objects.all()
+    permission_classes = [permissions.IsAuthenticated]

@@ -1,4 +1,3 @@
-from django.contrib.gis.geos import Point
 from django.db import models
 from django import forms
 from . import MeterModel
@@ -15,7 +14,8 @@ class Meter(models.Model):
     ip = forms.GenericIPAddressField()
     port = models.IntegerField(default=502)
     substation = models.CharField(max_length=60)
-    coordinates = Point()
+    longitude = models.FloatField()
+    latitude = models.FloatField()
     comments = models.CharField(max_length=200)
     panel_id = models.CharField(max_length=60)
     serial_number = models.CharField(max_length=100)

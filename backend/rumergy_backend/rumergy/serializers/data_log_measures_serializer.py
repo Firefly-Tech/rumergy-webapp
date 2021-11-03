@@ -1,4 +1,4 @@
-from backend.rumergy_backend.rumergy.models import DataLogMeasures
+from rumergy_backend.rumergy.models import DataLogMeasures
 from rest_framework import serializers
 
 

@@ -1,4 +1,4 @@
-from backend.rumergy_backend.rumergy.models import MeterModel
+from rumergy_backend.rumergy.models import MeterModel
 from rest_framework import serializers
 
 

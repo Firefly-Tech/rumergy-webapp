@@ -7,11 +7,11 @@ from rest_framework.routers import DefaultRouter
 router = DefaultRouter()
 router.register(r"api/users", views.UserViewSet)
 router.register(r"api/access-request", views.AccessRequestViewSet)
-router.register(r"api/building", views.BuildingViewSet)
+router.register(r"api/buildings", views.BuildingViewSet)
 router.register(r"api/data-log-measures", views.DataLogMeasuresViewSet)
 router.register(r"api/meter-data", views.MeterDataViewSet)
-router.register(r"api/meter-model", views.MeterModelViewSet)
-router.register(r"api/meter", views.MeterViewSet)
+router.register(r"api/meter-models", views.MeterModelViewSet)
+router.register(r"api/meters", views.MeterViewSet)
 urlpatterns = [
     path("", include(router.urls)),
     path(

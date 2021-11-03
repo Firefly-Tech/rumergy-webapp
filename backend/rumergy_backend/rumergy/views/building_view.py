@@ -1,6 +1,7 @@
-from backend.rumergy_backend.rumergy.models import Building
+from rumergy_backend.rumergy.models import Building
 from rest_framework import viewsets
-from backend.rumergy_backend.rumergy.serializers import BuildingSerializer
+from rest_framework import permissions
+from rumergy_backend.rumergy.serializers import BuildingSerializer
 
 
 class BuildingViewSet(viewsets.ModelViewSet):
@@ -8,3 +9,4 @@ class BuildingViewSet(viewsets.ModelViewSet):
 
     serializer_class = BuildingSerializer
     queryset = Building.objects.all()
+    permission_classes = [permissions.IsAuthenticated]

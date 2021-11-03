@@ -1,6 +1,7 @@
-from backend.rumergy_backend.rumergy.models import DataLogMeasures
+from rumergy_backend.rumergy.models import DataLogMeasures
 from rest_framework import viewsets
-from backend.rumergy_backend.rumergy.serializers import DataLogMeasuresSerializer
+from rest_framework import permissions
+from rumergy_backend.rumergy.serializers import DataLogMeasuresSerializer
 
 
 class DataLogMeasuresViewSet(viewsets.ModelViewSet):
@@ -8,3 +9,4 @@ class DataLogMeasuresViewSet(viewsets.ModelViewSet):
 
     serializer_class = DataLogMeasuresSerializer
     queryset = DataLogMeasures.objects.all()
+    permission_classes = [permissions.IsAuthenticated]

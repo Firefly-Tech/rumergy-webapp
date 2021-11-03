@@ -1,4 +1,4 @@
-from backend.rumergy_backend.rumergy.models import Meter
+from rumergy_backend.rumergy.models import Meter
 from rest_framework import serializers
 
 
@@ -9,5 +9,5 @@ class MeterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Meter
-        fields = ["id", "name", "ip", "port", "substation", "coordinates",
-                  "comments", "panel_id", "serial_number", "meter_data"]
+        fields = ["id", "name", "ip", "port", "substation", "longitude", "latitude",
+            "comments", "panel_id", "serial_number", "meter_data"]

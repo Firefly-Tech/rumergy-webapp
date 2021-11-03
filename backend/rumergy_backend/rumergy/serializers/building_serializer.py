@@ -1,4 +1,4 @@
-from backend.rumergy_backend.rumergy.models import Building
+from rumergy_backend.rumergy.models import Building
 from rest_framework import serializers
 
 

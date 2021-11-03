@@ -1,5 +1,6 @@
 from django.db import models
-from . import User
+from . import UserProfile
+
 
 class DataLog(models.Model):
-    user = models.ForeignKey(User, on_delete=models.PROTECT)
+    user = models.ForeignKey(UserProfile, on_delete=models.PROTECT)

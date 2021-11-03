@@ -8,11 +8,14 @@ $soft-green: #bad9bb;
 $blinding-green: #d2f898;
 $special-red: #ff4242;
 $theme-colors: (
-  "primary": $dark-green
+  "primary": $blinding-green,
+  "secondary": $dark-green,
+  "light": $light-grey,
 );
 
 $hover-transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,
   border-color 0.15s ease-in-out;
+
 
 @import "./components/Sidebar.scss";
 @import "./components/Help.scss";

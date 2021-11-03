@@ -29,9 +29,11 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
+    "corsheaders",
 ]
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -95,7 +97,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-AUTH_USER_MODEL = "rumergy.User"
+AUTH_USER_MODEL = "auth.User"
 
 
 # Internationalization
@@ -103,7 +105,7 @@ AUTH_USER_MODEL = "rumergy.User"
 
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = "America/Puerto_Rico"
+TIME_ZONE = "UTC"
 
 USE_I18N = True
 
@@ -127,6 +129,10 @@ REST_FRAMEWORK = {
     # or allow read-only access for unauthenticated users.
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly",
+    ],
+    "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework_simplejwt.authentication.JWTAuthentication",
-    ]
+    ],
 }
+
+CORS_ORIGIN_ALLOW_ALL = True

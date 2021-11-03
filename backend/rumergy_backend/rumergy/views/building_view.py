@@ -9,4 +9,4 @@ class BuildingViewSet(viewsets.ModelViewSet):
 
     serializer_class = BuildingSerializer
     queryset = Building.objects.all()
-    permission_classes = [permissions.IsAuthenticated]
+    # permission_classes = [permissions.AllowAny] # Only use for testing

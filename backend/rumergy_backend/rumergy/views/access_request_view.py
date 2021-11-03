@@ -8,6 +8,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rumergy_backend.rumergy.serializers import AccessRequestSerializer
 from django.core.mail import send_mail
+from django.conf import settings
 
 
 class AccessRequestViewSet(viewsets.ModelViewSet):
@@ -16,56 +17,57 @@ class AccessRequestViewSet(viewsets.ModelViewSet):
     serializer_class = AccessRequestSerializer
     queryset = AccessRequest.objects.all()
     permission_classes = [permissions.IsAuthenticated]
+    # permission_classes = [permissions.AllowAny] # Only use for testing
 
     def perform_create(self, serializer):
         super().perform_create(serializer)
         send_mail(
                 'RUMergy: Access Request Notification',
                 'A new access request has been submitted.',
-                DEFAULT_FROM_EMAIL,  # TODO: Decide on email for application
-                ['orlando.ruiz5@upr.edu'],  # All admin emails go here
+                settings.EMAIL_HOST_USER,  # TODO: Decide on email for application
+                ['admins@example.com'],  # All admin emails go here
                 fail_silently=False,
-                auth_user=EMAIL_HOST_USER,  # TODO: Decide on email for application
-                auth_password=EMAIL_HOST_PASSWORD,  # TODO: Decide on email for application
             )
 
 
     @action(detail=True, methods=["put"])
     def accept(self, request, pk=None):
-        accessRequest = AccessRequest.objects().get(id=pk)
+        accessRequest = AccessRequest.objects.get(id=pk)
+        if (accessRequest.status != "ACT"):
+            return Response("This access request has already been processed", status.HTTP_400_BAD_REQUEST)
+        # TODO: Check what status to use for this
         user = accessRequest.user
         user.profile.role = "ADV"
-        user.save()
+        user.profile.save()
         accessRequest.status = "ACC"
         accessRequest.save()
 
         send_mail(
             'RUMergy: Access Request Accepted',
             'Your access request has been accepted.',
-            DEFAULT_FROM_EMAIL,  # TODO: Decide on email for application
+            settings.EMAIL_HOST_USER,  # TODO: Decide on email for application
             [user.email],
             fail_silently=False,
-            auth_user=EMAIL_HOST_USER,  # TODO: Decide on email for application
-            auth_password=EMAIL_HOST_PASSWORD,  # TODO: Decide on email for application
         )
         
         return Response("OK", status.HTTP_200_OK)
 
     @action(detail=True, methods=["put"])
     def reject(self, request, pk=None):
-        accessRequest = AccessRequest.objects().get(id=pk)
+        accessRequest = AccessRequest.objects.get(id=pk)
+        if (accessRequest.status != "ACT"):
+            return Response("This access request has already been processed", status.HTTP_400_BAD_REQUEST)
+        # TODO: Check what status to use for this
         user = accessRequest.user
         accessRequest.status = "REJ"
         accessRequest.save()
 
         send_mail(
-            'RUMergy: Access Request Denied',
-            'Your access request has been denied. Contact administrative staff if you still wish to gain access.',
-            DEFAULT_FROM_EMAIL,  # TODO: Decide on email for application
+            'RUMergy: Access Request Rejected',
+            'Your access request has been rejected. Contact administrative staff if you still wish to gain access.',
+            settings.EMAIL_HOST_USER,  # TODO: Decide on email for application
             [user.email],
             fail_silently=False,
-            auth_user=EMAIL_HOST_USER,  # TODO: Decide on email for application
-            auth_password=EMAIL_HOST_PASSWORD,  # TODO: Decide on email for application
         )
 
         return Response("OK", status.HTTP_200_OK)

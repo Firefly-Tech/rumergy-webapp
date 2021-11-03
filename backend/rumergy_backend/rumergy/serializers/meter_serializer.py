@@ -10,4 +10,4 @@ class MeterSerializer(serializers.ModelSerializer):
     class Meta:
         model = Meter
         fields = ["id", "name", "ip", "port", "substation", "longitude", "latitude",
-            "comments", "panel_id", "serial_number", "meter_data"]
+            "comments", "panel_id", "serial_number", "status", "meter_data"]

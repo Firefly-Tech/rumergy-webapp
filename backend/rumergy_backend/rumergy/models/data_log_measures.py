@@ -12,5 +12,5 @@ class DataLogMeasures(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
 
     data_log = models.ForeignKey(DataLog, related_name='data_log_measures', on_delete=models.RESTRICT)
-    # data_points = models.ForeignKey(DataPoints, related_name='data_log_measures', on_delete=models.RESTRICT)
+    # data_point = models.ForeignKey(DataPoint, related_name='data_log_measures', on_delete=models.RESTRICT)
     # TODO: Remove Comments

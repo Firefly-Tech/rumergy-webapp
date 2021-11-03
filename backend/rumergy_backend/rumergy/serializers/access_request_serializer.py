@@ -7,4 +7,4 @@ class AccessRequestSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = AccessRequest
-        fields = ["id", "user", "timestamp", "occupation", "justification", "status"]
+        fields = ["id", "user", "timestamp", "ocupation", "justification", "status"]

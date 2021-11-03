@@ -7,7 +7,7 @@ function DLSDataPoints(props){
 
 
     return(
-        <Card className = "DLS-card mb-sm-4 flex-fill">
+        <Card className = "DLS-card mb-sm-3 flex-fill">
             <Card.Title className = "d-flex flex-row align-self-start px-3 pt-2">
                 <h4 className = "bold mb-0">Data Points</h4>
             </Card.Title>

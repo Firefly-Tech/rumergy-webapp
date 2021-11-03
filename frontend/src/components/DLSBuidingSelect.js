@@ -1,13 +1,14 @@
 import { React, useState } from "react";
 import PropTypes from "prop-types";
 import { Row, Col, Card, Form } from "react-bootstrap";
+import DLSMeterSelect from "./DLSMeterSelect";
 
 function DLSBuildingSelect(props){
 
 
     return (
-        <Card className = "DLS-card mb-sm-4 flex-fill">
-            <Card.Title className = "d-flex flex-row align-self-start px-3 pt-2">
+        <Card className = "DLS-card mb-sm-3 flex-row flex-fill">
+            <Card.Title className = "d-flex flex-row align-self-center px-3 pt-2">
                 <h4 className = "bold mb-0">Building</h4>
             </Card.Title>
             <Card.Body className = "building-content"> 
@@ -26,5 +27,6 @@ function DLSBuildingSelect(props){
 
 
 }
+
 
 export default DLSBuildingSelect;

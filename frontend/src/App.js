@@ -6,6 +6,7 @@ import Sidebar from "./components/Sidebar";
 import { roles } from "./resources/constants";
 import Dashboard from "./components/Dashboard";
 import DataLoggingScheduler from "./components/DataLoggingScheduler";
+import DataLogs from "./components/DataLogs";
 
 function App() {
   const [userRole, setUserRole] = useState(roles.Advanced);
@@ -43,6 +44,11 @@ function App() {
                 <Redirect to="/admin/manage-meters" />
               )) || <DataLoggingScheduler />}
             </Route>  
+            <Route path = "/data-logs">
+            {(userRole === roles.Admin && (
+                <Redirect to="/admin/manage-meters" />
+              )) || <DataLogs />}
+            </Route>
           </Col>
         </Row>
       </Container>

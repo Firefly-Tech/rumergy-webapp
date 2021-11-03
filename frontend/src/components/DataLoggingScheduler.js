@@ -5,6 +5,8 @@ import DLSBuildingSelect from "./DLSBuidingSelect";
 import DLSMeterSelect from "./DLSMeterSelect";
 import DLSDataPoints from "./DLSDataPoints";
 import DLSTimeInterval from "./DLSTimeInterval";
+import DLSDateStart from "./DLSDateStart";
+import DLSDateEnd from "./DLSDateEnd";
 
 function DataLoggingScheduler(props){
 
@@ -22,14 +24,18 @@ function DataLoggingScheduler(props){
                         <h1 className = "bold">Data Logging Scheduler</h1>
                     </Col>
                 </Row>
-                <Row className = "flex-grow-1">
-                    <Col xs={3} className="d-flex flex-column">
+                <Row className = "flex-grow-1 ">
+                    <Col xs={10} className="d-flex flex-column">
                         <div className = "my-auto">
                             <DLSBuildingSelect/>
                             <DLSMeterSelect/>
-                            <DLSDataPoints/>
                             <DLSTimeInterval/>
+                            <DLSDateStart/>
+                            <DLSDateEnd/>
                         </div>
+                    </Col>
+                    <Col sm ={"auto"} className = "d-flex flex-column justify-content-evenly">
+                            <DLSDataPoints/>
                     </Col>
                 </Row>
             </Col>

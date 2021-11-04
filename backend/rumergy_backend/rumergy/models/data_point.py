@@ -30,3 +30,5 @@ class DataPoint(models.Model):
     register_type = models.CharField(max_length=4,choices=REGISTER_TYPE, default=HOLDING)   
 
     # model = models.ForeignKey(Model, related_name='data_points' on_delete=models.PROTECT)
+
+# TODO Import Model model

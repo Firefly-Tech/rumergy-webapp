@@ -7,4 +7,4 @@ from rumergy_backend.rumergy.models.data_log import DataLog
 class DataLogViewSet(viewsets.ModelViewSet):
     queryset = DataLog.objects.all()
     serializer_class = DataLogSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    # permission_classes = [permissions.AllowAny]

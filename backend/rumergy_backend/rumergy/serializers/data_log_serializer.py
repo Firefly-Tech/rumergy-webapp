@@ -1,10 +1,13 @@
 from rest_framework import serializers
 from rumergy_backend.rumergy.models import DataLog
+from django.contrib.auth.models import User
 
 class DataLogSerializer(serializers.ModelSerializer):
-    meters = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
-    users = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+    
+    # meter = serializers.PrimaryKeyRelatedField(many=True, queryset=Meter.objects.all())
+    user = serializers.PrimaryKeyRelatedField(many=False, queryset=User.objects.all())
+    # TODO: Import Meter model
     
     class Meta:
         model = DataLog
-        fields = ['start_date', 'end_date', 'meters', 'users']
+        fields = ['start_date', 'end_date', 'meter', 'user']

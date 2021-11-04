@@ -15,7 +15,7 @@ import ErrorModal from "./ErrorModal";
 import LoginForm from "./LoginForm";
 import axios from "axios";
 import AccessPending from "./AccessPending";
-import roles from "../resources/constants";
+import { roles } from "../resources/constants";
 
 const apiHost = process.env.REACT_APP_API_HOST;
 

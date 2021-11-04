@@ -21,7 +21,9 @@ function App() {
   // TODO: Add redirect for INA user
   const rootRedirect = () => {
     return (
-      ((auth.role === roles.General || auth.role === roles.Advanced) &&
+      ((auth.role === roles.General ||
+        auth.role === roles.Advanced ||
+        auth.role === roles.Inactive) &&
         "/dashboard") ||
       "/admin/manage-meters"
     );

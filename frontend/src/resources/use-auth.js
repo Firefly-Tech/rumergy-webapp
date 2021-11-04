@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext, createContext } from "react";
 import PropTypes from "prop-types";
 import axios from "axios";
 import { roles } from "./constants";
+import { string } from "yup/lib/locale";
 
 const authContext = createContext();
 const apiHost = process.env.REACT_APP_API_HOST;
@@ -33,6 +34,7 @@ function useProvideAuth() {
   const [appAccessToken, setAppAccessToken] = useState(null);
   const [appRefreshToken, setAppRefreshToken] = useState(null);
 
+  // TODO: Change to throw error like withAppUser
   const signin = (username, password) => {
     return axios
       .post(`${apiHost}/api/token/`, {
@@ -41,7 +43,11 @@ function useProvideAuth() {
       })
       .then((res) => {
         setAccessToken(res.data.access);
-        setUser(res.data.user);
+        let user = {
+          username: res.data.user.username,
+          id: res.data.user.id,
+        };
+        setUser(user);
         setRole(res.data.user.role);
         localStorage.setItem("refresh", res.data.refresh);
 
@@ -57,7 +63,35 @@ function useProvideAuth() {
         }
       });
   };
-  const signup = (username, password, email, firstName, lastName) => {};
+  const signup = async (username, password, email, firstName, lastName) => {
+    return axios
+      .post(
+        `${apiHost}/api/users/`,
+        {
+          username: username,
+          password: password,
+          email: email,
+          profile: {
+            first_name: firstName,
+            last_name: lastName,
+            role: roles.Inactive,
+          },
+        },
+        { headers: { Authorization: await withAppUser() } }
+      )
+      .then((res) => {
+        return res.data;
+      })
+      .catch((error) => {
+        if (error.response) {
+          throw new Error("Unauthorized");
+        } else if (error.request) {
+          throw new Error("No response");
+        } else {
+          throw new Error("Unknown error");
+        }
+      });
+  };
   const signout = () => {
     setUser(null);
     setAccessToken(null);
@@ -67,14 +101,69 @@ function useProvideAuth() {
     return true;
   };
   const getAuthBearer = () => {
+    // TODO: Add get new access token
     return `Bearer ${accessToken}`;
+  };
+  const tryRefresh = async (refreshToken) => {
+    return axios
+      .post(`${apiHost}/api/token/refresh/`, {
+        refresh: refreshToken,
+      })
+      .then((res) => {
+        return res.data.access;
+      })
+      .catch((error) => {
+        if (error.response) {
+          throw new Error("Unauthorized");
+        } else if (error.request) {
+          throw new Error("No response");
+        } else {
+          throw new Error("Unknown error");
+        }
+      });
   };
   const sendPasswordResetEmail = (email) => {};
   const confirmPasswordReset = (code, password) => {};
 
-  const withAppUser = () => {
+  const withAppUser = async () => {
+    const appUserLogin = async () => {
+      const loginResponse = await axios
+        .post(`${apiHost}/api/token/`, {
+          username: process.env.REACT_APP_RUMERGY_USER,
+          password: process.env.REACT_APP_RUMERGY_PASS,
+        })
+        .then((res) => {
+          return res.data;
+        })
+        .catch((error) => {
+          if (error.response) {
+            throw new Error("Unauthorized");
+          } else if (error.request) {
+            throw new Error("No response");
+          } else {
+            throw new Error("Unknown error");
+          }
+        });
+      setAppRefreshToken(loginResponse.refresh);
+      setAppAccessToken(loginResponse.access);
+
+      return `Bearer ${loginResponse.access}`;
+    };
+
     if (!appRefreshToken) {
-      // Login and get tokens
+      return appUserLogin();
+    }
+
+    try {
+      const access = await tryRefresh(appRefreshToken);
+      setAppAccessToken(access);
+
+      return `Bearer ${access}`;
+    } catch (error) {
+      if (error.message !== "Unauthorized") {
+        throw error;
+      }
+      return appUserLogin();
     }
   };
 
@@ -85,23 +174,23 @@ function useProvideAuth() {
 
   // TODO: Add error catching and other cases
   useEffect(() => {
-    axios
-      .post(`${apiHost}/api/refresh/`, {
-        refresh: localStorage.getItem("refresh"),
-      })
-      .then((res) => {
-        setAccessToken(res.data.access);
-      });
-    axios
-      .get(`${apiHost}/api/users/get_user_from_auth`, {
-        headers: { Authorization: getAuthBearer() },
-      })
-      .then((res) => {
-        let temp = res.data.user;
-        const { profile, ...user } = temp;
-        setUser(user);
-        setRole(profile.role);
-      });
+    //axios
+    //.post(`${apiHost}/api/refresh/`, {
+    //refresh: localStorage.getItem("refresh"),
+    //})
+    //.then((res) => {
+    //setAccessToken(res.data.access);
+    //});
+    //axios
+    //.get(`${apiHost}/api/users/get_user_from_auth`, {
+    //headers: { Authorization: getAuthBearer() },
+    //})
+    //.then((res) => {
+    //let temp = res.data.user;
+    //const { profile, ...user } = temp;
+    //setUser(user);
+    //setRole(profile.role);
+    //});
   }, []);
   // Return the user object and auth methods
   return {
@@ -113,5 +202,6 @@ function useProvideAuth() {
     signout,
     sendPasswordResetEmail,
     confirmPasswordReset,
+    withAppUser,
   };
 }

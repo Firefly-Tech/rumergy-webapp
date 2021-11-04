@@ -14,6 +14,8 @@ import CreateAccount from "./CreateAccount";
 import ErrorModal from "./ErrorModal";
 import LoginForm from "./LoginForm";
 import axios from "axios";
+import AccessPending from "./AccessPending";
+import roles from "../resources/constants";
 
 const apiHost = process.env.REACT_APP_API_HOST;
 
@@ -31,6 +33,7 @@ export default function LoginPages() {
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
 
+  // TODO: Change to try catch
   const handleSignin = async (username, password) => {
     let status = await auth.signin(username, password);
     if (status !== "OK") {
@@ -42,8 +45,40 @@ export default function LoginPages() {
         setErrorMessage("An error occurred. Please try again.");
       }
       return handleShow;
-    } else {
-      return () => history.push("/");
+    }
+
+    if (auth.role === roles.Inactive) {
+      let bearer = await auth.withAppUser();
+      const getAccessRequestStatus = async (id) => {
+        return axios
+          .get(`${apiHost}/api/access-request/${id}`, {
+            headers: { Authorization: bearer },
+          })
+          .then((res) => {
+            return res.data.status;
+          })
+          .catch((error) => {
+            if (error.response) {
+              throw new Error("Unauthorized");
+            } else if (error.request) {
+              throw new Error("No response");
+            } else {
+              throw new Error("Unknown error");
+            }
+          });
+      };
+      // Check for active access requests
+      let accessRequestIds = await axios
+        .get(`${apiHost}/api/users/${auth.user.id}`, {
+          headers: { Authorization: bearer },
+        })
+        .then((res) => {
+          return res.data.access_request;
+        });
+      if (!accessRequestIds.length) history.push("/");
+
+      // If active access request redirect to access pending thing
+      // If no access request active redirect to new access request
     }
   };
 
@@ -55,23 +90,95 @@ export default function LoginPages() {
     resultAction();
   };
 
-  const handleCreateAccountSubmit = async () => {};
-  const userExists = (username, email) => {
-    let userByUsername = axios
-      .get(`${apiHost}/users?username=${username}`)
-      .then((res) => {
-        return res.data;
-      })
-      .catch(() => {
-        return [];
+  const handleAccessRequestCreation = async (id, occupation, justification) => {
+    await axios
+      .post(
+        `${apiHost}/api/access-request/`,
+        {
+          user: id,
+          occupation: occupation,
+          justification: justification,
+        },
+        { headers: { Authorization: auth.withAppUser() } }
+      )
+      .catch((error) => {
+        if (error.response) {
+          throw new Error("Unauthorized");
+        } else if (error.request) {
+          throw new Error("No response");
+        } else {
+          throw new Error("Unknown error");
+        }
       });
-    let userByEmail = axios
-      .get(`${apiHost}/users?email=${email}`)
+  };
+
+  const handleCreateAccountSubmit = async (values, { setSubmitting }) => {
+    setLoading(true);
+
+    try {
+      // Create user
+      let user = await auth.signup(
+        values.username,
+        values.password,
+        values.email,
+        values.firstName,
+        values.lastName
+      );
+
+      // Create access request
+      await handleAccessRequestCreation(
+        user.id,
+        values.occupation,
+        values.justification
+      );
+
+      return true;
+    } catch (e) {
+      setErrorName("Error");
+      setErrorMessage("An error occurred, please try again.");
+      handleShow();
+
+      return false;
+    } finally {
+      setLoading(false);
+      setSubmitting(false);
+    }
+  };
+
+  const userExists = async (username, email) => {
+    // Try getting auth for app user
+    let bearer;
+    try {
+      bearer = await auth.withAppUser();
+    } catch (e) {
+      setErrorName("Error");
+      setErrorMessage("An error occurred, please try again.");
+      handleShow();
+
+      return true;
+    }
+
+    let userByUsername = await axios
+      .get(`${apiHost}/api/users?username=${username}`, {
+        headers: {
+          Authorization: bearer,
+        },
+      })
       .then((res) => {
         return res.data;
       })
       .catch(() => {
-        return [];
+        return [1];
+      });
+    let userByEmail = await axios
+      .get(`${apiHost}/api/users?email=${email}`, {
+        headers: { Authorization: bearer },
+      })
+      .then((res) => {
+        return res.data;
+      })
+      .catch(() => {
+        return [1];
       });
 
     if (!userByUsername.length && !userByEmail.length) return false;
@@ -85,7 +192,9 @@ export default function LoginPages() {
     handleShow();
     return true;
   };
+
   // TODO: Add logic for redirecting inactive user to access request (maybe can redirect to dash and provide a new button in nav bar)
+  // TODO: Add logic for redirecting inactive user with active req to page indicate pending access (maybe make pending access page its own component)
   return (
     <>
       <Row className="h-100">
@@ -120,6 +229,9 @@ export default function LoginPages() {
                   handleSubmit={handleCreateAccountSubmit}
                   userExists={userExists}
                 />
+              </Route>
+              <Route path={`${path}/access-pending`}>
+                <AccessPending />
               </Route>
             </div>
           </Switch>

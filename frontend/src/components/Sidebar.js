@@ -80,7 +80,12 @@ function Sidebar(props) {
             icon={isLoggedIn() ? <FaSignOutAlt /> : <FaSignInAlt />}
             optionalText={isLoggedIn() ? "Logout" : "Login"}
             clickAction={
-              isLoggedIn() ? auth.signout : () => history.push("/login")
+              isLoggedIn()
+                ? () => {
+                    auth.signout();
+                    history.push("/");
+                  }
+                : () => history.push("/login")
             }
           />
         </div>

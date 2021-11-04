@@ -1,6 +1,7 @@
 import { Formik } from "formik";
 import PropTypes from "prop-types";
 import { React, useState } from "react";
+import { useHistory } from "react-router";
 import { Col, Row, Spinner, Form, InputGroup, Button } from "react-bootstrap";
 import * as Yup from "yup";
 
@@ -50,6 +51,9 @@ const createAccountFormSchema = [
 
 export default function CreateAccount(props) {
   const [step, setStep] = useState(0);
+  const [success, setSuccess] = useState(false);
+
+  const history = useHistory();
 
   const incrementStep = () => {
     setStep(step + 1);
@@ -66,6 +70,11 @@ export default function CreateAccount(props) {
         return <StepTwo formik={formik} decrementStep={decrementStep} />;
     }
   };
+
+  if (success) {
+    history.push("/login/access-pending");
+  }
+
   return (
     <>
       <Row className="mb-4">
@@ -101,17 +110,16 @@ export default function CreateAccount(props) {
             validationSchema={createAccountFormSchema[step]}
             onSubmit={async (values, helpers) => {
               if (step === 1) {
-                await props.handleSubmit(values, helpers.setSubmiting);
+                setSuccess(await props.handleSubmit(values, helpers));
                 return;
               } else if (
                 step === 0 &&
-                props.userExists(values.username, values.email)
+                (await props.userExists(values.username, values.email))
               ) {
                 helpers.setSubmitting(false);
                 return;
               }
               incrementStep();
-              helpers.setTouched({});
               helpers.setSubmitting(false);
             }}
           >

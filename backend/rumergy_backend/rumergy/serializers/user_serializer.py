@@ -1,5 +1,5 @@
 from django.contrib.auth.models import User
-from rumergy_backend.rumergy.models import UserProfile
+from rumergy_backend.rumergy.models import UserProfile, AccessRequest
 from rest_framework import serializers
 
 
@@ -15,6 +15,7 @@ class UserSerializer(serializers.ModelSerializer):
     """Serializer for user model"""
 
     profile = UserProfileSerializer()
+    access_request = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
 
     class Meta:
         model = User

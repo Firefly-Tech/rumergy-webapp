@@ -10,10 +10,23 @@ function DLSTimeInterval(props){
                 <h4 className = "bold mb-0">Time Interval</h4>
             </Card.Title>
             <Card.Body className = "building-content">
-                <Form.Group className = "px-3" id="formGridCheckbox">
-                    <Form.Check type="checkbox" label="Test" />
-                    <Form.Check type="checkbox" label="Test" />
-                </Form.Group>
+                <Form>
+                {['radio'].map((type) => (
+                        <div key={`default-${type}`} className="mb-3">
+                            <Form.Check 
+                            type={type}
+                            id={`default-${type}`}
+                            label={`Test ${type}`}
+                            />
+
+                            <Form.Check 
+                            type={type}
+                            id={`default-${type}`}
+                            label={`Test ${type}`}
+                            />
+                        </div>
+                ))}
+                </Form>
             </Card.Body> 
         </Card>
 

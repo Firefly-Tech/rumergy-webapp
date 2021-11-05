@@ -1,20 +1,18 @@
 import { React, useState, useEffect } from "react";
 import PropTypes from "prop-types";
-import { Col, Row } from "react-bootstrap";
+import { Col, Row, Modal, Button } from "react-bootstrap";
 import DLSBuildingSelect from "./DLSBuidingSelect";
 import DLSMeterSelect from "./DLSMeterSelect";
 import DLSDataPoints from "./DLSDataPoints";
 import DLSTimeInterval from "./DLSTimeInterval";
 import DLSDateStart from "./DLSDateStart";
 import DLSDateEnd from "./DLSDateEnd";
+import DLSsubmitModal from "./DLSsubmitModal";
+import { FaCheck } from "react-icons/fa";
 
 function DataLoggingScheduler(props){
-
-
-
-
-
-
+    const [modalShow, setModalShow] =useState(false);
+    
     return(
 
         <Row className = "h-100">
@@ -36,6 +34,20 @@ function DataLoggingScheduler(props){
                     </Col>
                     <Col sm ={"auto"} className = "d-flex flex-column justify-content-evenly">
                             <DLSDataPoints/>
+                            <>
+                                <Button 
+                                    
+                                    variant="primary" 
+                                    onClick={() => setModalShow(true)}>
+                                    Submit
+                                </Button>
+
+                                <DLSsubmitModal
+                                    show={modalShow}
+                                    onHide={() => setModalShow(false)}
+                                    
+                                />
+                             </>
                     </Col>
                 </Row>
             </Col>

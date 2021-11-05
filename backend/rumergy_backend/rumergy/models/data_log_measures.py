@@ -1,8 +1,6 @@
 from django.db import models
 from . import DataLog
-# from . import DataPoints
-
-# TODO: Add relationships
+from . import DataPoints
 
 
 class DataLogMeasures(models.Model):
@@ -11,6 +9,5 @@ class DataLogMeasures(models.Model):
     value = models.FloatField()
     timestamp = models.DateTimeField(auto_now_add=True)
 
-    data_log = models.ForeignKey(DataLog, related_name='data_log_measures', on_delete=models.RESTRICT)
-    # data_point = models.ForeignKey(DataPoint, related_name='data_log_measures', on_delete=models.RESTRICT)
-    # TODO: Remove Comments
+    data_log = models.ForeignKey(DataLog, related_name='data_log_measures', on_delete=models.CASCADE)
+    data_point = models.ForeignKey(DataPoint, related_name='data_log_measures', on_delete=models.RESTRICT)

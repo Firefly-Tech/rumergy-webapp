@@ -1,6 +1,5 @@
-from django.conf.global_settings import DEFAULT_FROM_EMAIL, EMAIL_HOST_USER, EMAIL_HOST_PASSWORD
-
 from rumergy_backend.rumergy.models import AccessRequest
+from django.contrib.auth.models import User
 from rest_framework import viewsets
 from rest_framework import permissions
 from rest_framework import status
@@ -21,11 +20,12 @@ class AccessRequestViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         super().perform_create(serializer)
+        admin_emails = list(User.objects.filter(profile__role="ADM").values_list("email", flat=True))
         send_mail(
                 'RUMergy: Access Request Notification',
                 'A new access request has been submitted.',
-                settings.EMAIL_HOST_USER,  # TODO: Decide on email for application
-                ['admins@example.com'],  # All admin emails go here
+                settings.EMAIL_HOST_USER,
+                [admin_emails],
                 fail_silently=False,
             )
 
@@ -35,7 +35,6 @@ class AccessRequestViewSet(viewsets.ModelViewSet):
         accessRequest = AccessRequest.objects.get(id=pk)
         if (accessRequest.status != "ACT"):
             return Response("This access request has already been processed", status.HTTP_400_BAD_REQUEST)
-        # TODO: Check what status to use for this
         user = accessRequest.user
         user.profile.role = "ADV"
         user.profile.save()
@@ -45,7 +44,7 @@ class AccessRequestViewSet(viewsets.ModelViewSet):
         send_mail(
             'RUMergy: Access Request Accepted',
             'Your access request has been accepted.',
-            settings.EMAIL_HOST_USER,  # TODO: Decide on email for application
+            settings.EMAIL_HOST_USER,
             [user.email],
             fail_silently=False,
         )
@@ -57,7 +56,6 @@ class AccessRequestViewSet(viewsets.ModelViewSet):
         accessRequest = AccessRequest.objects.get(id=pk)
         if (accessRequest.status != "ACT"):
             return Response("This access request has already been processed", status.HTTP_400_BAD_REQUEST)
-        # TODO: Check what status to use for this
         user = accessRequest.user
         accessRequest.status = "REJ"
         accessRequest.save()
@@ -65,7 +63,7 @@ class AccessRequestViewSet(viewsets.ModelViewSet):
         send_mail(
             'RUMergy: Access Request Rejected',
             'Your access request has been rejected. Contact administrative staff if you still wish to gain access.',
-            settings.EMAIL_HOST_USER,  # TODO: Decide on email for application
+            settings.EMAIL_HOST_USER,
             [user.email],
             fail_silently=False,
         )

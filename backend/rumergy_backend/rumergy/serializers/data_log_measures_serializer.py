@@ -7,4 +7,4 @@ class DataLogMeasuresSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = DataLogMeasures
-        fields = ["id", "value", "timestamp", "data_log"]
+        fields = ["id", "value", "timestamp"]

@@ -9,5 +9,4 @@ class MeterViewSet(viewsets.ModelViewSet):
 
     serializer_class = MeterSerializer
     queryset = Meter.objects.all()
-    permission_classes = [permissions.IsAuthenticated]
     # permission_classes = [permissions.AllowAny] # Only use for testing

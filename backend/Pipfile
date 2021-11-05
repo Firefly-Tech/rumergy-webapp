@@ -13,7 +13,6 @@ djangorestframework-simplejwt = "*"
 python-decouple = "*"
 pyjwt = "~=2.1.0"
 django-cors-headers = "*"
-django-environ = "*"
 
 [dev-packages]
 

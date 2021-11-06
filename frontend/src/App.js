@@ -1,7 +1,6 @@
 import { React } from "react";
 import "./App.scss";
 import {
-  BrowserRouter as Router,
   Route,
   Redirect,
   Switch,
@@ -30,7 +29,6 @@ function App() {
   };
 
   return (
-    <Router>
       <Container fluid className="overflow-hidden">
         <Row className="vh-100 overflow-hidden">
           <Route path={includeSidebar}>
@@ -63,7 +61,6 @@ function App() {
           </Col>
         </Row>
       </Container>
-    </Router>
   );
 }
 

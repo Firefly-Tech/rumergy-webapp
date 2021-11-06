@@ -16,16 +16,22 @@ class UserSerializer(serializers.ModelSerializer):
 
     profile = UserProfileSerializer()
     access_request = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
-    data_logs = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+    # data_logs = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+    # TODO: Uncomment on merge
 
     class Meta:
         model = User
-        fields = ["id", "username", "email", "password", "profile", "access_request", "data_logs"]
+        fields = ["id", "username", "email", "password", "profile", "access_request"]
+        # fields = ["id", "username", "email", "password", "profile", "access_request", "data_logs"]
+        # TODO: Uncomment on merge
         extra_kwargs = {"password": {"write_only": True}}
 
     def create(self, validated_data):
         profile_data = validated_data.pop("profile")
+        password = validated_data.pop("password")
         user = User.objects.create(**validated_data)
+        user.set_password(password)
+        user.save()
         UserProfile.objects.create(user=user, **profile_data)
         return user
 

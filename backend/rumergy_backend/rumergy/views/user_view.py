@@ -28,3 +28,11 @@ class UserViewSet(viewsets.ModelViewSet):
         serializer = UserSerializer(user)
 
         return Response(serializer.data)
+
+    @action(detail=True, methods=["get"])
+    def latest_access_request(self, request, pk=None):
+        """Get latest access request related to user"""
+
+        user = User.objects.get(id=pk)
+
+

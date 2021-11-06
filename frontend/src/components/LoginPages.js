@@ -16,6 +16,7 @@ import LoginForm from "./LoginForm";
 import axios from "axios";
 import AccessPending from "./AccessPending";
 import { roles } from "../resources/constants";
+import RepeatAccessRequest from "./RepeatAccessRequest";
 
 const apiHost = process.env.REACT_APP_API_HOST;
 
@@ -32,53 +33,62 @@ export default function LoginPages() {
 
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
+  const errorParser = (error) => {
+    if (error.response) {
+      throw new Error("Unauthorized");
+    } else if (error.request) {
+      throw new Error("No response");
+    } else {
+      throw new Error("Unknown error");
+    }
+  };
 
-  // TODO: Change to try catch
   const handleSignin = async (username, password) => {
-    let status = await auth.signin(username, password);
-    if (status !== "OK") {
-      if (status === "Unauthorized") {
-        setErrorName("Invalid credentials");
-        setErrorMessage("Provided credentials are invalid.");
-      } else {
-        setErrorName("Error");
-        setErrorMessage("An error occurred. Please try again.");
-      }
+    let userObject;
+    try {
+      userObject = await auth.signin(username, password);
+    } catch (error) {
+      setErrorName(
+        error.message === "Unauthorized" ? "Invalid credentials" : "Error"
+      );
+      setErrorMessage(
+        error.message === "Unauthorized"
+          ? "Provided credentials are invalid."
+          : "An error occurred. Please try again."
+      );
       return handleShow;
     }
 
-    if (auth.role === roles.Inactive) {
+    // Logic for inactive users
+    if (userObject.role === roles.Inactive) {
       let bearer = await auth.withAppUser();
-      const getAccessRequestStatus = async (id) => {
-        return axios
-          .get(`${apiHost}/api/access-request/${id}`, {
+      // Get status of latest access request
+      try {
+        const accessRequestStatus = await axios
+          .get(`${apiHost}/api/users/${userObject.id}/latest-access-request`, {
             headers: { Authorization: bearer },
           })
           .then((res) => {
+            if (!res.data.length) return null;
             return res.data.status;
           })
           .catch((error) => {
-            if (error.response) {
-              throw new Error("Unauthorized");
-            } else if (error.request) {
-              throw new Error("No response");
-            } else {
-              throw new Error("Unknown error");
-            }
+            errorParser(error);
           });
-      };
-      // Check for active access requests
-      let accessRequestIds = await axios
-        .get(`${apiHost}/api/users/${auth.user.id}`, {
-          headers: { Authorization: bearer },
-        })
-        .then((res) => {
-          return res.data.access_request;
-        });
-      if (!accessRequestIds.length) history.push("/");
-
-      // If active access request redirect to access pending thing
-      // If no access request active redirect to new access request
+        // If no active request or no requests at all
+        if (accessRequestStatus !== "ACT" || !accessRequestStatus) {
+          return () => history.push(`${path}/send-access-request`);
+        } else {
+          return () => history.push(`${path}/access-pending`);
+        }
+      } catch (error) {
+        auth.signout();
+        setErrorName("Error");
+        setErrorMessage("An error occurred. Please try again.");
+        return handleShow;
+      }
+    } else {
+      return () => history.push("/");
     }
   };
 
@@ -102,14 +112,32 @@ export default function LoginPages() {
         { headers: { Authorization: auth.withAppUser() } }
       )
       .catch((error) => {
-        if (error.response) {
-          throw new Error("Unauthorized");
-        } else if (error.request) {
-          throw new Error("No response");
-        } else {
-          throw new Error("Unknown error");
-        }
+        errorParser(error);
       });
+  };
+
+  const handleRepeatAccessRequest = async (values, { setSubmitting }) => {
+    setLoading(true);
+
+    try {
+      // Create access request
+      await handleAccessRequestCreation(
+        auth.user.id,
+        values.occupation,
+        values.justification
+      );
+
+      return true;
+    } catch (e) {
+      setErrorName("Error");
+      setErrorMessage("An error occurred, please try again.");
+      handleShow();
+
+      return false;
+    } finally {
+      setLoading(false);
+      setSubmitting(false);
+    }
   };
 
   const handleCreateAccountSubmit = async (values, { setSubmitting }) => {
@@ -193,8 +221,6 @@ export default function LoginPages() {
     return true;
   };
 
-  // TODO: Add logic for redirecting inactive user to access request (maybe can redirect to dash and provide a new button in nav bar)
-  // TODO: Add logic for redirecting inactive user with active req to page indicate pending access (maybe make pending access page its own component)
   return (
     <>
       <Row className="h-100">
@@ -219,21 +245,32 @@ export default function LoginPages() {
           className="d-flex login-form justify-content-center align-items-center"
         >
           <Switch>
-            <div className="my-auto flex-fill">
-              <Route exact path={path}>
-                <LoginForm loading={loading} handleSubmit={handleLoginSubmit} />
-              </Route>
-              <Route path={`${path}/create-account`}>
-                <CreateAccount
-                  loading={loading}
-                  handleSubmit={handleCreateAccountSubmit}
-                  userExists={userExists}
-                />
-              </Route>
-              <Route path={`${path}/access-pending`}>
-                <AccessPending />
-              </Route>
-            </div>
+            <>
+              <div className="my-auto flex-fill">
+                <Route exact path={path}>
+                  <LoginForm
+                    loading={loading}
+                    handleSubmit={handleLoginSubmit}
+                  />
+                </Route>
+                <Route path={`${path}/create-account`}>
+                  <CreateAccount
+                    loading={loading}
+                    handleSubmit={handleCreateAccountSubmit}
+                    userExists={userExists}
+                  />
+                </Route>
+                <Route path={`${path}/access-pending`}>
+                  <AccessPending />
+                </Route>
+              </div>
+            </>
+            <Route path={`${path}/send-access-request`}>
+              <RepeatAccessRequest
+                loading={loading}
+                handleSubmit={handleAccessRequestCreation}
+              />
+            </Route>
           </Switch>
         </Col>
       </Row>

@@ -1,6 +1,6 @@
 from django.db import models
-from . import Meter
-import DataPoints
+from .meter import Meter
+from .data_point import DataPoint
 
 
 class MeterData(models.Model):

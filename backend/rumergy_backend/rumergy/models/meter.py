@@ -1,6 +1,6 @@
 from django.db import models
-from . import MeterModel
-from . import Building
+from .meter_model import MeterModel
+from .building import Building
 from django.utils.translation import gettext_lazy as _
 
 

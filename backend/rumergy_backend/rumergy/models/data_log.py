@@ -4,6 +4,7 @@ from .meter import Meter
 from django.utils.timezone import now
 
 
+
 class DataLog(models.Model):
     start_date = models.DateTimeField(default=now)
     end_date = models.DateTimeField(default=now)

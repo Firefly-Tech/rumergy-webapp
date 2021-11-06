@@ -16,6 +16,7 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated]
+    # permission_classes = [permissions.AllowAny] # Only use for testing
 
     @action(detail=False, methods=["get"])
     def get_user_from_auth(self, request, pk=None):

@@ -15,6 +15,7 @@ class UserSerializer(serializers.ModelSerializer):
     """Serializer for user model"""
 
     profile = UserProfileSerializer()
+    access_request = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
 
     class Meta:
         model = User

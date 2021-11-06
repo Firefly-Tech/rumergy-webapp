@@ -20,6 +20,7 @@ class UserViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ["username", "email"]
+    # permission_classes = [permissions.AllowAny] # Only use for testing
 
     @action(detail=False, methods=["get"])
     def get_user_from_auth(self, request, pk=None):

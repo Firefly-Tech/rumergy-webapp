@@ -12,14 +12,18 @@ const testMeterList = [
 ];
 
 const testData = {
-  labels: ["1", "2", "3", "4", "5", "6"],
+  labels: [
+    1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+  ],
   datasets: [
     {
       label: "# of Votes",
-      data: [12, 19, 3, 5, 2, 3],
+      data: [
+        12, 19, 3, 5, 2, 3, 12, 19, 32, 5, 2, 3, 12, 198, 3, 5, 2, 3, 2, 3,
+      ],
       fill: false,
-      backgroundColor: "rgb(255, 99, 132)",
-      borderColor: "rgba(255, 99, 132, 0.2)",
+      backgroundColor: "rgb(0, 79, 45)",
+      borderColor: "rgba(0, 79, 45, 0.2)",
     },
   ],
 };
@@ -87,7 +91,7 @@ function Dashboard(props) {
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
 
-  /* METER DATA FETCH HANDLERS */
+  /* METER DATA FETCH HANDLERS/HELPERS*/
   const handleFetch = () => {
     if (!(selectedMeters.length > 0)) {
       handleShow();
@@ -100,17 +104,42 @@ function Dashboard(props) {
   const fetchData = () => {
     setLoading(true);
 
+    const getLabel = () => {
+      return selectedDatatype === "consumption" ? "Consumption" : "Demand";
+    };
+
     var startingDateTime = new Date(
       Date.now() - selectedTimeframe
     ).toISOString();
 
+    // TODO: Add axis labels
+    const data = {
+      labels: [],
+      datasets: [
+        {
+          label: getLabel(),
+          data: [],
+          fill: false,
+          backgroundColor: "rgb(0, 79, 45)",
+          borderColor: "rgba(0, 79, 45, 0.2)",
+        },
+      ],
+    };
+
     if (meterIDList.length > 1) {
       // Multiple meters
+      //consumption
+      //demand
     } else {
       // Single meter
+      //consumption
+      //demand
     }
 
-    setMeterData(testData);
+    data.labels = testData.labels;
+    data.datasets[0].data = testData.datasets[0].data;
+
+    setMeterData(data);
     setLoading(false);
   };
 

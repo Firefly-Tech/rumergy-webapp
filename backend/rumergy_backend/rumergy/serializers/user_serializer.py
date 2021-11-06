@@ -15,10 +15,11 @@ class UserSerializer(serializers.ModelSerializer):
     """Serializer for user model"""
 
     profile = UserProfileSerializer()
+    access_request = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
 
     class Meta:
         model = User
-        fields = ["id", "username", "email", "password", "profile"]
+        fields = ["id", "username", "email", "password", "profile", "access_request"]
         extra_kwargs = {"password": {"write_only": True}}
 
     def create(self, validated_data):

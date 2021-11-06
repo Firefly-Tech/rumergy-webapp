@@ -28,6 +28,45 @@ function useProvideAuth() {
   const [role, setRole] = useState(roles.General);
   const [accessToken, setAccessToken] = useState(null);
 
+  // Axios instance for users
+  const userAxiosInstance = axios.create();
+
+  // Request interceptor
+  userAxiosInstance.interceptors.request.use(
+    async (config) => {
+      config.headers = {
+        Authorization: `Bearer ${accessToken}`,
+      };
+      return config;
+    },
+    (error) => {
+      Promise.reject(error);
+    }
+  );
+
+  // Response interceptor
+  userAxiosInstance.interceptors.response.use(
+    (response) => {
+      return response;
+    },
+    async (error) => {
+      const originalRequest = error.config;
+      if (error.response.status === 401 && !originalRequest._retry) {
+        originalRequest._retry = true;
+        try {
+          const access = await tryRefresh(localStorage.getItem("refresh"));
+          axios.defaults.headers.common["Authorization"] = `Bearer ${access}`;
+          setAccessToken(access);
+          return userAxiosInstance(originalRequest);
+        } catch (error) {
+          signout();
+          return Promise.reject(error);
+        }
+      }
+      return Promise.reject(error);
+    }
+  );
+
   // App user
   // For non-logged in requests
   const [appRefreshToken, setAppRefreshToken] = useState(null);
@@ -51,13 +90,7 @@ function useProvideAuth() {
         return res.data.user;
       })
       .catch((error) => {
-        if (error.response) {
-          throw new Error("Unauthorized");
-        } else if (error.request) {
-          throw new Error("No response");
-        } else {
-          throw new Error("Unknown error");
-        }
+        throw error;
       });
   };
 
@@ -81,13 +114,7 @@ function useProvideAuth() {
         return res.data;
       })
       .catch((error) => {
-        if (error.response) {
-          throw new Error("Unauthorized");
-        } else if (error.request) {
-          throw new Error("No response");
-        } else {
-          throw new Error("Unknown error");
-        }
+        throw error;
       });
   };
 
@@ -114,13 +141,7 @@ function useProvideAuth() {
         return res.data.access;
       })
       .catch((error) => {
-        if (error.response) {
-          throw new Error("Unauthorized");
-        } else if (error.request) {
-          throw new Error("No response");
-        } else {
-          throw new Error("Unknown error");
-        }
+        throw error;
       });
   };
 
@@ -139,13 +160,7 @@ function useProvideAuth() {
           return res.data;
         })
         .catch((error) => {
-          if (error.response) {
-            throw new Error("Unauthorized");
-          } else if (error.request) {
-            throw new Error("No response");
-          } else {
-            throw new Error("Unknown error");
-          }
+          throw error;
         });
       setAppRefreshToken(loginResponse.refresh);
 
@@ -161,7 +176,7 @@ function useProvideAuth() {
 
       return `Bearer ${access}`;
     } catch (error) {
-      if (error.message !== "Unauthorized") {
+      if (error.response.status !== 401) {
         throw error;
       }
       return appUserLogin();
@@ -229,6 +244,6 @@ function useProvideAuth() {
     sendPasswordResetEmail,
     confirmPasswordReset,
     withAppUser,
-    getAuthBearer,
+    userAxiosInstance,
   };
 }

@@ -18,13 +18,13 @@ const sidebarData = [
   {
     menuName: "Dashboard",
     link: "/dashboard",
-    userRestrictions: [roles.General, roles.Advanced],
+    userRestrictions: [roles.General, roles.Advanced, roles.Inactive],
     icon: <FaChartLine className="fs-5" />,
   },
   {
     menuName: "About",
     link: "/about",
-    userRestrictions: [roles.General, roles.Advanced],
+    userRestrictions: [roles.General, roles.Advanced, roles.Inactive],
     icon: <FaInfoCircle className="fs-5" />,
   },
 ];

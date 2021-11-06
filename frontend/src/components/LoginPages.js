@@ -56,6 +56,7 @@ export default function LoginPages() {
           ? "Provided credentials are invalid."
           : "An error occurred. Please try again."
       );
+
       return handleShow;
     }
 
@@ -65,16 +66,17 @@ export default function LoginPages() {
       // Get status of latest access request
       try {
         const accessRequestStatus = await axios
-          .get(`${apiHost}/api/users/${userObject.id}/latest-access-request`, {
+          .get(`${apiHost}/api/users/${userObject.id}/latest_access_request`, {
             headers: { Authorization: bearer },
           })
           .then((res) => {
-            if (!res.data.length) return null;
+            if (!res.data) return null;
             return res.data.status;
           })
           .catch((error) => {
             errorParser(error);
           });
+
         // If no active request or no requests at all
         if (accessRequestStatus !== "ACT" || !accessRequestStatus) {
           return () => history.push(`${path}/send-access-request`);
@@ -109,7 +111,7 @@ export default function LoginPages() {
           occupation: occupation,
           justification: justification,
         },
-        { headers: { Authorization: auth.withAppUser() } }
+        { headers: { Authorization: await auth.withAppUser() } }
       )
       .catch((error) => {
         errorParser(error);

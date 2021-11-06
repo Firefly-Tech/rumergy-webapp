@@ -25,7 +25,7 @@ class AccessRequestViewSet(viewsets.ModelViewSet):
                 'RUMergy: Access Request Notification',
                 'A new access request has been submitted.',
                 settings.EMAIL_HOST_USER,
-                [admin_emails],
+                admin_emails,
                 fail_silently=False,
             )
 
@@ -48,7 +48,7 @@ class AccessRequestViewSet(viewsets.ModelViewSet):
             [user.email],
             fail_silently=False,
         )
-        
+
         return Response("OK", status.HTTP_200_OK)
 
     @action(detail=True, methods=["put"])

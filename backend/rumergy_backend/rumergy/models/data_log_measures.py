@@ -1,6 +1,6 @@
 from django.db import models
 from . import DataLog
-from . import DataPoints
+from . import DataPoint
 
 
 class DataLogMeasures(models.Model):

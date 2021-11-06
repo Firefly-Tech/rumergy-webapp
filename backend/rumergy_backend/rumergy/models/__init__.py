@@ -7,3 +7,4 @@ from .meter import Meter
 from .meter_data import MeterData
 from .access_request import AccessRequest
 from .data_log_measures import DataLogMeasures
+from .data_point import DataPoint

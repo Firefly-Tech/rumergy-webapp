@@ -118,7 +118,7 @@ function DashboardVisualization(props) {
 }
 
 DashboardVisualization.propTypes = {
-  selectedTimeframe: PropTypes.string,
+  selectedTimeframe: PropTypes.number,
   selectedDatatype: PropTypes.string,
   setSelectedDatatype: PropTypes.func,
   setSelectedTimeframe: PropTypes.func,

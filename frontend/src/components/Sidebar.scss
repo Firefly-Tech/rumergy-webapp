@@ -23,18 +23,6 @@ $nav-link-hover-color: $dark-grey;
   }
 }
 
-.sidebar-footer {
-  a {
-    color: white;
-  }
-
-  a:hover {
-    color: $dark-grey;
-    transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,
-      border-color 0.15s ease-in-out;
-  }
-}
-
 .sidebar-item {
   a {
     display: flex;

@@ -1,17 +1,27 @@
-import { React, useState } from "react";
+import { React } from "react";
 import "./App.scss";
-import { BrowserRouter as Router, Route, Redirect } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Route,
+  Redirect,
+  Switch,
+} from "react-router-dom";
 import { Container, Row, Col } from "react-bootstrap";
 import Sidebar from "./components/Sidebar";
 import { roles } from "./resources/constants";
 import Dashboard from "./components/Dashboard";
+import Login from "./components/Login";
+import { useAuth } from "./resources/use-auth";
+
+const includeSidebar = ["/dashboard*", "/admin*", "/advanced*", "/about*"];
 
 function App() {
-  const [userRole, setUserRole] = useState(roles.General);
+  const auth = useAuth();
 
-  const rootRedirect = (role) => {
+  // TODO: Add redirect for INA user
+  const rootRedirect = () => {
     return (
-      ((userRole === roles.General || userRole === roles.Advanced) &&
+      ((auth.role === roles.General || auth.role === roles.Advanced) &&
         "/dashboard") ||
       "/admin/manage-meters"
     );
@@ -19,24 +29,35 @@ function App() {
 
   return (
     <Router>
-      <Route path="/" exact>
-        <Redirect to={rootRedirect(userRole)} />
-      </Route>
       <Container fluid className="overflow-hidden">
         <Row className="vh-100 overflow-hidden">
-          <Col
-            sm={3}
-            xl={2}
-            className="d-flex flex-column sticky-top px-0 pr-sm-2"
-          >
-            <Sidebar userRole={userRole} />
-          </Col>
-          <Col className="pt-4 pt-sm-0">
-            <Route path="/dashboard">
-              {(userRole === roles.Admin && (
-                <Redirect to="/admin/manage-meters" />
-              )) || <Dashboard />}
-            </Route>
+          <Route path={includeSidebar}>
+            <Col
+              sm={3}
+              xl={2}
+              className="d-flex flex-column sticky-top px-0 pr-sm-2"
+            >
+              <Sidebar />
+            </Col>
+          </Route>
+          <Col className="pt-sm-0">
+            <Switch>
+              <Route path="/dashboard">
+                {(auth.role === roles.Admin && (
+                  <Redirect to="/admin/manage-meters" />
+                )) || <Dashboard />}
+              </Route>
+              <Route path="/login">
+                <Login />
+              </Route>
+              <Route path="/" exact>
+                <Redirect to={rootRedirect()} />
+              </Route>
+              {/* TODO: Add 404 page */}
+              <Route path="*">
+                <h3>Page not found</h3>
+              </Route>
+            </Switch>
           </Col>
         </Row>
       </Container>

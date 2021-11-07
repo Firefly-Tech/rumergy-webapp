@@ -5,5 +5,5 @@ class DataPointSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = DataPoint
-        fields = ['name', 'unit', 'start_address', 'end_address', 'data_type', 'register_type']
+        fields = ["id", "model", "name", "unit", "start_address", "end_address", "data_type", "register_type"]
    

@@ -7,15 +7,15 @@ from django.utils.translation import gettext_lazy as _
 class Meter(models.Model):
     """Database model for meters in the system"""
 
-    name = models.CharField(max_length=30)
     meter_model = models.ForeignKey(MeterModel, related_name='meters', on_delete=models.RESTRICT)
     building = models.ForeignKey(Building, related_name='meters', on_delete=models.RESTRICT)
+    name = models.CharField(max_length=30)
     ip = models.CharField(max_length=30)
     port = models.IntegerField(default=502)
     substation = models.CharField(max_length=60)
     longitude = models.FloatField()
     latitude = models.FloatField()
-    comments = models.CharField(max_length=200)
+    comments = models.CharField(max_length=200, default="No comment provided")
     panel_id = models.CharField(max_length=60)
     serial_number = models.CharField(max_length=100)
 

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext, createContext } from "react";
 import PropTypes from "prop-types";
 import axios from "axios";
 import { roles } from "./constants";
+import { useHistory } from "react-router-dom";
 
 const authContext = createContext();
 const apiHost = process.env.REACT_APP_API_HOST;
@@ -22,11 +23,14 @@ ProvideAuth.propTypes = {
 export const useAuth = () => {
   return useContext(authContext);
 };
+
 // Provider hook that creates auth object and handles state
 function useProvideAuth() {
   const [user, setUser] = useState(null);
   const [role, setRole] = useState(roles.General);
   const [accessToken, setAccessToken] = useState(null);
+
+  const history = useHistory();
 
   // Axios instance for users
   const userAxiosInstance = axios.create();
@@ -55,11 +59,15 @@ function useProvideAuth() {
         originalRequest._retry = true;
         try {
           const access = await tryRefresh(localStorage.getItem("refresh"));
-          axios.defaults.headers.common["Authorization"] = `Bearer ${access}`;
           setAccessToken(access);
-          return userAxiosInstance(originalRequest);
+          userAxiosInstance.defaults.headers.common[
+            "Authorization"
+          ] = `Bearer ${access}`;
+          originalRequest.headers["Authorization"] = `Bearer ${access}`;
+          return axios(originalRequest);
         } catch (error) {
           signout();
+          history.push("/login");
           return Promise.reject(error);
         }
       }

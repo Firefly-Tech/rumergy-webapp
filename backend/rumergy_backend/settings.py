@@ -136,6 +136,9 @@ REST_FRAMEWORK = {
     ],
 }
 
+SIMPLE_JWT = {
+}
+
 CORS_ORIGIN_ALLOW_ALL = True
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'

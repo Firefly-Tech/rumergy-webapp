@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext, createContext } from "react";
 import PropTypes from "prop-types";
 import axios from "axios";
 import { roles } from "./constants";
+import { useHistory } from "react-router-dom";
 
 const authContext = createContext();
 const apiHost = process.env.REACT_APP_API_HOST;
@@ -22,12 +23,58 @@ ProvideAuth.propTypes = {
 export const useAuth = () => {
   return useContext(authContext);
 };
+
 // Provider hook that creates auth object and handles state
 function useProvideAuth() {
   const [user, setUser] = useState(null);
   const [role, setRole] = useState(roles.General);
   const [accessToken, setAccessToken] = useState(null);
-  
+
+  const history = useHistory();
+
+  // Axios instance for users
+  const userAxiosInstance = axios.create();
+
+  // Request interceptor
+  userAxiosInstance.interceptors.request.use(
+    async (config) => {
+      config.headers = {
+        Authorization: `Bearer ${accessToken}`,
+      };
+      return config;
+    },
+    (error) => {
+      Promise.reject(error);
+    }
+  );
+
+  // Response interceptor
+  userAxiosInstance.interceptors.response.use(
+    (response) => {
+      return response;
+    },
+    async (error) => {
+      const originalRequest = error.config;
+      if (error.response.status === 401 && !originalRequest._retry) {
+        originalRequest._retry = true;
+        try {
+          const access = await tryRefresh(localStorage.getItem("refresh"));
+          setAccessToken(access);
+          userAxiosInstance.defaults.headers.common[
+            "Authorization"
+          ] = `Bearer ${access}`;
+          originalRequest.headers["Authorization"] = `Bearer ${access}`;
+          return axios(originalRequest);
+        } catch (error) {
+          signout();
+          history.push("/login");
+          return Promise.reject(error);
+        }
+      }
+      return Promise.reject(error);
+    }
+  );
+
   // App user
   // For non-logged in requests
   const [appRefreshToken, setAppRefreshToken] = useState(null);
@@ -51,13 +98,7 @@ function useProvideAuth() {
         return res.data.user;
       })
       .catch((error) => {
-        if (error.response) {
-          throw new Error("Unauthorized");
-        } else if (error.request) {
-          throw new Error("No response");
-        } else {
-          throw new Error("Unknown error");
-        }
+        throw error;
       });
   };
 
@@ -81,13 +122,7 @@ function useProvideAuth() {
         return res.data;
       })
       .catch((error) => {
-        if (error.response) {
-          throw new Error("Unauthorized");
-        } else if (error.request) {
-          throw new Error("No response");
-        } else {
-          throw new Error("Unknown error");
-        }
+        throw error;
       });
   };
 
@@ -114,13 +149,7 @@ function useProvideAuth() {
         return res.data.access;
       })
       .catch((error) => {
-        if (error.response) {
-          throw new Error("Unauthorized");
-        } else if (error.request) {
-          throw new Error("No response");
-        } else {
-          throw new Error("Unknown error");
-        }
+        throw error;
       });
   };
 
@@ -139,13 +168,7 @@ function useProvideAuth() {
           return res.data;
         })
         .catch((error) => {
-          if (error.response) {
-            throw new Error("Unauthorized");
-          } else if (error.request) {
-            throw new Error("No response");
-          } else {
-            throw new Error("Unknown error");
-          }
+          throw error;
         });
       setAppRefreshToken(loginResponse.refresh);
 
@@ -161,7 +184,7 @@ function useProvideAuth() {
 
       return `Bearer ${access}`;
     } catch (error) {
-      if (error.message !== "Unauthorized") {
+      if (error.response.status !== 401) {
         throw error;
       }
       return appUserLogin();
@@ -230,6 +253,6 @@ function useProvideAuth() {
     sendPasswordResetEmail,
     confirmPasswordReset,
     withAppUser,
-    getAuthBearer,
+    userAxiosInstance,
   };
 }

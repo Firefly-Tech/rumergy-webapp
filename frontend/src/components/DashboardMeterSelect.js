@@ -24,8 +24,8 @@ function DashboardSelectedMeters(props) {
   const meterSearch = () => {
     setSearchResults(
       searchInput
-        ? props.meterList.filter((meterName) => {
-            return meterName.toLowerCase().includes(searchInput.toLowerCase());
+        ? props.meterList.filter((meter) => {
+            return meter.name.toLowerCase().includes(searchInput.toLowerCase());
           })
         : []
     );
@@ -54,10 +54,10 @@ function DashboardSelectedMeters(props) {
         </Card.Title>
         {props.meterList.length !== 0 ? (
           searchActive ? (
-            searchResults.map((meterName, index) => {
+            searchResults.map((meter, index) => {
               return (
                 <DashboardMeterItem
-                  meterName={meterName}
+                  meter={meter}
                   key={index}
                   clickAction={props.selectMeter}
                   isAdd={true}
@@ -65,10 +65,10 @@ function DashboardSelectedMeters(props) {
               );
             })
           ) : (
-            props.meterList.map((meterName, index) => {
+            props.meterList.map((meter, index) => {
               return (
                 <DashboardMeterItem
-                  meterName={meterName}
+                  meter={meter}
                   key={index}
                   clickAction={props.selectMeter}
                   isAdd={true}
@@ -80,15 +80,9 @@ function DashboardSelectedMeters(props) {
           <h5 className="text-center my-auto">No more meters available</h5>
         )}
       </Card.Body>
-      {props.meterList.length !== 0 && !searchActive && (
-        <div className="d-flex flex-row flex-shrink-1 meter-select-footer-button mt-auto mb-3 px-3">
-          <IconButton
-            icon={<FaPlus />}
-            optionalText={"Select all"}
-            clickAction={props.selectAll}
-          />
-        </div>
-      )}
+      <div className="d-flex flex-row flex-shrink-1 meter-select-footer-button mt-auto mb-3 px-3">
+        {"Select up to 5 meters"}
+      </div>
     </Card>
   );
 }
@@ -96,7 +90,6 @@ function DashboardSelectedMeters(props) {
 DashboardSelectedMeters.propTypes = {
   meterList: PropTypes.array,
   selectMeter: PropTypes.func,
-  selectAll: PropTypes.func,
 };
 
 export default DashboardSelectedMeters;

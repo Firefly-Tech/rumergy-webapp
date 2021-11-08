@@ -1,7 +1,6 @@
 import { React } from "react";
 import "./App.scss";
 import {
-  BrowserRouter as Router,
   Route,
   Redirect,
   Switch,
@@ -10,7 +9,7 @@ import { Container, Row, Col } from "react-bootstrap";
 import Sidebar from "./components/Sidebar";
 import { roles } from "./resources/constants";
 import Dashboard from "./components/Dashboard";
-import Login from "./components/Login";
+import LoginPages from "./components/LoginPages";
 import { useAuth } from "./resources/use-auth";
 
 const includeSidebar = ["/dashboard*", "/admin*", "/advanced*", "/about*"];
@@ -21,14 +20,15 @@ function App() {
   // TODO: Add redirect for INA user
   const rootRedirect = () => {
     return (
-      ((auth.role === roles.General || auth.role === roles.Advanced) &&
+      ((auth.role === roles.General ||
+        auth.role === roles.Advanced ||
+        auth.role === roles.Inactive) &&
         "/dashboard") ||
       "/admin/manage-meters"
     );
   };
 
   return (
-    <Router>
       <Container fluid className="overflow-hidden">
         <Row className="vh-100 overflow-hidden">
           <Route path={includeSidebar}>
@@ -48,7 +48,7 @@ function App() {
                 )) || <Dashboard />}
               </Route>
               <Route path="/login">
-                <Login />
+                <LoginPages />
               </Route>
               <Route path="/" exact>
                 <Redirect to={rootRedirect()} />
@@ -61,7 +61,6 @@ function App() {
           </Col>
         </Row>
       </Container>
-    </Router>
   );
 }
 

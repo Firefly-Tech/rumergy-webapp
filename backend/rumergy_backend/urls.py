@@ -7,7 +7,7 @@ from rumergy_backend.rumergy.views.data_log_view import DataLogViewSet
 from rumergy_backend.rumergy.views.data_point_view import DataPointViewSet
 
 router = DefaultRouter()
-router.register(r"api/users", views.UserViewSet)
+router.register(r"api/users", views.UserViewSet, basename="users")
 router.register(r"api/access-request", views.AccessRequestViewSet)
 router.register(r"api/buildings", views.BuildingViewSet)
 router.register(r"api/data-log-measures", views.DataLogMeasuresViewSet)

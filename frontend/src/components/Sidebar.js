@@ -18,13 +18,13 @@ const sidebarData = [
   {
     menuName: "Dashboard",
     link: "/dashboard",
-    userRestrictions: [roles.General, roles.Advanced],
+    userRestrictions: [roles.General, roles.Advanced, roles.Inactive],
     icon: <FaChartLine className="fs-5" />,
   },
   {
     menuName: "About",
     link: "/about",
-    userRestrictions: [roles.General, roles.Advanced],
+    userRestrictions: [roles.General, roles.Advanced, roles.Inactive],
     icon: <FaInfoCircle className="fs-5" />,
   },
 ];
@@ -80,7 +80,12 @@ function Sidebar(props) {
             icon={isLoggedIn() ? <FaSignOutAlt /> : <FaSignInAlt />}
             optionalText={isLoggedIn() ? "Logout" : "Login"}
             clickAction={
-              isLoggedIn() ? auth.signout : () => history.push("/login")
+              isLoggedIn()
+                ? () => {
+                    auth.signout();
+                    history.push("/");
+                  }
+                : () => history.push("/login")
             }
           />
         </div>

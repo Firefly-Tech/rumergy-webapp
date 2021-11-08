@@ -15,6 +15,7 @@ pyjwt = "~=2.1.0"
 django-cors-headers = "*"
 
 [dev-packages]
+pynvim = "*"
 
 [requires]
 python_version = "3.9"

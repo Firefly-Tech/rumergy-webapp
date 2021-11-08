@@ -4,12 +4,15 @@ import "./index.scss";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import { ProvideAuth } from "./resources/use-auth";
+import { BrowserRouter as Router } from "react-router-dom";
 
 ReactDOM.render(
   <React.StrictMode>
-    <ProvideAuth>
-      <App />
-    </ProvideAuth>
+    <Router>
+      <ProvideAuth>
+        <App />
+      </ProvideAuth>
+    </Router>
   </React.StrictMode>,
   document.getElementById("root")
 );

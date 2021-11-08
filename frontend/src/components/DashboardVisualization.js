@@ -30,7 +30,6 @@ const options = {
   },
 };
 
-// TODO: Add refresh button to fetch data or use timer between meter selects (3 s)
 function DashboardVisualization(props) {
   return (
     <Card as={Row} className="dashboard-data-visualization-card mb-sm-4 h-100">

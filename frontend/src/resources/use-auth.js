@@ -242,6 +242,7 @@ function useProvideAuth() {
   }, []);
 
   // Return the user objects and auth methods
+
   return {
     user,
     accessToken,

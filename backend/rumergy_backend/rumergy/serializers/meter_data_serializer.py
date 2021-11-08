@@ -7,4 +7,4 @@ class MeterDataSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = MeterData
-        fields = ["id", "timestamp", "avg", "min", "max"]
+        fields = ["id", "data_point", "meter", "timestamp", "avg", "min", "max"]

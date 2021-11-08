@@ -2,6 +2,7 @@ from django.db import models
 from .meter_model import MeterModel
 
 class DataPoint(models.Model):
+    model = models.ForeignKey(MeterModel, related_name='data_points', on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
     unit = models.CharField(max_length=10)
     start_address = models.PositiveSmallIntegerField()
@@ -28,5 +29,3 @@ class DataPoint(models.Model):
     ]
 
     register_type = models.CharField(max_length=4,choices=REGISTER_TYPE, default=HOLDING)
-
-    model = models.ForeignKey(MeterModel, related_name='data_points', on_delete=models.PROTECT)

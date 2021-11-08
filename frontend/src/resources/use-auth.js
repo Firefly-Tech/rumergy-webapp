@@ -27,7 +27,7 @@ function useProvideAuth() {
   const [user, setUser] = useState(null);
   const [role, setRole] = useState(roles.General);
   const [accessToken, setAccessToken] = useState(null);
-
+  
   // App user
   // For non-logged in requests
   const [appRefreshToken, setAppRefreshToken] = useState(null);
@@ -219,6 +219,7 @@ function useProvideAuth() {
   }, []);
 
   // Return the user objects and auth methods
+
   return {
     user,
     accessToken,

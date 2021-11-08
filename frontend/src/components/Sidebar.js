@@ -11,6 +11,8 @@ import {
   FaClipboardList,
   FaClipboardCheck,
   FaSatelliteDish,
+  FaList,
+  FaUsers,
 } from "react-icons/fa";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import Help from "./Help";
@@ -45,6 +47,30 @@ const sidebarData = [
     link: "/real-time-monitor",
     userRestrictions: [roles.Advanced],
     icon: <FaSatelliteDish className="fs-5" />,
+  },
+  {
+    menuName: "Meters",
+    link: "/meters",
+    userRestrictions: [roles.Admin],
+    icon: <FaList className="fs-5" />,
+  },
+  {
+    menuName: "Meter Models",
+    link: "/meter-models",
+    userRestrictions: [roles.Admin],
+    icon: <FaList className="fs-5" />,
+  },
+  {
+    menuName: "Users",
+    link: "/users",
+    userRestrictions: [roles.Admin],
+    icon: <FaUsers className="fs-5" />,
+  },
+  {
+    menuName: "Access request",
+    link: "/access-request",
+    userRestrictions: [roles.Admin],
+    icon: <FaUsers className="fs-5" />,
   },
 
 ];

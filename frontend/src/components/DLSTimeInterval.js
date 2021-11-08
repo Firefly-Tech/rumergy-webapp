@@ -15,13 +15,13 @@ function DLSTimeInterval(props){
                         <div key={`default-${type}`} className="mb-3">
                             <Form.Check 
                             type={type}
-                            id={`default-${type}`}
+                            id={`Test2-${type}`}
                             label={`Test ${type}`}
                             />
 
                             <Form.Check 
                             type={type}
-                            id={`default-${type}`}
+                            id={`Test1-${type}`}
                             label={`Test ${type}`}
                             />
                         </div>

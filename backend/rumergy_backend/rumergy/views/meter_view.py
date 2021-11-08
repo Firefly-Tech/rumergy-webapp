@@ -21,7 +21,6 @@ class MeterViewSet(viewsets.ModelViewSet):
         try:
             start = parser.isoparse(request.query_params["start"])
             data_type = request.query_params["data_type"]
-            data_format = request.query_params["data_format"]
         except Exception as e:
             return Response("Invalid request format", status.HTTP_400_BAD_REQUEST)
         if (

@@ -49,10 +49,10 @@ export default function LoginPages() {
       userObject = await auth.signin(username, password);
     } catch (error) {
       setErrorName(
-        error.message === "Unauthorized" ? "Invalid credentials" : "Error"
+        error.response.status === 401 ? "Invalid credentials" : "Error"
       );
       setErrorMessage(
-        error.message === "Unauthorized"
+        error.response.status === 401
           ? "Provided credentials are invalid."
           : "An error occurred. Please try again."
       );
@@ -74,7 +74,7 @@ export default function LoginPages() {
             return res.data.status;
           })
           .catch((error) => {
-            errorParser(error);
+            throw error
           });
 
         // If no active request or no requests at all

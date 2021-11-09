@@ -12,7 +12,7 @@ class UserProfile(models.Model):
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL, related_name="profile", on_delete=models.CASCADE
     )
-    first_name = models.CharField(_("first name"), max_length=30)
+    first_name = models.CharField(_("first name"), max_length=50)
     last_name = models.CharField(_("last name"), max_length=60)
 
     class Role(models.TextChoices):

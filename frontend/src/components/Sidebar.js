@@ -14,20 +14,22 @@ import {
   FaList,
   FaUsers,
 } from "react-icons/fa";
-import { Link, NavLink, useLocation } from "react-router-dom";
+import { Link, NavLink, useLocation, useHistory } from "react-router-dom";
 import Help from "./Help";
+import { useAuth } from "../resources/use-auth";
+import IconButton from "./IconButton";
 
 const sidebarData = [
   {
     menuName: "Dashboard",
     link: "/dashboard",
-    userRestrictions: [roles.General, roles.Advanced],
+    userRestrictions: [roles.General, roles.Advanced, roles.Inactive],
     icon: <FaChartLine className="fs-5" />,
   },
   {
     menuName: "About",
     link: "/about",
-    userRestrictions: [roles.General, roles.Advanced],
+    userRestrictions: [roles.General, roles.Advanced, roles.Inactive],
     icon: <FaInfoCircle className="fs-5" />,
   },
   {
@@ -77,13 +79,15 @@ const sidebarData = [
 
 function Sidebar(props) {
   const location = useLocation();
+  const auth = useAuth();
+  const history = useHistory();
 
   const checkRestrictions = (restrictions) => {
-    return restrictions.includes(props.userRole);
+    return restrictions.includes(auth.role);
   };
 
   const isLoggedIn = () => {
-    return props.userRole !== roles.General;
+    return auth.user !== null;
   };
 
   return (
@@ -118,28 +122,25 @@ function Sidebar(props) {
         })}
       </Nav>
       {/* Footer */}
-      <div className="sidebar-footer d-flex flex-sm-row flex-column align-items-center mt-sm-auto p-sm-3 px-3 gap-sm-0 gap-3">
-        <Link
-          className="d-flex align-items-center text-decoration-none me-sm-auto gap-2"
-          to={isLoggedIn() ? "/logout" : "/login"}
-        >
-          {isLoggedIn() ? (
-            <FaSignOutAlt className="fs-5" />
-          ) : (
-            <FaSignInAlt className="fs-5" />
-          )}
-          <span className="d-none d-sm-inline">
-            {isLoggedIn() ? "Logout" : "Login"}
-          </span>
-        </Link>
+      <div className="d-flex flex-column flex-sm-row align-items-center mt-sm-auto p-sm-3 px-3 gap-sm-0 gap-3 fs-6">
+        <div className="me-sm-auto">
+          <IconButton
+            icon={isLoggedIn() ? <FaSignOutAlt /> : <FaSignInAlt />}
+            optionalText={isLoggedIn() ? "Logout" : "Login"}
+            clickAction={
+              isLoggedIn()
+                ? () => {
+                    auth.signout();
+                    history.push("/");
+                  }
+                : () => history.push("/login")
+            }
+          />
+        </div>
         <Help />
       </div>
     </div>
   );
 }
-
-Sidebar.propTypes = {
-  userRole: PropTypes.string,
-};
 
 export default Sidebar;

@@ -1,15 +1,12 @@
 from django.contrib.auth.models import User
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from . import UserProfile
 
 
 class AccessRequest(models.Model):
     """Access request model"""
 
-    user = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="access_request"
-    )
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="access_request")
     timestamp = models.DateTimeField(auto_now_add=True)
     occupation = models.CharField(max_length=20, default="None")
     justification = models.CharField(

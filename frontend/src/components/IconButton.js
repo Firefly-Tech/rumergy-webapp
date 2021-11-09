@@ -3,12 +3,11 @@ import PropTypes from "prop-types";
 
 function IconButton(props) {
   return (
-    <button
-      className="icon-button"
-      onClick={props.clickAction}
-    >
+    <button className="icon-button" onClick={props.clickAction}>
       {props.icon}
-      {props.optionalText && <span>{props.optionalText}</span>}
+      {props.optionalText && (
+        <span className="d-none d-sm-block">{props.optionalText}</span>
+      )}
     </button>
   );
 }

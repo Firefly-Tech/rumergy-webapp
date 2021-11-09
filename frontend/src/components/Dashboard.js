@@ -1,9 +1,9 @@
-import { React, useState, useEffect } from "react";
-import PropTypes from "prop-types";
-import { Col, Row, Modal, Button, Spinner } from "react-bootstrap";
+import { React, useEffect, useState } from "react";
+import { Col, Row, Spinner } from "react-bootstrap";
 import DashboardMeterSelect from "./DashboardMeterSelect";
 import DashboardSelectedMeters from "./DashboardSelectedMeters";
 import DashboardVisualization from "./DashboardVisualization";
+import ErrorModal from "./ErrorModal";
 
 const testMeterList = [
   { id: 1, name: "Stefani 1" },
@@ -29,7 +29,7 @@ const testData = {
 };
 const DAY_IN_MILLISECONDS = 24 * 60 * 60 * 1000;
 
-function Dashboard(props) {
+function Dashboard() {
   const [meterList, setMeterList] = useState([]);
   const [meterNames, setMeterNames] = useState([]);
   const [meterData, setMeterData] = useState({});
@@ -182,23 +182,14 @@ function Dashboard(props) {
           </Row>
         </Col>
       </Row>
-      <Modal centered size="lg" show={show} onHide={handleClose}>
-        <Modal.Header closeButton>
-          <Modal.Title>
-            <h4 className="bold">{errorName}</h4>
-          </Modal.Title>
-        </Modal.Header>
-        <Modal.Body>{errorMessage}</Modal.Body>
-        <Modal.Footer>
-          <Button variant="primary" onClick={handleClose}>
-            Okay
-          </Button>
-        </Modal.Footer>
-      </Modal>
+      <ErrorModal
+        show={show}
+        handleClose={handleClose}
+        errorMessage={errorMessage}
+        errorName={errorName}
+      />
     </>
   );
 }
-
-Dashboard.propTypes = {};
 
 export default Dashboard;

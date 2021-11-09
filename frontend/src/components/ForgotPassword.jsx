@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import { Formik } from "formik";
 import { Form, Row, Col, InputGroup, Spinner, Button } from "react-bootstrap";
 import * as Yup from "yup";
+import { useHistory } from "react-router";
 
 const forgotPasswordSchema = Yup.object().shape({
   email: Yup.string().email("Invalid email format").required("Email required"),
@@ -11,6 +12,8 @@ const forgotPasswordSchema = Yup.object().shape({
 function ForgotPassword(props) {
   const [success, setSuccess] = useState(false);
 
+  const history = useHistory();
+
   if (success) {
     return (
       <>
@@ -18,8 +21,8 @@ function ForgotPassword(props) {
           <Col className="d-flex flex-column justify-content-center text-center">
             <h2 className="bold">Password reset sent</h2>
             <span className="text-muted mb-4">
-              If the given email matches an existing account an email containing
-              instructions on how to reset the password has been sent.
+              If the given email matches an existing account, then an email
+              containing instructions on how to proceed was sent.
             </span>
             <Button
               variant="primary"

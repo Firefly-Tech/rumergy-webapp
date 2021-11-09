@@ -6,6 +6,7 @@ from rest_framework import status
 from rumergy_backend.rumergy.serializers import MeterSerializer, MeterDataSerializer
 from rumergy_backend.rumergy.models import Meter, MeterData
 from dateutil import parser
+from django_filters.rest_framework import DjangoFilterBackend
 
 
 class MeterViewSet(viewsets.ModelViewSet):
@@ -14,6 +15,8 @@ class MeterViewSet(viewsets.ModelViewSet):
     serializer_class = MeterSerializer
     queryset = Meter.objects.all()
     # permission_classes = [permissions.AllowAny] # Only use for testing
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ["status"]
 
     @action(detail=True, methods=["get"])
     def meter_data_by_time_frame(self, request, pk=None):

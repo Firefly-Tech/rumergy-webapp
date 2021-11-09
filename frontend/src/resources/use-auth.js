@@ -5,7 +5,6 @@ import { roles } from "./constants";
 import { useHistory } from "react-router-dom";
 
 const authContext = createContext();
-const apiHost = process.env.REACT_APP_API_HOST;
 
 // Provider component that wraps your app and makes auth object ...
 // ... available to any child component that calls useAuth().
@@ -31,6 +30,7 @@ function useProvideAuth() {
   const [accessToken, setAccessToken] = useState(null);
 
   const history = useHistory();
+  const apiHost = process.env.REACT_APP_API_HOST;
 
   // Axios instance for users
   const userAxiosInstance = axios.create();
@@ -192,7 +192,7 @@ function useProvideAuth() {
   };
 
   const authStateChange = async (callBack) => {
-    if (!localStorage.getItem("refresh")) return null;
+    if (!localStorage.getItem("refresh")) return callBack(null, null, null);
 
     try {
       let access = await tryRefresh(localStorage.getItem("refresh"));
@@ -234,7 +234,7 @@ function useProvideAuth() {
       } else {
         setUser(null);
         setAccessToken(null);
-        setRole(null);
+        setRole(roles.General);
       }
     });
 
@@ -253,6 +253,7 @@ function useProvideAuth() {
     sendPasswordResetEmail,
     confirmPasswordReset,
     withAppUser,
+    apiHost,
     userAxiosInstance,
   };
 }

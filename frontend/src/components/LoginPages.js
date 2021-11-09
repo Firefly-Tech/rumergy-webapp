@@ -17,6 +17,7 @@ import axios from "axios";
 import AccessPending from "./AccessPending";
 import { roles } from "../resources/constants";
 import RepeatAccessRequest from "./RepeatAccessRequest";
+import ForgotPassword from "./ForgotPassword";
 
 const apiHost = process.env.REACT_APP_API_HOST;
 
@@ -74,7 +75,7 @@ export default function LoginPages() {
             return res.data.status;
           })
           .catch((error) => {
-            throw error
+            throw error;
           });
 
         // If no active request or no requests at all
@@ -223,6 +224,10 @@ export default function LoginPages() {
     return true;
   };
 
+  const handleForgotPasswordSubmit = (values, { setSubmitting }) => {
+    return;
+  };
+
   return (
     <>
       <Row className="h-100">
@@ -265,14 +270,20 @@ export default function LoginPages() {
                 <Route path={`${path}/access-pending`}>
                   <AccessPending />
                 </Route>
+                <Route path={`${path}/send-access-request`}>
+                  <RepeatAccessRequest
+                    loading={loading}
+                    handleSubmit={handleAccessRequestCreation}
+                  />
+                </Route>
+                <Route path={`${path}/forgot-password`}>
+                  <ForgotPassword
+                    handleSubmit={handleForgotPasswordSubmit}
+                    loading={loading}
+                  />
+                </Route>
               </div>
             </>
-            <Route path={`${path}/send-access-request`}>
-              <RepeatAccessRequest
-                loading={loading}
-                handleSubmit={handleAccessRequestCreation}
-              />
-            </Route>
           </Switch>
         </Col>
       </Row>

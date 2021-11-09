@@ -24,8 +24,8 @@ function DashboardSelectedMeters(props) {
   const meterSearch = () => {
     setSearchResults(
       searchInput
-        ? props.selectedMeters.filter((meterName) => {
-            return meterName.toLowerCase().includes(searchInput.toLowerCase());
+        ? props.selectedMeters.filter((meter) => {
+            return meter.name.toLowerCase().includes(searchInput.toLowerCase());
           })
         : []
     );
@@ -54,10 +54,10 @@ function DashboardSelectedMeters(props) {
         </Card.Title>
         {props.selectedMeters.length !== 0 ? (
           searchActive ? (
-            searchResults.map((meterName, index) => {
+            searchResults.map((meter, index) => {
               return (
                 <DashboardMeterItem
-                  meterName={meterName}
+                  meter={meter}
                   key={index}
                   clickAction={props.deselectMeter}
                   isAdd={false}
@@ -65,10 +65,10 @@ function DashboardSelectedMeters(props) {
               );
             })
           ) : (
-            props.selectedMeters.map((meterName, index) => {
+            props.selectedMeters.map((meter, index) => {
               return (
                 <DashboardMeterItem
-                  meterName={meterName}
+                  meter={meter}
                   key={index}
                   clickAction={props.deselectMeter}
                   isAdd={false}

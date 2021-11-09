@@ -34,8 +34,8 @@ const sidebarData = [
   },
   {
     menuName: "Data Logging Scheduler",
-    link: "/data-logging-scheduler",
-    userRestrictions: [roles.Advanced],
+    link: "/advanced/data-logging-scheduler",
+    userRestrictions: [roles.General],
     icon: <FaClipboardList className="fs-5" />,
   },
   {

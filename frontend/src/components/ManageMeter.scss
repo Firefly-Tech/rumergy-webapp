@@ -1,7 +1,7 @@
 $card-border-color: transparent;
 $card-bg: $soft-green;
 
-.DLS-card {
+.MM-card {
     border-radius: 1rem;
     
 
@@ -9,14 +9,20 @@ $card-bg: $soft-green;
     height: 0px;
     max-height: 75%;
     
-    
-
     }
   }
 
-.time-interval-control{
-width: 30px;
+  .MM-item-button{
+    margin-left: auto;
+    .icon-button{
+      color: black;
+      font-size: 1.1em;
+    }
 
-}
 
+  }
+
+  .meter-refresh-button{
+    
+  }
 

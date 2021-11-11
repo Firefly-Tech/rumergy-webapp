@@ -35,25 +35,25 @@ const sidebarData = [
   {
     menuName: "Data Logging Scheduler",
     link: "/advanced/data-logging-scheduler",
-    userRestrictions: [roles.General],
+    userRestrictions: [roles.General], //Remember to change to advance
     icon: <FaClipboardList className="fs-5" />,
   },
   {
     menuName: "Data Logs",
-    link: "/data-logs",
-    userRestrictions: [roles.Advanced],
+    link: "/advanced/data-logs",
+    userRestrictions: [roles.General], //remember to change to advance
     icon: <FaClipboardCheck className="fs-5" />,
   },
   {
     menuName: "Real Time Monitor",
-    link: "/real-time-monitor",
+    link: "/advanced/real-time-monitor",
     userRestrictions: [roles.Advanced],
     icon: <FaSatelliteDish className="fs-5" />,
   },
   {
     menuName: "Meters",
-    link: "/meters",
-    userRestrictions: [roles.Admin],
+    link: "/admin/meters",
+    userRestrictions: [roles.General], //remember to put Admin
     icon: <FaList className="fs-5" />,
   },
   {

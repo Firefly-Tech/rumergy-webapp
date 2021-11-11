@@ -1,9 +1,20 @@
 import { React, useState } from "react";
 import PropTypes from "prop-types";
 import { Row, Col, Card, Form } from "react-bootstrap";
+import DLSBuildingSelect from "./DLSBuidingSelect";
 
 function DLSMeterSelect(props){
+    
+    const selectAvailable = () => {
+        // if()){
 
+
+        // }
+
+    }
+    
+    
+    
 
     return(
         <Card className = "DLS-card mb-sm-3 flex-row">
@@ -11,7 +22,7 @@ function DLSMeterSelect(props){
                 <h4 className = "bold mb-0">Meter</h4>
             </Card.Title>
             <Card.Body className = "building-content">
-                <Form.Select aria-label="Default select">
+                <Form.Select id = "meterSelect" aria-label="Default select" disabled = {true}>
                     <option>Choose Meter</option>
                     <option value="1">This</option>
                     <option value="2">Is</option>

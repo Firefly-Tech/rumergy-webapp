@@ -36,7 +36,7 @@ function DataLoggingScheduler(props){
                             <DLSDataPoints/>
                             <>
                                 <Button 
-                                    
+                                    // disabled = {true}
                                     variant="primary" 
                                     onClick={() => setModalShow(true)}>
                                     Submit

@@ -13,6 +13,7 @@ import LoginPages from "./components/LoginPages";
 import { useAuth } from "./resources/use-auth";
 import DataLoggingScheduler from "./components/DataLoggingScheduler";
 import DataLogs from "./components/DataLogs";
+import ManageMeter from "./components/ManageMeter";
 
 const includeSidebar = ["/dashboard*", "/admin*", "/advanced*", "/about*"];
 
@@ -58,11 +59,19 @@ function App() {
               )) || <DataLoggingScheduler />} */}
               <DataLoggingScheduler/>
             </Route>  
-            <Route path = "/data-logs">
+            <Route path = "/advanced/data-logs">
             {/* {(auth.role === roles.Admin && (
                 <Redirect to="/admin/manage-meters" />
               )) || <DataLogs />} */}
               <DataLogs/> 
+            </Route>
+            <Route path = "/admin/meters"> 
+              {
+
+
+
+              }
+              <ManageMeter/>
             </Route>
               <Route path="/" exact>
                 <Redirect to={rootRedirect()} />

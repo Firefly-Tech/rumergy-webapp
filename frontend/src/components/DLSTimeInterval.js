@@ -3,6 +3,13 @@ import PropTypes from "prop-types";
 import { Row, Col, Card, Form } from "react-bootstrap";
 
 function DLSTimeInterval(props){
+    const [customInterval, setCustomInterval] = useState(false);
+
+    const chooseInterval = () =>{
+        
+
+
+    }
 
     return(
         <Card className = "DLS-card mb-sm-3 flex-fill">
@@ -11,21 +18,31 @@ function DLSTimeInterval(props){
             </Card.Title>
             <Card.Body className = "building-content">
                 <Form>
-                {['radio'].map((type) => (
-                        <div key={`default-${type}`} className="mb-3">
+                    <fieldset>
+                        <div key={`default-radio`} className="mb-3">
                             <Form.Check 
-                            type={type}
-                            id={`Test2-${type}`}
-                            label={`Test ${type}`}
+                            type={'radio'}
+                            name = "test1"
+                            id={`Test1-radio`}
+                            label={`Real Time`}
                             />
 
                             <Form.Check 
-                            type={type}
-                            id={`Test1-${type}`}
-                            label={`Test ${type}`}
+                            type={'radio'}
+                            name = "test2"
+                            id={`Test2-radio`}
+                            label={`Custom`}
+                            onClick = {() => chooseInterval()}
                             />
+                            
+                                <Form.Control
+                                //style = "width: 30px"
+                                className = "d-flex "
+                                size = "sm"
+                                type = {'number'}
+                                />
                         </div>
-                ))}
+                        </fieldset>
                 </Form>
             </Card.Body> 
         </Card>

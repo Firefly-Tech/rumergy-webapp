@@ -17,6 +17,8 @@ import axios from "axios";
 import AccessPending from "./AccessPending";
 import { roles } from "../resources/constants";
 import RepeatAccessRequest from "./RepeatAccessRequest";
+import ForgotPassword from "./ForgotPassword";
+import PasswordReset from "./PasswordReset";
 
 export default function LoginPages() {
   const [show, setShow] = useState(false);
@@ -31,15 +33,6 @@ export default function LoginPages() {
 
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
-  const errorParser = (error) => {
-    if (error.response) {
-      throw new Error("Unauthorized");
-    } else if (error.request) {
-      throw new Error("No response");
-    } else {
-      throw new Error("Unknown error");
-    }
-  };
 
   const handleSignin = async (username, password) => {
     let userObject;
@@ -64,15 +57,18 @@ export default function LoginPages() {
       // Get status of latest access request
       try {
         const accessRequestStatus = await axios
-          .get(`${auth.apiHost}/api/users/${userObject.id}/latest_access_request`, {
-            headers: { Authorization: bearer },
-          })
+          .get(
+            `${auth.apiHost}/api/users/${userObject.id}/latest_access_request`,
+            {
+              headers: { Authorization: bearer },
+            }
+          )
           .then((res) => {
             if (!res.data) return null;
             return res.data.status;
           })
           .catch((error) => {
-            throw error
+            throw error;
           });
 
         // If no active request or no requests at all
@@ -112,7 +108,7 @@ export default function LoginPages() {
         { headers: { Authorization: await auth.withAppUser() } }
       )
       .catch((error) => {
-        errorParser(error);
+        throw error;
       });
   };
 
@@ -174,6 +170,7 @@ export default function LoginPages() {
   };
 
   const userExists = async (username, email) => {
+    setLoading(true);
     // Try getting auth for app user
     let bearer;
     try {
@@ -182,6 +179,7 @@ export default function LoginPages() {
       setErrorName("Error");
       setErrorMessage("An error occurred, please try again.");
       handleShow();
+      setLoading(false);
 
       return true;
     }
@@ -209,7 +207,10 @@ export default function LoginPages() {
         return [1];
       });
 
-    if (!userByUsername.length && !userByEmail.length) return false;
+    if (!userByUsername.length && !userByEmail.length) {
+      setLoading(false);
+      return false;
+    }
 
     setErrorName("Error");
     setErrorMessage(
@@ -218,7 +219,67 @@ export default function LoginPages() {
       }${userByEmail.length ? " email" : ""}`
     );
     handleShow();
+    setLoading(false);
     return true;
+  };
+
+  const handleForgotPasswordSubmit = async (values, { setSubmitting }) => {
+    setLoading(true);
+    try {
+      await auth.sendPasswordResetEmail(values.email);
+    } catch (error) {
+      if (error.response.status !== 400) {
+        setErrorName("Error");
+        setErrorMessage("An error occurred. Please try again.");
+        handleShow();
+
+        return false;
+      }
+    } finally {
+      setSubmitting(false);
+      setLoading(false);
+    }
+
+    return true;
+  };
+
+  const handlePasswordResetSubmit = async (
+    token,
+    values,
+    { setSubmitting }
+  ) => {
+    setLoading(true);
+    try {
+      await auth.confirmPasswordReset(token, values.password);
+    } catch (error) {
+      setErrorName("Error");
+      setErrorMessage("An error occurred. Please try again.");
+      handleShow();
+
+      return false;
+    } finally {
+      setSubmitting(false);
+      setLoading(false);
+    }
+
+    return true;
+  };
+
+  const verifyToken = async (token) => {
+    setLoading(true);
+    return axios
+      .post(`${auth.apiHost}/api/password_reset/validate_token/`, {
+        token: token,
+      })
+      .then(() => {
+        return token;
+      })
+      .catch(() => {
+        return null;
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   };
 
   return (
@@ -263,14 +324,27 @@ export default function LoginPages() {
                 <Route path={`${path}/access-pending`}>
                   <AccessPending />
                 </Route>
+                <Route path={`${path}/send-access-request`}>
+                  <RepeatAccessRequest
+                    loading={loading}
+                    handleSubmit={handleAccessRequestCreation}
+                  />
+                </Route>
+                <Route path={`${path}/forgot-password`}>
+                  <ForgotPassword
+                    handleSubmit={handleForgotPasswordSubmit}
+                    loading={loading}
+                  />
+                </Route>
+                <Route path={`${path}/password-reset`}>
+                  <PasswordReset
+                    loading={loading}
+                    handleSubmit={handlePasswordResetSubmit}
+                    verifyToken={verifyToken}
+                  />
+                </Route>
               </div>
             </>
-            <Route path={`${path}/send-access-request`}>
-              <RepeatAccessRequest
-                loading={loading}
-                handleSubmit={handleAccessRequestCreation}
-              />
-            </Route>
           </Switch>
         </Col>
       </Row>

@@ -153,9 +153,26 @@ function useProvideAuth() {
       });
   };
 
-  const sendPasswordResetEmail = (email) => {};
+  const sendPasswordResetEmail = async (email) => {
+    return axios
+      .post(`${apiHost}/api/password_reset/`, {
+        email: email,
+      })
+      .catch((error) => {
+        throw error;
+      });
+  };
 
-  const confirmPasswordReset = (code, password) => {};
+  const confirmPasswordReset = async (token, password) => {
+    return axios
+      .post(`${apiHost}/api/password_reset/confirm/`, {
+        token: token,
+        password: password,
+      })
+      .catch((error) => {
+        throw error;
+      });
+  };
 
   const withAppUser = async () => {
     const appUserLogin = async () => {

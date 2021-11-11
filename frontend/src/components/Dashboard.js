@@ -1,41 +1,33 @@
-import { React, useState, useEffect } from "react";
-import PropTypes from "prop-types";
-import { Col, Row, Modal, Button, Spinner } from "react-bootstrap";
+import { React, useEffect, useState } from "react";
+import { Col, Row, Spinner } from "react-bootstrap";
 import DashboardMeterSelect from "./DashboardMeterSelect";
 import DashboardSelectedMeters from "./DashboardSelectedMeters";
 import DashboardVisualization from "./DashboardVisualization";
+import ErrorModal from "./ErrorModal";
+import { sub, formatISO, getTime, parseISO } from "date-fns";
+import { useAuth } from "../resources/use-auth";
+import axios from "axios";
 
-const testMeterList = [
-  { id: 1, name: "Stefani 1" },
-  { id: 2, name: "Chardon 1" },
-  { id: 3, name: "Stefani 2" },
+const lineColors = [
+  "rgb(255, 99, 132)",
+  "rgb(255, 159, 64)",
+  "rgb(75, 192, 192)",
+  "rgb(54, 162, 235)",
+  "rgb(153, 102, 255)",
+];
+const lineColorsTransparent = [
+  "rgba(255, 99, 132, 0.2)",
+  "rgba(255, 159, 64, 0.2)",
+  "rgba(75, 192, 192, 0.2)",
+  "rgba(54, 162, 235, 0.2)",
+  "rgba(153, 102, 255, 0.2)",
 ];
 
-const testData = {
-  labels: [
-    1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
-  ],
-  datasets: [
-    {
-      label: "# of Votes",
-      data: [
-        12, 19, 3, 5, 2, 3, 12, 19, 32, 5, 2, 3, 12, 198, 3, 5, 2, 3, 2, 3,
-      ],
-      fill: false,
-      backgroundColor: "rgb(0, 79, 45)",
-      borderColor: "rgba(0, 79, 45, 0.2)",
-    },
-  ],
-};
-const DAY_IN_MILLISECONDS = 24 * 60 * 60 * 1000;
-
-function Dashboard(props) {
+function Dashboard() {
   const [meterList, setMeterList] = useState([]);
-  const [meterNames, setMeterNames] = useState([]);
+  const [meterBuffer, setMeterBuffer] = useState([]);
   const [meterData, setMeterData] = useState({});
-  const [meterIDList, setMeterIDList] = useState([]);
-  const [selectedTimeframe, setSelectedTimeframe] =
-    useState(DAY_IN_MILLISECONDS);
+  const [selectedTimeframe, setSelectedTimeframe] = useState(1);
   const [selectedDatatype, setSelectedDatatype] = useState("consumption");
   const [selectedMeters, setSelectedMeters] = useState([]);
 
@@ -45,46 +37,62 @@ function Dashboard(props) {
 
   const [loading, setLoading] = useState(false);
 
+  const auth = useAuth();
+
   /* HOOKS */
 
-  useEffect(() => {
-    var idList = meterList
-      .filter((meter) => {
-        return selectedMeters.includes(meter.name);
+  useEffect(async () => {
+    setLoading(true);
+    await axios
+      .get(`${auth.apiHost}/api/meters`, {
+        headers: { Authorization: await auth.withAppUser() },
+        params: { status: "ACT" },
       })
-      .map((meter) => {
-        return meter.id;
+      .then((res) => {
+        setMeterList(res.data);
+      })
+      .catch((error) => {
+        setMeterList([]);
+        setErrorName("Fetch Error");
+        setErrorMessage("Failed to fetch active meter list.");
+        handleShow();
       });
-    setMeterIDList(idList);
-  }, [selectedMeters]);
+    setLoading(false);
+  }, [auth]);
 
-  // TODO: Add meter list fetch here
   useEffect(() => {
-    setMeterList(testMeterList);
-    setMeterNames(
+    setMeterBuffer(
       meterList.map((meter) => {
-        return meter.name;
+        return { id: meter.id, name: meter.name };
       })
     );
   }, [meterList]);
 
   /* METER LIST HANDLERS */
 
-  const selectMeter = (name) => {
-    setSelectedMeters([...selectedMeters, name]);
-    setMeterNames(meterNames.filter((meterName) => meterName !== name));
+  const selectMeter = (meter) => {
+    // Max 5 meters at a time
+    if (selectedMeters.length >= 5) {
+      setErrorName("Maximum number of meters reached");
+      setErrorMessage("Can only select 5 meters at a time.");
+      handleShow();
+      return;
+    }
+
+    setSelectedMeters([...selectedMeters, meter]);
+    setMeterBuffer(
+      meterBuffer.filter((bufferMeter) => bufferMeter.id !== meter.id)
+    );
   };
-  const deselectMeter = (name) => {
-    setSelectedMeters(selectedMeters.filter((meterName) => meterName !== name));
-    setMeterNames([...meterNames, name]);
+  const deselectMeter = (meter) => {
+    setSelectedMeters(
+      selectedMeters.filter((selectedMeter) => selectedMeter.id !== meter.id)
+    );
+    setMeterBuffer([...meterBuffer, meter]);
   };
   const clearSelected = () => {
-    setMeterNames([...meterNames, ...selectedMeters]);
+    setMeterBuffer([...meterBuffer, ...selectedMeters]);
     setSelectedMeters([]);
-  };
-  const selectAllMeters = () => {
-    setSelectedMeters([...selectedMeters, ...meterNames]);
-    setMeterNames([]);
   };
 
   /* ERROR MODAL HANDLERS */
@@ -94,53 +102,70 @@ function Dashboard(props) {
   /* METER DATA FETCH HANDLERS/HELPERS*/
   const handleFetch = () => {
     if (!(selectedMeters.length > 0)) {
-      handleShow();
       setErrorName("No meters selected");
       setErrorMessage("Select at least one meter to sync the data.");
+      handleShow();
     } else fetchData();
   };
 
   // TODO: Add data fetch here
-  const fetchData = () => {
+  const fetchData = async () => {
     setLoading(true);
 
-    const getLabel = () => {
-      return selectedDatatype === "consumption" ? "Consumption" : "Demand";
+    const datatypeLabel =
+      selectedDatatype === "consumption" ? "Consumption" : "Demand";
+
+    var startingDateTime = formatISO(
+      sub(new Date(Date.now()), { days: selectedTimeframe })
+    );
+
+    let data = {
+      datasets: [],
     };
 
-    var startingDateTime = new Date(
-      Date.now() - selectedTimeframe
-    ).toISOString();
+    for (var i = 0; i < selectedMeters.length; i++) {
+      const meter = selectedMeters[i];
 
-    // TODO: Add axis labels
-    const data = {
-      labels: [],
-      datasets: [
-        {
-          label: getLabel(),
-          data: [],
-          fill: false,
-          backgroundColor: "rgb(0, 79, 45)",
-          borderColor: "rgba(0, 79, 45, 0.2)",
-        },
-      ],
-    };
-
-    if (meterIDList.length > 1) {
-      // Multiple meters
-      //consumption
-      //demand
-    } else {
-      // Single meter
-      //consumption
-      //demand
+      let meterData = await axios
+        .get(
+          `${auth.apiHost}/api/meters/${meter.id}/meter_data_by_time_frame`,
+          {
+            headers: { Authorization: await auth.withAppUser() },
+            params: {
+              start: startingDateTime,
+              data_type: selectedDatatype,
+            },
+          }
+        )
+        .then((res) => {
+          return res.data.map((meterDataObj, index) => {
+            return {
+              x: getTime(parseISO(meterDataObj.timestamp)),
+              y: meterDataObj.avg,
+            };
+          });
+        })
+        .catch(() => {
+          setErrorName("Data fetch error");
+          setErrorMessage(`Failed to fetch data for meter: ${meter.name}`);
+          handleShow();
+          return null;
+        });
+      if (!meterData) {
+        data = {};
+        break;
+      }
+      data.datasets.push({
+        label: `${meter.name} ${datatypeLabel}`,
+        data: meterData,
+        fill: false,
+        backgroundColor: lineColors[i],
+        borderColor: lineColorsTransparent[i],
+      });
     }
 
-    data.labels = testData.labels;
-    data.datasets[0].data = testData.datasets[0].data;
-
-    setMeterData(data);
     setLoading(false);
+    setMeterData(data);
   };
 
   return (
@@ -159,9 +184,8 @@ function Dashboard(props) {
           <Row className="flex-grow-1">
             <Col sm={3} className="d-flex flex-column justify-content-evenly">
               <DashboardMeterSelect
-                meterList={meterNames}
+                meterList={meterBuffer}
                 selectMeter={selectMeter}
-                selectAll={selectAllMeters}
               />
               <DashboardSelectedMeters
                 selectedMeters={selectedMeters}
@@ -182,23 +206,14 @@ function Dashboard(props) {
           </Row>
         </Col>
       </Row>
-      <Modal centered size="lg" show={show} onHide={handleClose}>
-        <Modal.Header closeButton>
-          <Modal.Title>
-            <h4 className="bold">{errorName}</h4>
-          </Modal.Title>
-        </Modal.Header>
-        <Modal.Body>{errorMessage}</Modal.Body>
-        <Modal.Footer>
-          <Button variant="primary" onClick={handleClose}>
-            Okay
-          </Button>
-        </Modal.Footer>
-      </Modal>
+      <ErrorModal
+        show={show}
+        handleClose={handleClose}
+        errorMessage={errorMessage}
+        errorName={errorName}
+      />
     </>
   );
 }
-
-Dashboard.propTypes = {};
 
 export default Dashboard;

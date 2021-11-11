@@ -4,17 +4,22 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-django = "*"
+Django = "*"
 djangorestframework = "*"
-markdown = "*"
+Markdown = "*"
 django-filter = "*"
 mysqlclient = "*"
 djangorestframework-simplejwt = "*"
 python-decouple = "*"
-pyjwt = "~=2.1.0"
+PyJWT = "~=2.1.0"
 django-cors-headers = "*"
+python-dateutil = "*"
+django-rest-passwordreset = "*"
 
 [dev-packages]
+pynvim = "*"
+jedi = "*"
+autopep8 = "*"
 
 [requires]
 python_version = "3.9"

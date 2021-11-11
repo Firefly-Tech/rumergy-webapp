@@ -9,29 +9,62 @@ import {
   Button,
 } from "react-bootstrap";
 import { Line } from "react-chartjs-2";
+import "chartjs-adapter-date-fns";
 import { FaSync } from "react-icons/fa";
+// CONSTANTS
 
-const DAY_IN_MILLISECONDS = 24 * 60 * 60 * 1000;
 const timeframeRadios = [
-  { name: "24h", value: DAY_IN_MILLISECONDS },
-  { name: "7d", value: 7 * DAY_IN_MILLISECONDS },
-  { name: "30d", value: 30 * DAY_IN_MILLISECONDS },
+  { name: "24h", value: 1 },
+  { name: "7d", value: 7 },
+  { name: "30d", value: 30 },
 ];
 const datatypeRadios = [
   { name: "Consumption", value: "consumption" },
   { name: "Demand", value: "demand" },
 ];
 
-const options = {
-  scales: {
-    y: {
-      beginAtZero: true,
-    },
-  },
+// CHART OPTIONS
+
+const decimation = {
+  enabled: true,
+  algorithm: "lttb",
+  samples: 100,
 };
 
-// TODO: Add refresh button to fetch data or use timer between meter selects (3 s)
 function DashboardVisualization(props) {
+  const setUnit = () => {
+    if (props.selectedTimeframe === 1) return "hour";
+    return "day";
+  };
+  const options = {
+    parsing: false,
+    interaction: {
+      mode: "nearest",
+      axis: "x",
+      intersect: false,
+    },
+    scales: {
+      x: {
+        type: "time",
+        time: {
+          minUnit: "minute",
+          round: "minute",
+          unit: setUnit(),
+        },
+        ticks: {
+          source: "auto",
+          autoSkip: true,
+        },
+      },
+      y: {
+        beginAtZero: true,
+      },
+    },
+    plugins: {
+      decimation: decimation,
+    },
+  };
+
   return (
     <Card as={Row} className="dashboard-data-visualization-card mb-sm-4 h-100">
       <Col>
@@ -47,7 +80,7 @@ function DashboardVisualization(props) {
               value={props.selectedTimeframe}
               size="md"
               name="timeframe"
-              defaultValue={DAY_IN_MILLISECONDS}
+              defaultValue={1}
               onChange={(val) => props.setSelectedTimeframe(val)}
             >
               {timeframeRadios.map((radio, idx) => (
@@ -118,7 +151,7 @@ function DashboardVisualization(props) {
 }
 
 DashboardVisualization.propTypes = {
-  selectedTimeframe: PropTypes.string,
+  selectedTimeframe: PropTypes.number,
   selectedDatatype: PropTypes.string,
   setSelectedDatatype: PropTypes.func,
   setSelectedTimeframe: PropTypes.func,

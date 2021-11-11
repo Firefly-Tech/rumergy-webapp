@@ -1,0 +1,13 @@
+.logo-container {
+  background-color: $blinding-green !important;
+  width: 100%;
+  height: 100%;
+
+  .login-back-button {
+    color: black;
+  }
+  .login-back-button:hover{
+    color: $dark-grey;
+    transition: $hover-transition;
+  }
+}

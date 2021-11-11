@@ -16,7 +16,6 @@ class UserSerializer(serializers.ModelSerializer):
 
     profile = UserProfileSerializer()
     access_request = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
-
     data_logs = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
 
     class Meta:

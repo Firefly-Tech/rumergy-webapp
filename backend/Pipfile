@@ -13,10 +13,13 @@ djangorestframework-simplejwt = "*"
 python-decouple = "*"
 pyjwt = "~=2.1.0"
 django-cors-headers = "*"
+python-dateutil = "*"
 
 [dev-packages]
 pynvim = "*"
+jedi = "*"
 autopep8 = "*"
+
 
 [requires]
 python_version = "3.9"

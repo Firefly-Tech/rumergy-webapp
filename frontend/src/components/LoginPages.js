@@ -18,8 +18,6 @@ import AccessPending from "./AccessPending";
 import { roles } from "../resources/constants";
 import RepeatAccessRequest from "./RepeatAccessRequest";
 
-const apiHost = process.env.REACT_APP_API_HOST;
-
 export default function LoginPages() {
   const [show, setShow] = useState(false);
   const [errorName, setErrorName] = useState("");
@@ -66,7 +64,7 @@ export default function LoginPages() {
       // Get status of latest access request
       try {
         const accessRequestStatus = await axios
-          .get(`${apiHost}/api/users/${userObject.id}/latest_access_request`, {
+          .get(`${auth.apiHost}/api/users/${userObject.id}/latest_access_request`, {
             headers: { Authorization: bearer },
           })
           .then((res) => {
@@ -105,7 +103,7 @@ export default function LoginPages() {
   const handleAccessRequestCreation = async (id, occupation, justification) => {
     await axios
       .post(
-        `${apiHost}/api/access-request/`,
+        `${auth.apiHost}/api/access-request/`,
         {
           user: id,
           occupation: occupation,
@@ -189,7 +187,7 @@ export default function LoginPages() {
     }
 
     let userByUsername = await axios
-      .get(`${apiHost}/api/users?username=${username}`, {
+      .get(`${auth.apiHost}/api/users?username=${username}`, {
         headers: {
           Authorization: bearer,
         },
@@ -201,7 +199,7 @@ export default function LoginPages() {
         return [1];
       });
     let userByEmail = await axios
-      .get(`${apiHost}/api/users?email=${email}`, {
+      .get(`${auth.apiHost}/api/users?email=${email}`, {
         headers: { Authorization: bearer },
       })
       .then((res) => {

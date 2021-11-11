@@ -28,3 +28,4 @@ ErrorModal.propTypes = {
 };
 
 export default ErrorModal;
+

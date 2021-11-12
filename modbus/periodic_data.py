@@ -7,7 +7,6 @@ import requests
     energy consumption (kWh) and energy demand (kW)
 '''        
 
-'''Read into logging '''
 def periodic_data():
     
     access_token, refresh_token = client.get_token()

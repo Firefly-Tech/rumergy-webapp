@@ -10,16 +10,18 @@ import requests
 '''Read into logging '''
 def periodic_data():
     
+    access_token, refresh_token = client.get_token()
+    
     '''Get meter list '''
-    meters = requests.get('http://127.0.0.1:8000/api/meters/').json()
+    meters = requests.get('http://127.0.0.1:8000/api/meters/', headers={"Authorization": f"Bearer {access_token}"}).json()
 
     for meter in meters:
         model_id = meter['meter_model']
         
-        model_record = requests.get(f'http://127.0.0.1:8000/api/meter-models/{model_id}').json()
+        model_record = requests.get(f'http://127.0.0.1:8000/api/meter-models/{model_id}', headers={"Authorization": f"Bearer {access_token}"}).json()
         
         for point_pk in model_record['data_points']:
-            point_record = requests.get(f'http://127.0.0.1:8000/api/data-points/{point_pk}').json()
+            point_record = requests.get(f'http://127.0.0.1:8000/api/data-points/{point_pk}', headers={"Authorization": f"Bearer {access_token}"}).json()
 
             if point_record['name'] == 'Energy Consumption' or point_record['name'] == 'Energy Demand':
                 start_address = point_record['start_address']
@@ -36,7 +38,7 @@ def periodic_data():
                         "min": f"{reading}",
                         "max": f"{reading}"
                     }
-                    response = requests.post('http://127.0.0.1:8000/api/meter-data/', json=post_dict)
+                    response = requests.post('http://127.0.0.1:8000/api/meter-data/', headers={"Authorization": f"Bearer {access_token}"}, json=post_dict)
                     
                     ''' raise_for_status() raises http errors'''
                     response.raise_for_status()

@@ -2,6 +2,14 @@ from pymodbus.client.sync import ModbusTcpClient as ModbusClient
 from pymodbus.payload import BinaryPayloadDecoder
 from pymodbus.constants import Endian
 import requests
+from decouple import config
+
+
+def get_token():
+    token = requests.post('http://127.0.0.1:8000/api/token/', data={"username": f"{config('USERNAME')}", "password": f"{config('PASSWORD')}"}).json()
+    access_token = token['access']
+    refresh_token = token['refresh']
+    return access_token, refresh_token
 
 
 def connect_meter(ip, port):
@@ -43,7 +51,7 @@ def decode_message(result):
 
 
 def data_logger():
-'''Get data logs entries '''
+    '''Get data logs entries '''
     meters = requests.get('http://127.0.0.1:8000/api/meters/').json()
     for meter in meters:
         
@@ -62,6 +70,5 @@ def data_logger():
             # if now() < end_date and now() > start_date: log is supposed to be in progress. continue
 
             data_points = data_log_record['data_points']
-
 
 

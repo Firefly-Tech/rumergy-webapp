@@ -62,18 +62,6 @@ const sidebarData = [
     userRestrictions: [roles.Admin],
     icon: <FaList className="fs-5" />,
   },
-  {
-    menuName: "Users",
-    link: "/users",
-    userRestrictions: [roles.Admin],
-    icon: <FaUsers className="fs-5" />,
-  },
-  {
-    menuName: "Access request",
-    link: "/access-request",
-    userRestrictions: [roles.Admin],
-    icon: <FaUsers className="fs-5" />,
-  },
 
 ];
 

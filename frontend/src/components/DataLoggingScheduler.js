@@ -23,7 +23,7 @@ function DataLoggingScheduler(props){
                     </Col>
                 </Row>
                 <Row className = "flex-grow-1 ">
-                    <Col xs={10} className="d-flex flex-column">
+                    <Col xs={10} className=" d-flex flex-column">
                         <div className = "my-auto">
                             <DLSBuildingSelect/>
                             <DLSMeterSelect/>

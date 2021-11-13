@@ -1,16 +1,26 @@
 $card-border-color: transparent;
 $card-bg: $soft-green;
 
-.Data-log-card{
-    border-radius: 1rem;
-    
-    .building-content{
-    height: 0px;
-    max-height: 75%;
-    
-    
-
+.data-log-table{
+    .icon-button{
+      color: black;
+      font-size: 1.1em;
     }
-
-
-}
+  
+    .icon-button:hover{
+      color: $dark-grey;
+      transition: $hover-transition;
+    }
+  }
+  
+.manage-card{
+    background-color: #dedede;
+    .icon-button {
+      color: black;
+      font-size: 1.1em;
+    }
+    .icon-button:hover {
+      color: $dark-grey;
+      transition: $hover-transition;
+    }
+  }

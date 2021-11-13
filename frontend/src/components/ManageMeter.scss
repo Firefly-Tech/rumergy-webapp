@@ -1,28 +1,23 @@
-$card-border-color: transparent;
-$card-bg: $soft-green;
-
-.MM-card {
-    border-radius: 1rem;
-    
-
-    .building-content{
-    height: 0px;
-    max-height: 75%;
-    
-    }
+.meter-table{
+  .icon-button{
+    color: black;
+    font-size: 1.1em;
   }
 
-  .MM-item-button{
-    margin-left: auto;
-    .icon-button{
-      color: black;
-      font-size: 1.1em;
-    }
-
-
+  .icon-button:hover{
+    color: $dark-grey;
+    transition: $hover-transition;
   }
+}
 
-  .meter-refresh-button{
-    
+.manage-card{
+  background-color: #dedede;
+  .icon-button {
+    color: black;
+    font-size: 1.1em;
   }
-
+  .icon-button:hover {
+    color: $dark-grey;
+    transition: $hover-transition;
+  }
+}

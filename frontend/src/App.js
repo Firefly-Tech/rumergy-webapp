@@ -1,10 +1,6 @@
 import { React } from "react";
 import "./App.scss";
-import {
-  Route,
-  Redirect,
-  Switch,
-} from "react-router-dom";
+import { Route, Redirect, Switch } from "react-router-dom";
 import { Container, Row, Col } from "react-bootstrap";
 import Sidebar from "./components/Sidebar";
 import { roles } from "./resources/constants";
@@ -14,6 +10,8 @@ import { useAuth } from "./resources/use-auth";
 import DataLoggingScheduler from "./components/DataLoggingScheduler";
 import DataLogs from "./components/DataLogs";
 import ManageMeter from "./components/ManageMeter";
+import ManageUsers from "./components/ManageUsers";
+import ManageAccessRequests from "./components/ManageAccessRequests";
 
 const includeSidebar = ["/dashboard*", "/admin*", "/advanced*", "/about*"];
 
@@ -66,11 +64,6 @@ function App() {
               <DataLogs/> 
             </Route>
             <Route path = "/admin/meters"> 
-              {
-
-
-
-              }
               <ManageMeter/>
             </Route>
               <Route path="/" exact>
@@ -82,8 +75,33 @@ function App() {
               </Route>
             </Switch>
           </Col>
-        </Row>
-      </Container>
+        <Col className="pt-sm-0">
+          <Switch>
+            <Route path="/dashboard">
+              {(auth.role === roles.Admin && (
+                <Redirect to="/admin/manage-meters" />
+              )) || <Dashboard />}
+            </Route>
+            <Route path="/login">
+              <LoginPages />
+            </Route>
+            <Route path="/admin/manage-users">
+              <ManageUsers />
+            </Route>
+            <Route path="/admin/manage-access-requests">
+              <ManageAccessRequests />
+            </Route>
+            <Route path="/" exact>
+              <Redirect to={rootRedirect()} />
+            </Route>
+            {/* TODO: Add 404 page */}
+            <Route path="*">
+              <h3>Page not found</h3>
+            </Route>
+          </Switch>
+        </Col>
+      </Row>
+    </Container>
   );
 }
 

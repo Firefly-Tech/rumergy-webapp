@@ -10,4 +10,4 @@ class DataLogMeasures(models.Model):
     data_point = models.ForeignKey(DataPoint, related_name='data_log_measures', on_delete=models.RESTRICT)
     value = models.FloatField()
     timestamp = models.DateTimeField(auto_now_add=True)
-    
+

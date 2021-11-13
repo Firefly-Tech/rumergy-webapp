@@ -26,7 +26,7 @@ export const useAuth = () => {
 // Provider hook that creates auth object and handles state
 function useProvideAuth() {
   const [user, setUser] = useState(null);
-  const [role, setRole] = useState(roles.General);
+  const [role, setRole] = useState(null);
   const [accessToken, setAccessToken] = useState(null);
 
   const history = useHistory();
@@ -127,7 +127,7 @@ function useProvideAuth() {
   };
 
   const signout = () => {
-    setUser(null);
+    setUser(false);
     setAccessToken(null);
     setRole(roles.General);
     localStorage.removeItem("refresh");
@@ -153,9 +153,26 @@ function useProvideAuth() {
       });
   };
 
-  const sendPasswordResetEmail = (email) => {};
+  const sendPasswordResetEmail = async (email) => {
+    return axios
+      .post(`${apiHost}/api/password_reset/`, {
+        email: email,
+      })
+      .catch((error) => {
+        throw error;
+      });
+  };
 
-  const confirmPasswordReset = (code, password) => {};
+  const confirmPasswordReset = async (token, password) => {
+    return axios
+      .post(`${apiHost}/api/password_reset/confirm/`, {
+        token: token,
+        password: password,
+      })
+      .catch((error) => {
+        throw error;
+      });
+  };
 
   const withAppUser = async () => {
     const appUserLogin = async () => {
@@ -232,7 +249,7 @@ function useProvideAuth() {
         setAccessToken(access);
         setRole(userRole);
       } else {
-        setUser(null);
+        setUser(false);
         setAccessToken(null);
         setRole(roles.General);
       }

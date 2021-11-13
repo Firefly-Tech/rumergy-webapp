@@ -60,8 +60,6 @@ function Dashboard() {
     setLoading(false);
   }, [auth]);
 
-  console.log(meterBuffer)
-
   useEffect(() => {
     setMeterBuffer(
       meterList.map((meter) => {

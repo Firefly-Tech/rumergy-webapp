@@ -1,14 +1,47 @@
-import { React, useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { Col, Row, Modal, Button, Card, Spinner, InputGroup, FormControl, Form } from "react-bootstrap";
 import SearchBar from "./SearchBar";
 import IconButton from "./IconButton";
-import { FaRedo, FaPlus, FaPen, FaTimes } from "react-icons/fa";
+import { FaRedo, FaPlus, FaPen, FaTimes, FaSync, FaTrash, FaExclamation, FaCheck} from "react-icons/fa";
 import DataTable, {createTheme} from "react-data-table-component";
 import {Formik} from "formik";
 import * as Yup from "yup";
 //import { useRequireAuth } from "../resources/use-require-auth";
 //import { roles } from "../resources/constants";
+import MMBar from "./MMBar";
+
+// const meterEditFormSchema = Yup.object.shape({
+//     name: Yup.string()
+//         .min(1, "Must be at least 1 character")
+//         .max(50, "Must be at most 50 characters")
+//         .required("Name is required")
+//         .matches(/\b([A-ZÀ-ÿ][-,a-z. ']+[ ]*)+/, "Invalid format"),
+//     model: Yup.string()
+//         .min(1, "Must be at least 1 character")
+//         .max(50, "Must be at most 50 characters")
+//         .required("Model name is required")
+//         .matches(/\b([A-ZÀ-ÿ][-,a-z. ']+[ ]*)+/, "Invalid format"),
+//     ip: Yup.number()
+
+//     port: Yup.number()
+
+//     building: Yup.string()
+//         .min(1, "Must be at least 1 character")
+//         .max(50, "Must be at most 50 characters")
+//         .required("Building name is required")
+//         .matches(/\b([A-ZÀ-ÿ][-,a-z. ']+[ ]*)+/, "Invalid format"),
+
+// });
+
+const emptyEditMeterEntry = {
+    name: "",
+    model: "",
+    ip: "",
+    port: "",
+    building: "",
+};
+
 function ManageMeter(props){
     const [loading, setLoading] = useState(false);
     const [meters, setMeters] = useState([]);
@@ -16,7 +49,7 @@ function ManageMeter(props){
     const [resetPaginationToggle, setResetPaginationToggle] = useState(false);
     const [filteredEntries, setFilteredEntries] = useState([]);
 
-    const [selectedEntry, setSelectedEntry] = useState(null);
+    const [selectedEditEntry, setSelectedEditEntry] = useState(emptyEditMeterEntry);
     const [show, setShow] = useState(false);
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
@@ -34,6 +67,26 @@ function ManageMeter(props){
         }
 
     ]
+
+    // useEffect(async () => {
+    //     await fetchMeters();
+    // }, []);
+
+    useEffect(() => {
+        setLoading(true);
+        setFilteredEntries(
+            meters.filter((meter) =>
+                meter.meterString.toLowerCase().includes(filterText.toLowerCase()) //Check this 
+            )
+        );
+        setLoading(false);
+    }, [meters, filterText]);
+
+    //ADDING THING FOR BACKEND
+    // const fetchMeters = async () => { 
+    //     setLoading(true);
+    // };
+
     const columns = [
     {
         name: "Action",
@@ -41,7 +94,7 @@ function ManageMeter(props){
             <IconButton
           icon={<FaPen className="fs-5" />}
           clickAction={() => {
-            setSelectedEntry(row);
+            setSelectedEditEntry(row);
             handleShow();
           }}
         />
@@ -75,7 +128,7 @@ function ManageMeter(props){
               backgroundColor: "#f2f3f8",
               borderTopStyle: "none",
             },
-          },
+        },
     };
 
     const handleClear = () => {
@@ -99,46 +152,14 @@ function ManageMeter(props){
                     </Row>
                     <Row className = "pb-5">
                         <Col sm={12}>
-                            <Card className = "manage-card d-flex flex-row align-items-center py-3">
-                                <div className = "me-auto px-3">
-                                    <InputGroup>
-                                        <FormControl
-                                            placeholder = "Filter entries"
-                                            value = {filterText}
-                                            onChange = {(e) => {
-                                                setFilterText(e.target.value);
-                                            }}
-                                            disabled = {loading}
-                                        />
-                                        <Button
-                                            variant = "primary"
-                                            onClick = {handleClear}
-                                            disabled = {loading}
-                                        >
-                                                <FaTimes className = "fs-5"/>
-                                        </Button>
-                                    </InputGroup>
-                                </div>
-                                <div className = "d-flex flex-row align-items-center px-4 gap-4">
-                                    <IconButton
-                                        icon ={<FaRedo className = "fs-5"/>}
-                                        clickAction = {() => {}}
-                                    />
-                                    <Button
-                                        variant = "primary"
-                                        className = "d-flex flex-row align-items-center gap-3"
-                                        onClick = {() => {
-                                            setSelectedEntry(null);
-                                            handleShow();
-                                        }}
-                                    >
-                                        <FaPlus className = "fs=5"/>
-                                        <span className = "d-none d-sm-inline">
-                                            {"Add new meter"}
-                                        </span>
-                                    </Button>
-                                </div>
-                            </Card >
+                            <MMBar
+                                filterText={filterText}
+                                setFilterText={setFilterText}
+                                loading={loading}
+                                handleClear={handleClear}
+                                // onRefresh={fetchUsers}
+                                // onAdd={handleShowAdd}
+                            />
                         </Col>
                     </Row>
                     <Row>

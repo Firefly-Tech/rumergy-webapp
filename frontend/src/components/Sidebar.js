@@ -8,6 +8,7 @@ import {
   FaInfoCircle,
   FaSignInAlt,
   FaSignOutAlt,
+  FaUsers,
 } from "react-icons/fa";
 import { Link, NavLink, useLocation, useHistory } from "react-router-dom";
 import Help from "./Help";
@@ -27,6 +28,12 @@ const sidebarData = [
     userRestrictions: [roles.General, roles.Advanced, roles.Inactive],
     icon: <FaInfoCircle className="fs-5" />,
   },
+  {
+    menuName: "Manage Users",
+    link: "/admin/manage-users",
+    userRestrictions: [roles.Admin],
+    icon: <FaUsers className="fs-5" />,
+  },
 ];
 
 function Sidebar(props) {
@@ -39,7 +46,7 @@ function Sidebar(props) {
   };
 
   const isLoggedIn = () => {
-    return auth.user !== null;
+    return auth.user !== false;
   };
 
   return (

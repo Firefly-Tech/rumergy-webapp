@@ -50,7 +50,9 @@ function ManageUsers() {
     setLoading(true);
     setFilteredEntries(
       users.filter((user) =>
-        user.userString.toLowerCase().includes(filterText.toLowerCase())
+        user.userString
+          .toLowerCase()
+          .includes(filterText.split(" ").join("").toLowerCase())
       )
     );
     setLoading(false);
@@ -58,6 +60,7 @@ function ManageUsers() {
 
   const fetchUsers = async () => {
     setLoading(true);
+    const appUsername = process.env.REACT_APP_RUMERGY_USER;
     let data = await auth.userAxiosInstance
       .get(`${auth.apiHost}/api/users`)
       .then((res) => {
@@ -66,14 +69,25 @@ function ManageUsers() {
       .catch(() => {
         return [];
       });
-    if (!data.length) setUsers(data);
-    setUsers(
-      data.map((user) => {
-        let userString = `${user.id}${user.username}${user.email}${user.profile.first_name}${user.profile.last_name}${user.profile.role}`;
 
-        return { userString: userString, ...user };
-      })
-    );
+    // Filter out app user so it can't be modified
+    data = data.filter((user) => user.username != appUsername);
+
+    if (data.length) {
+      data = data.map((user) => {
+        let userStringElements = [
+          user.id,
+          user.username,
+          user.email,
+          user.profile.first_name,
+          user.profile.last_name,
+          user.profile.role,
+        ];
+
+        return { userString: userStringElements.join(""), ...user };
+      });
+    }
+    setUsers(data);
     setLoading(false);
   };
 
@@ -189,7 +203,6 @@ function ManageUsers() {
 
   return (
     <>
-      {/* HEADER */}
       <Row className="h-100">
         <Col className="d-flex flex-column px-4 pt-4">
           <Row>
@@ -207,6 +220,8 @@ function ManageUsers() {
                 filterText={filterText}
                 setFilterText={setFilterText}
                 loading={loading}
+                addButton
+                addText={"Add new user"}
                 handleClear={handleClear}
                 onRefresh={fetchUsers}
                 onAdd={handleShowAdd}

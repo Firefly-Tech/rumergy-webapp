@@ -31,14 +31,16 @@ function ManagementBar(props) {
           icon={<FaRedo className="fs-5" />}
           clickAction={props.onRefresh}
         />
-        <Button
-          variant="primary"
-          className="d-flex flex-row align-items-center gap-3"
-          onClick={props.onAdd}
-        >
-          <FaPlus className="fs-5" />
-          <span className="d-none d-sm-inline">{"Add new user"}</span>
-        </Button>
+        {props.addButton && (
+          <Button
+            variant="primary"
+            className="d-flex flex-row align-items-center gap-3"
+            onClick={props.onAdd}
+          >
+            <FaPlus className="fs-5" />
+            <span className="d-none d-sm-inline">{props.addText}</span>
+          </Button>
+        )}
       </div>
     </Card>
   );
@@ -48,6 +50,8 @@ ManagementBar.propTypes = {
   filterText: PropTypes.string,
   setFilterText: PropTypes.func,
   loading: PropTypes.bool,
+  addButton: PropTypes.bool,
+  addText: PropTypes.string,
   handleClear: PropTypes.func,
   onRefresh: PropTypes.func,
   onAdd: PropTypes.func,

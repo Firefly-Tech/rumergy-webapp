@@ -42,7 +42,7 @@ const createAccountFormSchema = [
     occupation: Yup.string()
       .required("Occupation required")
       .matches(/^[a-zA-Z]+$/, "Invalid format")
-      .max(50, "Must be at most 50 characters."),
+      .max(20, "Must be at most 20 characters."),
     justification: Yup.string()
       .required("Justification required")
       .max(200, "Must be at most 200 characters."),

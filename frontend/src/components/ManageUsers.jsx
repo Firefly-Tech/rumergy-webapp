@@ -15,6 +15,7 @@ import IconButton from "./IconButton";
 import { FaPen, FaRedo, FaPlus, FaTimes } from "react-icons/fa";
 import UserEditModal from "./UserEditModal";
 import UserAddModal from "./UserAddModal";
+import ManagementBar from "./ManagementBar";
 
 const emptyEditUserEntry = {
   id: null,
@@ -231,45 +232,14 @@ function ManageUsers() {
           </Row>
           <Row className="pb-5">
             <Col sm={12}>
-              <Card className="manage-card d-flex flex-row align-items-center py-3">
-                <div className="me-auto px-3">
-                  <InputGroup>
-                    <FormControl
-                      placeholder="Filter entries"
-                      value={filterText}
-                      onChange={(e) => {
-                        setFilterText(e.target.value);
-                      }}
-                      disabled={loading}
-                    />
-                    <Button
-                      variant="primary"
-                      onClick={handleClear}
-                      disabled={loading}
-                    >
-                      <FaTimes className="fs-5" />
-                    </Button>
-                  </InputGroup>
-                </div>
-                <div className="d-flex flex-row align-items-center px-4 gap-4">
-                  <IconButton
-                    icon={<FaRedo className="fs-5" />}
-                    clickAction={() => {
-                      fetchUsers();
-                    }}
-                  />
-                  <Button
-                    variant="primary"
-                    className="d-flex flex-row align-items-center gap-3"
-                    onClick={() => {
-                      handleShowAdd();
-                    }}
-                  >
-                    <FaPlus className="fs-5" />
-                    <span className="d-none d-sm-inline">{"Add new user"}</span>
-                  </Button>
-                </div>
-              </Card>
+              <ManagementBar
+                filterText={filterText}
+                setFilterText={setFilterText}
+                loading={loading}
+                handleClear={handleClear}
+                onRefresh={fetchUsers}
+                onAdd={handleShowAdd}
+              />
             </Col>
           </Row>
           <Row>

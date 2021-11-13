@@ -1,21 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useRequireAuth } from "../resources/use-require-auth";
 import { roles } from "../resources/constants";
-import {
-  Row,
-  Col,
-  Spinner,
-  Button,
-  Card,
-  InputGroup,
-  FormControl,
-} from "react-bootstrap";
-import DataTable from "react-data-table-component";
+import { Row, Col, Spinner } from "react-bootstrap";
 import IconButton from "./IconButton";
-import { FaPen, FaRedo, FaPlus, FaTimes } from "react-icons/fa";
+import { FaPen } from "react-icons/fa";
 import UserEditModal from "./UserEditModal";
 import UserAddModal from "./UserAddModal";
 import ManagementBar from "./ManagementBar";
+import CustomDataTable from "./CustomDataTable";
 
 const emptyEditUserEntry = {
   id: null,
@@ -115,27 +107,6 @@ function ManageUsers() {
     },
     { name: "Role", selector: (row) => row.profile.role, sortable: true },
   ];
-
-  const customStyle = {
-    headRow: {
-      style: {
-        fontSize: "16px",
-        backgroundColor: "#f2f3f8",
-        borderBottomStyle: "none",
-      },
-    },
-    rows: {
-      style: {
-        fontSize: "14px",
-      },
-    },
-    pagination: {
-      style: {
-        backgroundColor: "#f2f3f8",
-        borderTopStyle: "none",
-      },
-    },
-  };
 
   const handleClear = () => {
     if (filterText) {
@@ -244,12 +215,10 @@ function ManageUsers() {
           </Row>
           <Row>
             <Col className="user-table">
-              <DataTable
+              <CustomDataTable
                 columns={columns}
                 data={filteredEntries}
-                theme="rumergy"
                 progressPending={loading}
-                customStyles={customStyle}
                 pagination
                 highlightOnHover
               />

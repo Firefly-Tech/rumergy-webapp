@@ -9,6 +9,7 @@ import {
   FaSignInAlt,
   FaSignOutAlt,
   FaUsers,
+  FaEnvelopeOpen
 } from "react-icons/fa";
 import { Link, NavLink, useLocation, useHistory } from "react-router-dom";
 import Help from "./Help";
@@ -29,10 +30,16 @@ const sidebarData = [
     icon: <FaInfoCircle className="fs-5" />,
   },
   {
-    menuName: "Manage Users",
+    menuName: "Users",
     link: "/admin/manage-users",
     userRestrictions: [roles.Admin],
     icon: <FaUsers className="fs-5" />,
+  },
+  {
+    menuName: "Access Requests",
+    link: "/admin/manage-access-requests",
+    userRestrictions: [roles.Admin],
+    icon: <FaEnvelopeOpen className="fs-5" />,
   },
 ];
 

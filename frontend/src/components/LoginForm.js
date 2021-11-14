@@ -45,7 +45,6 @@ export default function LoginForm(props) {
                   <InputGroup hasValidation>
                     <Form.Control
                       id="username"
-                      type="email"
                       placeholder="Enter username"
                       isInvalid={!!formik.errors.username}
                       {...formik.getFieldProps("username")}

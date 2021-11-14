@@ -14,13 +14,13 @@ def get_token():
 
 def connect_meter(ip, port):
 
-    client = ModbusClient(ip, port=port)
+    client = ModbusClient(ip, port=port, retries=3)
    
     if not client.connect():
-        print("Error!. Attempting 3 more tries!")
-        attempts = 3
-        while not client.connect() and attempts > 0:
-            attempts = attempts - 1
+        # print("Error!. Attempting 3 more tries!")
+        # attempts = 3
+        # while not client.connect() and attempts > 0:
+        #     attempts = attempts - 1
     
         print(f"Fail to connect to meter with ip address: {ip}")
             #TODO set meter status to Inactive 
@@ -52,6 +52,7 @@ def decode_message(result):
 
 def data_logger():
     '''Get data logs entries '''
+    ''' TODO Add header with access token to requests '''
     meters = requests.get('http://127.0.0.1:8000/api/meters/').json()
     for meter in meters:
         

@@ -1,6 +1,6 @@
 import React from "react";
 import PropsTypes from "prop-types";
-import { FloatingLabel, Form } from "react-bootstrap";
+import { Form } from "react-bootstrap";
 
 function SearchBar(props) {
   return (
@@ -10,12 +10,12 @@ function SearchBar(props) {
       }}
     >
       <Form.Control
-        className="dashboard-meter-item-search-bar"
         type="text"
         placeholder={props.label}
         onChange={(e) => {
           props.searchFunction(e.target.value);
         }}
+        className={props.className}
       />
     </Form>
   );
@@ -24,6 +24,7 @@ function SearchBar(props) {
 SearchBar.propTypes = {
   label: PropsTypes.string,
   searchFunction: PropsTypes.func,
+  className: PropsTypes.string,
 };
 
 export default SearchBar;

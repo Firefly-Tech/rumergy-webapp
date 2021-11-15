@@ -7,6 +7,10 @@ import IconButton from "./IconButton";
 import { FaPen, FaRedo, FaPlus, FaTimes, FaCloudDownloadAlt } from "react-icons/fa";
 import { Formik } from "formik";
 import * as Yup from "yup";
+import ManagementBar from "./ManagementBar";
+import CustomDataTable from "./CustomDataTable";
+import DataLogDetailModal from "./DataLogDetailModal";
+import DataLogDownloadModal from "./DataLogDownloadModal";
 
 function DataLogs(props){
     const [loading, setLoading] = useState(false);
@@ -14,9 +18,16 @@ function DataLogs(props){
     const [resetPaginationToggle, setResetPaginationToggle] = useState(false);
     const [filteredEntries, setFilteredEntries] = useState([]);
     const [selectedEntry, setSelectedEntry] = useState(null);
-    const [show, setShow] = useState(false);
-    const handleClose = () => setShow(false);
-    const handleShow = () => setShow(true);
+
+    const [showDetails, setShowDetails] = useState(false);
+    const handleCloseDetails = () => setShowDetails(false);
+    const handleShowDetails = () => setShowDetails(true);
+
+    const [showDownload, setShowDownload] = useState(false);
+    const handleCloseDownload = () => setShowDownload(false);
+    const handleShowDownload = () => setShowDownload(true);
+
+
 
     const testData = [
         {
@@ -38,7 +49,7 @@ function DataLogs(props){
                     variant = "link"
                     onClick = {() => {
                         setSelectedEntry(row);
-                        handleShow();
+                        handleShowDetails();
                     }}
                 >
                     Details
@@ -55,6 +66,10 @@ function DataLogs(props){
                 <IconButton
                     icon={<FaCloudDownloadAlt className = "fs-5"/>}
                     //add clickAction download add here
+                    clickAction = {() => {
+                        setSelectedEntry(row);
+                        handleShowDownload();
+                    }}
                 
                 
                 />
@@ -64,26 +79,6 @@ function DataLogs(props){
         },
     ];
 
-    const customStyle = {
-        headRow: {
-          style: {
-            fontSize: "16px",
-            backgroundColor: "#f2f3f8",
-            borderBottomStyle: "none",
-          },
-        },
-        rows: {
-          style: {
-            fontSize: "14px",
-          },
-        },
-        pagination: {
-          style: {
-            backgroundColor: "#f2f3f8",
-            borderTopStyle: "none",
-          },
-        },
-      };
 
       const handleClear = () => {
         if (filterText) {
@@ -94,64 +89,51 @@ function DataLogs(props){
 
     
     return(
-        <Row className = "h-100">
-            <Col className="d-flex-column px-4 pt-4">
-                <Row>
-                    <Col sm={12} className="pb-4">
-                        <h1 className = "bold">Data Logs</h1>
-                        {loading && <Spinner variant="secondary" animation="border" />}
-                    </Col>
-                </Row>
-                <Row className = "pb-5">
-                    <Col sm={12}>
-                        <Card className = "manage-card d-flex align-items-center py-3 flex-row">
-                            <div className = "me-auto px-3">
-                                <InputGroup>
-                                    <FormControl
-                                        placeholder = "Search Data Log"
-                                        value = {filterText}
-                                        onChange={(e) => {
-                                            setFilterText(e.target.value);
-                                        }}
-                                        disabled={loading}
-                                    />
-                                    <Button
-                                        variant="primary"
-                                        onClick={handleClear}
-                                        disabled={loading}
-                                        >
-                                        <FaTimes className="fs-5" />
-                                    </Button>
-                                </InputGroup>
-                            </div>
-                            <div className="d-flex flex-row align-items-center px-4 gap-4">
-                                <IconButton
-                                    icon={<FaRedo className="fs-5" />}
-                                    clickAction={() => {}} //Finish with refresh of table
+        <>
+            <Row className = "h-100">
+                <Col className="d-flex-column px-4 pt-4">
+                    <Row>
+                        <Col sm={12} className="pb-4">
+                            <h1 className = "bold">Data Logs</h1>
+                            {loading && <Spinner variant="secondary" animation="border" />}
+                        </Col>
+                    </Row>
+                    <Row className = "pb-5">
+                        <Col sm={12}>
+                        <ManagementBar
+                                filterText={filterText}
+                                setFilterText={setFilterText}
+                                loading={loading}
+                                handleClear={handleClear}
+                                // onRefresh={} create fetchLog
+                        />
+                        </Col>
+                    </Row>
+                    <Row>
+                            <Col className = "data-log-table">
+                                <CustomDataTable
+                                    columns = {columns}
+                                    data = {filteredEntries}
+                                    progressPending = {loading}
+                                    pagination
+                                    highlightOnHover
+                                    data = {testData}
                                 />
-                            </div>
-                        </Card >
-                    </Col>
-                </Row>
-                <Row>
-                    <Col className="data-log-table">
-                    <DataTable
-                        columns={columns}
-                        data={filteredEntries}
-                        theme="rumergy"
-                        progressPending={loading}
-                        customStyles={customStyle}
-                        pagination
-                        highlightOnHover
-                        data = {testData}
-                    />
-                    </Col>
-                </Row>
-            </Col>
-        </Row>
+                            </Col>
+                    </Row> 
+                </Col>
+            </Row>
+            <DataLogDetailModal
+                show = {showDetails}
+                handleClose = {handleCloseDetails}
+            
+            />
+            <DataLogDownloadModal
+                show = {showDownload}
+                handleClose = {handleCloseDownload}
+            />
 
-
-
+        </>
     );
 
 }

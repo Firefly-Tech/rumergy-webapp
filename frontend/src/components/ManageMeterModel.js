@@ -11,27 +11,25 @@ import { useRequireAuth } from "../resources/use-require-auth";
 import { roles } from "../resources/constants";
 import ManagementBar from "./ManagementBar";
 import CustomDataTable from "./CustomDataTable";
-import MeterAddModal from "./MeterAddModal";
-import MeterEditModal from "./MeterEditModal";
+import MeterModelAddModal from "./MeterModelAddModal";
+import MeterModelEditModal from "./MeterModelEditModal";
 
-const emptyEditMeterEntry = {
+const emptyEditMeterModelEntry = {
     id: null,
     name: "",
-    model: "",
-    ip: "",
-    port: "",
-    building: "",
+    datafields:"",
 };
 
-function ManageMeter(props){
+
+function ManageMeterModel(props){
     const [loading, setLoading] = useState(false);
-    const [meters, setMeters] = useState([]);
+    const [meterModel, setMeterModel] = useState([]);
 
     const [filterText, setFilterText] = useState("");
     const [resetPaginationToggle, setResetPaginationToggle] = useState(false);
     const [filteredEntries, setFilteredEntries] = useState([]);
 
-    const [selectedEditEntry, setSelectedEditEntry] = useState(emptyEditMeterEntry);
+    const [selectedEditEntry, setSelectedEditEntry] = useState(emptyEditMeterModelEntry);
 
     const [showEdit, setShowEdit] = useState(false);
     const handleCloseEdit = () => setShowEdit(false);
@@ -41,51 +39,46 @@ function ManageMeter(props){
     const handleCloseAdd = () => setShowAdd(false);
     const handleShowAdd = () => setShowAdd(true);
 
-    const auth = useRequireAuth("/admin/meters", [roles.Admin]); //change
+    const auth = useRequireAuth("/admin/meter-models", [roles.Admin]); // Change
 
     const testData = [
         {
             id: '1',
             name: 'Ale',
-            model: 'E Mon',
-            ip: '8415',
-            port: '7777',
-            building: 'Stefani',
+            datafields: 'demand, consumption',
 
         },
         {
-            id: '2',
-            name: 'we',
-            model: 'E Mon',
-            ip: '8415',
-            port: '2222',
-            building: 'Biologia',
+            id: '1',
+            name: 'Ale',
+            datafields: 'demand, consumption',
 
         }
 
     ]
 
     // useEffect(async () => {
-    //     await fetchMeters();
+    //     await fetchMeterModels();
     // }, []);
 
     useEffect(() => {
         setLoading(true);
         setFilteredEntries(
-            meters.filter((meter) =>
-                meter.meterString
+            meterModel.filter((meterModels) =>
+                meterModels.meterModelString
                     .toLowerCase()
                     .includes(filterText.split(" ").join("").toLowerCase()) //Check this 
             )
         );
         setLoading(false);
-    }, [meters, filterText]);
+    }, [meterModel, filterText]);
+
 
     //Check
-    // const fetchMeters = async () => { 
+    // const fetchMeterModels = async () => { 
     //     setLoading(true);
     //     let data = await auth.userAxiosInstance
-    //         .get(`${auth.apiHost}/api/meters`)
+    //         .get(`${auth.apiHost}/api/meter-models`)
     //         .then((res) =>{
     //             return res.data;
     //         })
@@ -94,71 +87,63 @@ function ManageMeter(props){
     //         });
 
     //     if(data.length){
-    //         data = data.map((meter) =>{
+    //         data = data.map((meterModel) =>{
     //             let meterStringElements =[
-    //                 meter.id,
-    //                 meter.name,
-    //                 meter.ip,
-    //                 meter.port,
-    //                 meter.building,
+    //                 meterModel.id,
+    //                 meterModel.name,
+    //                 meterModel.dataFields
     //             ];
 
                 
     //         });
 
     //     }
-    //     setMeters(data);
+    //     setMeterModels(data);
     //     setLoading(false);
         
     // };
 
     const columns = [
-    {
-        name: "Action",
-        cell: (row) =>(
-            <IconButton
-          icon={<FaPen className="fs-5" />}
-          clickAction={() => {
-            setSelectedEditEntry(row);
-            handleShowEdit();
-          }}
-        />
-        ),
-        button: true,
-        allowOverflow: true,
-
-    },
-    {name: "ID", selector: (row) => row.id, sortable: true},
-    {name: "Name", selector: (row) => row.name, sortable: true},
-    {name: "Model", selector: (row) => row.model, sortable: true},
-    {name: "IP", selector: (row) => row.ip, sortable:true},
-    {name: "Port", selector: (row) => row.port, sortable: true},
-    {name: "Building", selector: (row) => row.building, sortable: true},
+        {
+            name: "Action",
+            cell: (row) =>(
+                <IconButton
+              icon={<FaPen className="fs-5" />}
+              clickAction={() => {
+                setSelectedEditEntry(row);
+                handleShowEdit();
+              }}
+            />
+            ),
+            button: true,
+            allowOverflow: true,
+    
+        },
+        {name: "ID", selector: (row) => row.id, sortable: true},
+        {name: "Name", selector: (row) => row.name, sortable: true},
+        {name: "Data Fields", selector: (row) => row.datafields, sortable: true},
     ];
 
-
     const handleClear = () => {
-        if(filterText){
+         if(filterText){
             setResetPaginationToggle(!resetPaginationToggle);
             setFilterText("");
         }
-
+    
     };
-    //handle edit y handle delete and add
+
     const handleAdd = async (values, {setSubmitting}) => {
         setLoading(true);
         let data = {
             name: values.name,
             model: values.model,
-            ip: values.ip,
-            port: values.port,
-            building: values.building,
+            datafields: values.datafields,
         };
 
         return auth.userAxiosInstance
-            .post(`${auth.apiHost}/api/meters`, data)
+            .post(`${auth.apiHost}/api/meter-models`, data)
             .then(() =>{
-                //fetchMeters();
+                //fetchMeterModels();
                 return true;
             })
             .catch(() =>{
@@ -175,15 +160,13 @@ function ManageMeter(props){
         let data = {
             name: values.name,
             model: values.model,
-            ip: values.ip,
-            port: values.port,
-            building: values.building,
+            datafields: values.datafields,
         };
 
         return auth.userAxiosInstance
-            .patch(`${auth.apiHost}/api/meters/${id}/`, data)//ask about this
+            .patch(`${auth.apiHost}/api/meter-models/${id}/`, data)//ask about this
             .then(() =>{
-                //fetchMeters();
+                //fetchMeterModels();
                 return true;
             })
             .catch(() =>{
@@ -199,9 +182,9 @@ function ManageMeter(props){
         setLoading(true);
 
         return auth.userAxiosInstance
-            .delete(`${auth.apiHost}/api/meters/${id}/`)
+            .delete(`${auth.apiHost}/api/meter-models/${id}/`)
             .then(() =>{
-                //fetchMeters();
+                //fetchMeterModels();
                 return true;
             })
             .catch(() =>{
@@ -213,14 +196,13 @@ function ManageMeter(props){
             });
     };
 
-
     return(
         <>
             <Row className = "h-100">
                 <Col className="d-flex-column px-4 pt-4">
                     <Row>
                         <Col sm={12} className="d-flex flex-row align-items-center pb-4 gap-4">
-                            <h1 className = "bold">Meters</h1>
+                            <h1 className = "bold">Meter Models</h1>
                             {loading && <Spinner variant="secondary" animation="border" />}
                         </Col>
                     </Row>
@@ -231,7 +213,7 @@ function ManageMeter(props){
                                 setFilterText={setFilterText}
                                 loading={loading}
                                 addButton
-                                addText = {"Add new meter"}
+                                addText = {"Add new meter model"}
                                 handleClear={handleClear}
                                 // onRefresh={fetchMeters}
                                 onAdd={handleShowAdd}
@@ -239,7 +221,7 @@ function ManageMeter(props){
                         </Col>
                     </Row>
                     <Row>
-                        <Col className = "meter-table">
+                        <Col className = "meter-model-table">
                             <CustomDataTable
                                 columns = {columns}
                                 data = {filteredEntries}
@@ -252,23 +234,22 @@ function ManageMeter(props){
                     </Row>
                 </Col>
             </Row>
-            <MeterEditModal
+            <MeterModelEditModal
                 show={showEdit}
                 handleClose={handleCloseEdit}
                 selectedEditEntry={selectedEditEntry}
                 handleEdit={handleEdit}
                 handleDelete={handleDelete}
             />
-            <MeterAddModal
+            <MeterModelAddModal
                 show = {showAdd}
                 handleClose = {handleCloseAdd}
                 handleSubmit = {handleAdd}
             />
-            
 
         </>
-
     );
+
 }
 
-export default ManageMeter;
+export default ManageMeterModel;

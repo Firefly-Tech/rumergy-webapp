@@ -59,8 +59,8 @@ const sidebarData = [
   },
   {
     menuName: "Meter Models",
-    link: "/meter-models",
-    userRestrictions: [roles.Admin],
+    link: "/admin/meter-models",
+    userRestrictions: [roles.General], //remember to put admin
     icon: <FaList className="fs-5" />,
   },
   {

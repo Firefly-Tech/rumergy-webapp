@@ -12,6 +12,7 @@ import DataLogs from "./components/DataLogs";
 import ManageMeter from "./components/ManageMeter";
 import ManageUsers from "./components/ManageUsers";
 import ManageAccessRequests from "./components/ManageAccessRequests";
+import ManageMeterModel from "./components/ManageMeterModel";
 
 const includeSidebar = ["/dashboard*", "/admin*", "/advanced*", "/about*"];
 
@@ -45,7 +46,7 @@ function App() {
             <Switch>
               <Route path="/dashboard">
                 {(auth.role === roles.Admin && (
-                  <Redirect to="/admin/manage-meters" />
+                  <Redirect to="/admin/meters" />
                 )) || <Dashboard />}
               </Route>
               <Route path="/login">
@@ -66,6 +67,15 @@ function App() {
             <Route path = "/admin/meters"> 
               <ManageMeter/>
             </Route>
+            <Route path = "/admin/meter-models">
+              <ManageMeterModel/>
+            </Route>
+            <Route path="/admin/manage-users">
+              <ManageUsers />
+            </Route>
+            <Route path="/admin/manage-access-requests">
+              <ManageAccessRequests />
+            </Route>
               <Route path="/" exact>
                 <Redirect to={rootRedirect()} />
               </Route>
@@ -75,31 +85,6 @@ function App() {
               </Route>
             </Switch>
           </Col>
-        <Col className="pt-sm-0">
-          <Switch>
-            <Route path="/dashboard">
-              {(auth.role === roles.Admin && (
-                <Redirect to="/admin/manage-meters" />
-              )) || <Dashboard />}
-            </Route>
-            <Route path="/login">
-              <LoginPages />
-            </Route>
-            <Route path="/admin/manage-users">
-              <ManageUsers />
-            </Route>
-            <Route path="/admin/manage-access-requests">
-              <ManageAccessRequests />
-            </Route>
-            <Route path="/" exact>
-              <Redirect to={rootRedirect()} />
-            </Route>
-            {/* TODO: Add 404 page */}
-            <Route path="*">
-              <h3>Page not found</h3>
-            </Route>
-          </Switch>
-        </Col>
       </Row>
     </Container>
   );

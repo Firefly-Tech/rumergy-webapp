@@ -13,10 +13,8 @@ function DLSDataPoints(props){
             </Card.Title>
             <Card.Body className = "building-content"> 
                 <Form.Group className="px-3" id="formGridCheckbox">
-                    <Form.Check type="checkbox" label="Test" />
-                    <Form.Check type="checkbox" label="Test" />
-                    <Form.Check type="checkbox" label="Test" />
-                    <Form.Check type="checkbox" label="Test" />
+                    <Form.Check type="checkbox" label="Consumption" />
+                    <Form.Check type="checkbox" label="Demand" />
                 </Form.Group>
             </Card.Body>
         </Card>

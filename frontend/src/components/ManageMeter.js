@@ -45,11 +45,12 @@ const emptyEditMeterEntry = {
 function ManageMeter(props) {
   const [loading, setLoading] = useState(false);
   const [meters, setMeters] = useState([]);
-
+  //Filter State
   const [filterText, setFilterText] = useState("");
   const [resetPaginationToggle, setResetPaginationToggle] = useState(false);
   const [filteredEntries, setFilteredEntries] = useState([]);
 
+  //Modal State
   const [selectedEditEntry, setSelectedEditEntry] =
     useState(emptyEditMeterEntry);
 
@@ -61,7 +62,7 @@ function ManageMeter(props) {
   const handleCloseAdd = () => setShowAdd(false);
   const handleShowAdd = () => setShowAdd(true);
 
-  const auth = useRequireAuth("/admin/meters", [roles.Admin]); //change
+  const auth = useRequireAuth("/admin/meters", [roles.Admin]); 
 
   const testData = [
     {

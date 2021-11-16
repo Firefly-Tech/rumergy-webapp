@@ -105,7 +105,7 @@ function ManageMeterModel(props) {
         (meterModels) =>
           meterModels.meterModelString
             .toLowerCase()
-            .includes(filterText.split(" ").join("").toLowerCase()) //Check this
+            .includes(filterText.split(" ").join("").toLowerCase()) 
       )
     );
     setLoading(false);

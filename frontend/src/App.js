@@ -26,7 +26,7 @@ function App() {
         auth.role === roles.Advanced ||
         auth.role === roles.Inactive) &&
         "/dashboard") ||
-      "/admin/manage-meters"
+      "/admin/meters"
     );
   };
 
@@ -54,13 +54,13 @@ function App() {
               </Route>
               <Route path = "/advanced/data-logging-scheduler">
               {(auth.role === roles.Admin && (
-                    <Redirect to="/admin/manage-meters" />
+                    <Redirect to="/admin/meters" />
                   )) || <DataLoggingScheduler />}
               {/* <DataLoggingScheduler/> */}
             </Route>  
             <Route path = "/advanced/data-logs">
               {(auth.role === roles.Admin && (
-                  <Redirect to="/admin/manage-meters" />
+                  <Redirect to="/admin/meters" />
                 )) || <DataLogs />}
               {/* <DataLogs/>  */}
             </Route>

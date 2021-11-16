@@ -327,7 +327,7 @@ export default function LoginPages() {
                 <Route path={`${path}/send-access-request`}>
                   <RepeatAccessRequest
                     loading={loading}
-                    handleSubmit={handleAccessRequestCreation}
+                    handleSubmit={handleRepeatAccessRequest}
                   />
                 </Route>
                 <Route path={`${path}/forgot-password`}>

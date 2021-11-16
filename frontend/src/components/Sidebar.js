@@ -1,4 +1,3 @@
-import PropTypes from "prop-types";
 import React from "react";
 import { Nav } from "react-bootstrap";
 import { roles } from "../resources/constants";
@@ -9,9 +8,9 @@ import {
   FaSignInAlt,
   FaSignOutAlt,
   FaUsers,
-  FaEnvelopeOpen
+  FaEnvelopeOpen,
 } from "react-icons/fa";
-import { Link, NavLink, useLocation, useHistory } from "react-router-dom";
+import { NavLink, useLocation, useHistory } from "react-router-dom";
 import Help from "./Help";
 import { useAuth } from "../resources/use-auth";
 import IconButton from "./IconButton";
@@ -43,7 +42,7 @@ const sidebarData = [
   },
 ];
 
-function Sidebar(props) {
+function Sidebar() {
   const location = useLocation();
   const auth = useAuth();
   const history = useHistory();

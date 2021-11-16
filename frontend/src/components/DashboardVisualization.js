@@ -1,4 +1,4 @@
-import { React, useState } from "react";
+import { React } from "react";
 import PropTypes from "prop-types";
 import {
   Card,
@@ -46,6 +46,10 @@ function DashboardVisualization(props) {
     scales: {
       x: {
         type: "time",
+        title: {
+          text: "t",
+          display: true,
+        },
         time: {
           minUnit: "minute",
           round: "minute",
@@ -58,6 +62,10 @@ function DashboardVisualization(props) {
       },
       y: {
         beginAtZero: true,
+        title: {
+          display: true,
+          text: props.selectedDatatype === "consumption" ? "kWh" : "kW",
+        },
       },
     },
     plugins: {

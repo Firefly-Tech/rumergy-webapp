@@ -51,7 +51,7 @@ function Dashboard() {
       .then((res) => {
         setMeterList(res.data);
       })
-      .catch((error) => {
+      .catch(() => {
         setMeterList([]);
         setErrorName("Fetch Error");
         setErrorMessage("Failed to fetch active meter list.");
@@ -138,7 +138,7 @@ function Dashboard() {
           }
         )
         .then((res) => {
-          return res.data.map((meterDataObj, index) => {
+          return res.data.map((meterDataObj) => {
             return {
               x: getTime(parseISO(meterDataObj.timestamp)),
               y: meterDataObj.avg,

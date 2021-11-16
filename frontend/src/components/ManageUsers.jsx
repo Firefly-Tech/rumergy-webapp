@@ -42,8 +42,8 @@ function ManageUsers() {
 
   const auth = useRequireAuth("/login", [roles.Admin]);
 
-  useEffect(async () => {
-    await fetchUsers();
+  useEffect(() => {
+    fetchUsers();
   }, []);
 
   useEffect(() => {

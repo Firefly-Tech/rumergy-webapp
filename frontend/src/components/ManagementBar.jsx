@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import PropTypes from "prop-types";
 import { Card, Button, InputGroup, FormControl } from "react-bootstrap";
 import { FaPlus, FaTimes, FaRedo } from "react-icons/fa";

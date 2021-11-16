@@ -38,7 +38,9 @@ function RepeatAccessRequest(props) {
         <Row>
           <Col className>
             <span className="text-muted">
-              {"Request access to the site's advanced features"}
+              {
+                "You do not have access to the site. Please submit your request below."
+              }
             </span>
           </Col>
         </Row>

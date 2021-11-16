@@ -3,7 +3,6 @@ import PropTypes from "prop-types";
 import { useRequireAuth } from "../resources/use-require-auth";
 import { roles } from "../resources/constants";
 import { Row, Col, Spinner, Button, Modal, Card } from "react-bootstrap";
-import IconButton from "./IconButton";
 import {
   FaCheckCircle,
   FaTimesCircle,
@@ -14,7 +13,6 @@ import {
 import ManagementBar from "./ManagementBar";
 import CustomDataTable from "./CustomDataTable";
 import { parseISO, format } from "date-fns";
-import styled from "styled-components";
 
 function ManageAccessRequests() {
   const [loading, setLoading] = useState(false);

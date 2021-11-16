@@ -47,25 +47,28 @@ const emptyEditMeterModelEntry = {
 function ManageMeterModel(props) {
   const [loading, setLoading] = useState(false);
   const [meterModel, setMeterModel] = useState([]);
-
+  
+  // Filter state
   const [filterText, setFilterText] = useState("");
   const [resetPaginationToggle, setResetPaginationToggle] = useState(false);
   const [filteredEntries, setFilteredEntries] = useState([]);
 
+  // Edit modal state
   const [selectedEditEntry, setSelectedEditEntry] = useState(
     emptyEditMeterModelEntry
   );
-
   const [showEdit, setShowEdit] = useState(false);
   const handleCloseEdit = () => setShowEdit(false);
   const handleShowEdit = () => setShowEdit(true);
 
+  // Add modal state
   const [showAdd, setShowAdd] = useState(false);
   const handleCloseAdd = () => setShowAdd(false);
   const handleShowAdd = () => setShowAdd(true);
 
-  const auth = useRequireAuth("/admin/meter-models", [roles.Admin]); // Change
+  const auth = useRequireAuth("/admin/meter-models", [roles.Admin]);
 
+  //Test Data
   const testData = [
     {
       id: "1",
@@ -108,7 +111,6 @@ function ManageMeterModel(props) {
     setLoading(false);
   }, [meterModel, filterText]);
 
-  //Check
   const fetchMeterModels = async () => {
     setLoading(true);
     let data = await auth.userAxiosInstance
@@ -140,6 +142,7 @@ function ManageMeterModel(props) {
     setLoading(false);
   };
 
+  //Datatable columns
   const columns = [
     {
       name: "Action",
@@ -178,7 +181,7 @@ function ManageMeterModel(props) {
     return auth.userAxiosInstance
       .post(`${auth.apiHost}/api/meter-models`, data)
       .then(() => {
-        //fetchMeterModels();
+        fetchMeterModels();
         return true;
       })
       .catch(() => {
@@ -201,7 +204,7 @@ function ManageMeterModel(props) {
     return auth.userAxiosInstance
       .patch(`${auth.apiHost}/api/meter-models/${id}/`, data) //ask about this
       .then(() => {
-        //fetchMeterModels();
+        fetchMeterModels();
         return true;
       })
       .catch(() => {
@@ -219,7 +222,7 @@ function ManageMeterModel(props) {
     return auth.userAxiosInstance
       .delete(`${auth.apiHost}/api/meter-models/${id}/`)
       .then(() => {
-        //fetchMeterModels();
+        fetchMeterModels();
         return true;
       })
       .catch(() => {

@@ -6,7 +6,6 @@ import * as Yup from "yup";
 //import { roles } from "../resources/constants";
 import { FaPlus, FaExclamation, FaCheck } from "react-icons/fa";
 
-//Ask Milton
 // const {General, ...userRoles} = roles;
 
 const meterAddFormSchema = Yup.object().shape({
@@ -38,6 +37,7 @@ const meterAddFormSchema = Yup.object().shape({
 function MeterAddModal(props) {
   const [isConfirm, setIsConfirm] = useState(false);
 
+  //Status State
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState(false);
 

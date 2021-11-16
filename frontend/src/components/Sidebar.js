@@ -36,13 +36,13 @@ const sidebarData = [
   {
     menuName: "Data Logging Scheduler",
     link: "/advanced/data-logging-scheduler",
-    userRestrictions: [roles.General], //Remember to change to advance
+    userRestrictions: [roles.Advanced], 
     icon: <FaClipboardList className="fs-5" />,
   },
   {
     menuName: "Data Logs",
     link: "/advanced/data-logs",
-    userRestrictions: [roles.General], //remember to change to advance
+    userRestrictions: [roles.Advanced], 
     icon: <FaClipboardCheck className="fs-5" />,
   },
   {
@@ -54,13 +54,13 @@ const sidebarData = [
   {
     menuName: "Meters",
     link: "/admin/meters",
-    userRestrictions: [roles.General], //remember to put Admin
+    userRestrictions: [roles.Admin], 
     icon: <FaList className="fs-5" />,
   },
   {
     menuName: "Meter Models",
     link: "/admin/meter-models",
-    userRestrictions: [roles.General], //remember to put admin
+    userRestrictions: [roles.Admin], 
     icon: <FaList className="fs-5" />,
   },
   {

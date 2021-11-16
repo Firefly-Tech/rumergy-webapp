@@ -34,22 +34,26 @@ function DataLogs(props) {
   const [loading, setLoading] = useState(false);
   const [dataLog, setdataLog] = useState([]);
 
+  // Filter state
   const [filterText, setFilterText] = useState("");
   const [resetPaginationToggle, setResetPaginationToggle] = useState(false);
   const [filteredEntries, setFilteredEntries] = useState([]);
 
-  const [selectedEntry, setSelectedEntry] = useState({});// no creo que need
+  const [selectedEntry, setSelectedEntry] = useState({});
 
+  // Detail States
   const [showDetails, setShowDetails] = useState(false);
   const handleCloseDetails = () => setShowDetails(false);
   const handleShowDetails = () => setShowDetails(true);
 
+  //Download State
   const [showDownload, setShowDownload] = useState(false);
   const handleCloseDownload = () => setShowDownload(false);
   const handleShowDownload = () => setShowDownload(true);
 
   const auth = useRequireAuth("/advanced/data-logs", [roles.Advanced]);
 
+  //Test Data
   const testData = [
     {
       date: "February",
@@ -84,7 +88,7 @@ function DataLogs(props) {
       .catch(() => {
         return [];
       });
-    
+
     if (data.length) {
       data = data.map((data_logs) => {
         let dataLogStringElements = [
@@ -125,10 +129,10 @@ function DataLogs(props) {
       cell: (row) => (
         <IconButton
           icon={<FaCloudDownloadAlt className="fs-5" />}
-          //add clickAction download add here
           clickAction={() => {
             setSelectedEntry(row);
             handleShowDownload();
+            //TODO add backend download//
           }}
         />
       ),
@@ -161,7 +165,7 @@ function DataLogs(props) {
                 setFilterText={setFilterText}
                 loading={loading}
                 handleClear={handleClear}
-                onRefresh={fetchDataLog} 
+                onRefresh={fetchDataLog}
               />
             </Col>
           </Row>

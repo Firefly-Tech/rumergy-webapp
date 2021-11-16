@@ -53,16 +53,16 @@ function App() {
                 <LoginPages />
               </Route>
               <Route path = "/advanced/data-logging-scheduler">
-            {/* {(auth.role === roles.Admin && (
-                <Redirect to="/admin/manage-meters" />
-              )) || <DataLoggingScheduler />} */}
-              <DataLoggingScheduler/>
+              {(auth.role === roles.Admin && (
+                    <Redirect to="/admin/manage-meters" />
+                  )) || <DataLoggingScheduler />}
+              {/* <DataLoggingScheduler/> */}
             </Route>  
             <Route path = "/advanced/data-logs">
-            {/* {(auth.role === roles.Admin && (
-                <Redirect to="/admin/manage-meters" />
-              )) || <DataLogs />} */}
-              <DataLogs/> 
+              {(auth.role === roles.Admin && (
+                  <Redirect to="/admin/manage-meters" />
+                )) || <DataLogs />}
+              {/* <DataLogs/>  */}
             </Route>
             <Route path = "/admin/meters"> 
               <ManageMeter/>

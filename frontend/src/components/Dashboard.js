@@ -1,4 +1,4 @@
-import { React, useEffect, useState } from "react";
+import { React, useEffect, useState, useCallback } from "react";
 import { Col, Row, Spinner } from "react-bootstrap";
 import DashboardMeterSelect from "./DashboardMeterSelect";
 import DashboardSelectedMeters from "./DashboardSelectedMeters";
@@ -23,10 +23,22 @@ const lineColorsTransparent = [
   "rgba(153, 102, 255, 0.2)",
 ];
 
+const emptyDataSet = {
+  datasets: [
+    {
+      label: "No data",
+      data: [],
+      fill: false,
+    },
+  ],
+};
+/**
+ * Dashboard component
+ * */
 function Dashboard() {
   const [meterList, setMeterList] = useState([]);
   const [meterBuffer, setMeterBuffer] = useState([]);
-  const [meterData, setMeterData] = useState({});
+  const [meterData, setMeterData] = useState(emptyDataSet);
   const [selectedTimeframe, setSelectedTimeframe] = useState(1);
   const [selectedDatatype, setSelectedDatatype] = useState("consumption");
   const [selectedMeters, setSelectedMeters] = useState([]);
@@ -36,12 +48,19 @@ function Dashboard() {
   const [errorMessage, setErrorMessage] = useState("");
 
   const [loading, setLoading] = useState(false);
+  const [initial, setInitial] = useState(true);
 
   const auth = useAuth();
 
   /* HOOKS */
 
   useEffect(async () => {
+    /**
+     * Fetches meter list
+     *
+     * @param {object} auth - Authentication hook
+     * @memberof Dashboard
+     * */
     setLoading(true);
     await axios
       .get(`${auth.apiHost}/api/meters`, {
@@ -58,6 +77,7 @@ function Dashboard() {
         handleShow();
       });
     setLoading(false);
+    setInitial(false);
   }, [auth]);
 
   useEffect(() => {
@@ -67,6 +87,10 @@ function Dashboard() {
       })
     );
   }, [meterList]);
+
+  useEffect(() => {
+    debounceCallback(handleFetch);
+  }, [selectedMeters, selectedDatatype, selectedTimeframe]);
 
   /* METER LIST HANDLERS */
 
@@ -84,12 +108,40 @@ function Dashboard() {
       meterBuffer.filter((bufferMeter) => bufferMeter.id !== meter.id)
     );
   };
+
+  const selectedMeterDebounced = (meter) => {
+    debounceCallback(() => selectMeter(meter));
+  };
+
+  /*
+   * Deselects the provided meter
+   *
+   * @function deselectMeter
+   * @param {object} meter - Meter object
+   * */
   const deselectMeter = (meter) => {
     setSelectedMeters(
       selectedMeters.filter((selectedMeter) => selectedMeter.id !== meter.id)
     );
     setMeterBuffer([...meterBuffer, meter]);
   };
+
+  /*
+   * Debounced version of the deselect meter function
+   *
+   * @function deselectMeterDebounced
+   * @param {object} meter - Meter object
+   **/
+  const deselectMeterDebounced = (meter) => {
+    debounceCallback(() => deselectMeter(meter));
+  };
+
+  /**
+   * Clears all selected meters
+   *
+   * @function clearSelected
+   * @public
+   **/
   const clearSelected = () => {
     setMeterBuffer([...meterBuffer, ...selectedMeters]);
     setSelectedMeters([]);
@@ -99,16 +151,20 @@ function Dashboard() {
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
 
-  /* METER DATA FETCH HANDLERS/HELPERS*/
+  /**
+   * Handles fetching the meter data with all the selected parameters
+   *
+   * @function handleFetch
+   * */
   const handleFetch = () => {
-    if (!(selectedMeters.length > 0)) {
+    if (!(selectedMeters.length > 0) && !initial) {
+      setMeterData(emptyDataSet);
       setErrorName("No meters selected");
       setErrorMessage("Select at least one meter to sync the data.");
       handleShow();
     } else fetchData();
   };
 
-  // TODO: Add data fetch here
   const fetchData = async () => {
     setLoading(true);
 
@@ -168,6 +224,21 @@ function Dashboard() {
     setMeterData(data);
   };
 
+  const debounce = (func, timeout = 300) => {
+    let timer;
+    return (...args) => {
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        func.apply(this, args);
+      }, timeout);
+    };
+  };
+  const debounceCallback = useCallback(
+    debounce((func) => {
+      func();
+    }, 175)
+  );
+
   return (
     <>
       <Row className="h-100">
@@ -185,11 +256,11 @@ function Dashboard() {
             <Col sm={3} className="d-flex flex-column justify-content-evenly">
               <DashboardMeterSelect
                 meterList={meterBuffer}
-                selectMeter={selectMeter}
+                selectMeter={selectedMeterDebounced}
               />
               <DashboardSelectedMeters
                 selectedMeters={selectedMeters}
-                deselectMeter={deselectMeter}
+                deselectMeter={deselectMeterDebounced}
                 clearSelected={clearSelected}
               />
             </Col>
@@ -200,7 +271,6 @@ function Dashboard() {
                 setSelectedDatatype={setSelectedDatatype}
                 setSelectedTimeframe={setSelectedTimeframe}
                 data={meterData}
-                handleFetch={handleFetch}
               />
             </Col>
           </Row>

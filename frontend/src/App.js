@@ -15,7 +15,6 @@ const includeSidebar = ["/dashboard*", "/admin*", "/advanced*", "/about*"];
 function App() {
   const auth = useAuth();
 
-  // TODO: Add redirect for INA user
   const rootRedirect = () => {
     return (
       ((auth.role === roles.General ||

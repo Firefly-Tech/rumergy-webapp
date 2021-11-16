@@ -46,10 +46,6 @@ function DashboardVisualization(props) {
     scales: {
       x: {
         type: "time",
-        title: {
-          text: "t",
-          display: true,
-        },
         time: {
           minUnit: "minute",
           round: "minute",
@@ -129,28 +125,17 @@ function DashboardVisualization(props) {
         </Card.Body>
         <Card.Body as={Row} className="">
           <Col
-            className={`chart mx-3 mt-4 justify-content-center flex-grow-1 ${
-              Object.keys(props.data).length > 0 ? "chart-bg-color" : ""
-            }`}
+            className={`d-flex flex-column chart mx-3 mt-4 justify-content-center flex-grow-1 chart-bg-color`}
           >
-            {Object.keys(props.data).length === 0 ? (
-              <h5 className="text-center py-3 my-auto">No data</h5>
-            ) : (
-              <Line data={props.data} options={options} />
-            )}
-          </Col>
-        </Card.Body>
-        <Card.Body as={Row}>
-          <Col className="d-flex justify-content-center">
-            <Button
-              className="d-flex flex-row align-items-center gap-3"
-              variant="primary"
-              size="md"
-              onClick={props.handleFetch}
-            >
-              <FaSync className="fs-5" />
-              <span>Sync</span>
-            </Button>
+            <Line data={props.data} options={options} />
+            <div className="text-center">
+              <h5 className="bold">
+              {props.data.datasets.length === 1 &&
+              props.data.datasets[0].label === "No data"
+                ? "No data"
+                : null}
+                </h5>
+            </div>
           </Col>
         </Card.Body>
       </Col>
@@ -164,7 +149,6 @@ DashboardVisualization.propTypes = {
   setSelectedDatatype: PropTypes.func,
   setSelectedTimeframe: PropTypes.func,
   data: PropTypes.object,
-  handleFetch: PropTypes.func,
 };
 
 export default DashboardVisualization;

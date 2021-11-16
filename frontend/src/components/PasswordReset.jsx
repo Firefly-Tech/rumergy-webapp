@@ -82,7 +82,6 @@ function PasswordReset(props) {
     );
   }
 
-  // TODO: Validate token on entry
   return (
     <>
       <Row className="mb-4">

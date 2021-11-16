@@ -6,15 +6,19 @@ import requests
     For each meter, it should attempt connection and read two data points each 15 minutes:
     energy consumption (kWh) and energy demand (kW)
 '''        
-
+''' 
+periodic_data():
+'''
 def periodic_data():
     
     access_token, refresh_token = client.get_token()
     
     '''Get meter list '''
-    meters = requests.get('http://127.0.0.1:8000/api/meters/', headers={"Authorization": f"Bearer {access_token}"}).json()
+    meters = requests.get('http://127.0.0.1:8000/api/meters/?status=ACT', headers={"Authorization": f"Bearer {access_token}"}).json()
+    # meters = requests.get('http://127.0.0.1:8000/api/meters/', headers={"Authorization": f"Bearer {access_token}"}).json()
 
     for meter in meters:
+        
         model_id = meter['meter_model']
         
         model_record = requests.get(f'http://127.0.0.1:8000/api/meter-models/{model_id}', headers={"Authorization": f"Bearer {access_token}"}).json()
@@ -26,10 +30,11 @@ def periodic_data():
                 start_address = point_record['start_address']
                 end_address = point_record['end_address']
                 regtype = point_record['register_type']
+                data_type = point_record['data_type']
                 
                 try:
                     c = client.connect_meter(meter['ip'], meter['port'])
-                    reading = client.decode_message(client.read_point(c, regtype, start_address, end_address))  
+                    reading = client.decode_message(client.read_point(c, regtype, start_address, end_address), data_type)  
                     post_dict = {
                         "data_point": f"{point_pk}",
                         "meter": f"{meter['id']}",

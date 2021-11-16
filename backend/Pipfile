@@ -15,6 +15,7 @@ PyJWT = "~=2.1.0"
 django-cors-headers = "*"
 python-dateutil = "*"
 django-rest-passwordreset = "*"
+drf-yasg = "*"
 
 [dev-packages]
 pynvim = "*"

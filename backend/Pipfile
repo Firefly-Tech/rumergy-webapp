@@ -17,6 +17,7 @@ python-dateutil = "*"
 django-rest-passwordreset = "*"
 pymodbus = "*"
 requests = "*"
+drf-yasg = "*"
 
 [dev-packages]
 pynvim = "*"

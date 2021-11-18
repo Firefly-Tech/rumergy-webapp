@@ -20,6 +20,13 @@ import RepeatAccessRequest from "./RepeatAccessRequest";
 import ForgotPassword from "./ForgotPassword";
 import PasswordReset from "./PasswordReset";
 
+/**
+ * Wrapper component that handles state in
+ * all of the pages in the login section.
+ *
+ * Includes: Create account, forgot password,
+ * and password reset.
+ * */
 export default function LoginPages() {
   const [show, setShow] = useState(false);
   const [errorName, setErrorName] = useState("");
@@ -31,9 +38,29 @@ export default function LoginPages() {
   const history = useHistory();
   const { path } = useRouteMatch();
 
+  /**
+   * Handles hiding the error modal.
+   *
+   * @function handleClose
+   * */
   const handleClose = () => setShow(false);
+
+  /**
+   * Handles showing the error modal.
+   *
+   * @function handleClose
+   * */
   const handleShow = () => setShow(true);
 
+  /**
+   * Handles user login request.
+   *
+   * @function handleSignin
+   * @param {string} username
+   * @param {string} password
+   * @returns {function} Resulting action
+   * @async
+   * */
   const handleSignin = async (username, password) => {
     let userObject;
     try {
@@ -47,13 +74,13 @@ export default function LoginPages() {
           ? "Provided credentials are invalid."
           : "An error occurred. Please try again."
       );
-
       return handleShow;
     }
 
     // Logic for inactive users
     if (userObject.role === roles.Inactive) {
       let bearer = await auth.withAppUser();
+
       // Get status of latest access request
       try {
         const accessRequestStatus = await axios
@@ -73,8 +100,10 @@ export default function LoginPages() {
 
         // If no active request or no requests at all
         if (accessRequestStatus !== "ACT" || !accessRequestStatus) {
+          // Redirect to page to request access
           return () => history.push(`${path}/send-access-request`);
         } else {
+          // Redirect to pending access page
           return () => history.push(`${path}/access-pending`);
         }
       } catch (error) {
@@ -88,6 +117,14 @@ export default function LoginPages() {
     }
   };
 
+  /**
+   * Handles the submit of the login form.
+   *
+   * @function handleLoginSubmit
+   * @param {object} values - Formik object with form values
+   * @param {function} setSubmitting - Formik function to handle submitting state
+   * @async
+   * */
   const handleLoginSubmit = async (values, { setSubmitting }) => {
     setLoading(true);
     let resultAction = await handleSignin(values.username, values.password);
@@ -96,6 +133,15 @@ export default function LoginPages() {
     resultAction();
   };
 
+  /**
+   * Handles access request creation.
+   *
+   * @function handleAccessRequestCreation
+   * @param {number} id - User id related to access request
+   * @param {string} occupation - Occupation description
+   * @param {string} justification - Justification for access request
+   * @async
+   * */
   const handleAccessRequestCreation = async (id, occupation, justification) => {
     await axios
       .post(
@@ -112,6 +158,15 @@ export default function LoginPages() {
       });
   };
 
+  /**
+   * Handles submission of a repeat access request form.
+   *
+   * @function handleRepeatAccessRequest
+   * @param {object} values - Formik object with form values
+   * @param {function} setSubmitting - Formik function to handle submitting state
+   * @returns {boolean} True if successful
+   * @async
+   * */
   const handleRepeatAccessRequest = async (values, { setSubmitting }) => {
     setLoading(true);
 
@@ -136,6 +191,15 @@ export default function LoginPages() {
     }
   };
 
+  /**
+   * Handles submission of account creation form.
+   *
+   * @function handleCreateAccountSubmit
+   * @param {object} values - Formik object with form values
+   * @param {function} setSubmitting - Formik function to handle submitting state
+   * @returns {boolean} True if successful
+   * @async
+   * */
   const handleCreateAccountSubmit = async (values, { setSubmitting }) => {
     setLoading(true);
 
@@ -169,6 +233,16 @@ export default function LoginPages() {
     }
   };
 
+  /**
+   * Helper function to determine if a user
+   * with the provided username and/or password
+   * already exists in the system.
+   *
+   * @function userExists
+   * @param {string} username
+   * @param {string} email
+   * @async
+   * */
   const userExists = async (username, email) => {
     setLoading(true);
     // Try getting auth for app user
@@ -184,6 +258,7 @@ export default function LoginPages() {
       return true;
     }
 
+    // Get user by their username
     let userByUsername = await axios
       .get(`${auth.apiHost}/api/users?username=${username}`, {
         headers: {
@@ -196,6 +271,8 @@ export default function LoginPages() {
       .catch(() => {
         return [1];
       });
+
+    // Get user by their email
     let userByEmail = await axios
       .get(`${auth.apiHost}/api/users?email=${email}`, {
         headers: { Authorization: bearer },
@@ -223,6 +300,15 @@ export default function LoginPages() {
     return true;
   };
 
+  /**
+   * Handles submission of forgot password form.
+   *
+   * @function handleForgotPasswordSubmit
+   * @param {object} values - Formik object with form values
+   * @param {function} setSubmitting - Formik function to handle submitting state
+   * @returns {boolean} True if successful
+   * @async
+   * */
   const handleForgotPasswordSubmit = async (values, { setSubmitting }) => {
     setLoading(true);
     try {
@@ -243,6 +329,16 @@ export default function LoginPages() {
     return true;
   };
 
+  /**
+   * Handles submission of password reset form.
+   *
+   * @function handlePasswordResetSubmit
+   * @param {string} token - Password reset token
+   * @param {string} values - Formik object with form values
+   * @param {function} setSubmitting - Formik function to handle submitting state
+   * @returns {boolean} True if successful
+   * @async
+   * */
   const handlePasswordResetSubmit = async (
     token,
     values,
@@ -265,6 +361,14 @@ export default function LoginPages() {
     return true;
   };
 
+  /**
+   * Verifies if password reset token is valid.
+   *
+   * @function  verifyToken
+   * @param {string} token - Password reset token
+   * @returns {string} Password reset token if successful, otherwise null
+   * @async
+   * */
   const verifyToken = async (token) => {
     setLoading(true);
     return axios
@@ -327,7 +431,7 @@ export default function LoginPages() {
                 <Route path={`${path}/send-access-request`}>
                   <RepeatAccessRequest
                     loading={loading}
-                    handleSubmit={handleAccessRequestCreation}
+                    handleSubmit={handleRepeatAccessRequest}
                   />
                 </Route>
                 <Route path={`${path}/forgot-password`}>

@@ -1,4 +1,4 @@
-import { React, useState } from "react";
+import { React } from "react";
 import PropTypes from "prop-types";
 import {
   Card,
@@ -10,32 +10,56 @@ import {
 } from "react-bootstrap";
 import { Line } from "react-chartjs-2";
 import "chartjs-adapter-date-fns";
-import { FaSync } from "react-icons/fa";
-// CONSTANTS
 
+/**
+ * Data for timeframe selectors
+ *
+ * @constant {array} timeframeRadios
+ * */
 const timeframeRadios = [
   { name: "24h", value: 1 },
   { name: "7d", value: 7 },
   { name: "30d", value: 30 },
 ];
+/**
+ * Data for datatype selectors
+ *
+ * @constant {array} datatypeRadios
+ * */
 const datatypeRadios = [
   { name: "Consumption", value: "consumption" },
   { name: "Demand", value: "demand" },
 ];
 
-// CHART OPTIONS
-
-const decimation = {
+/**
+ * Decimation plugin options.
+ * Handles data decimation on chart.
+ *
+ * @constant {object} decimation
+ * */
+const decimationPlugin = {
   enabled: true,
   algorithm: "lttb",
   samples: 100,
 };
 
 function DashboardVisualization(props) {
+  /**
+   * Helper to set chart x-axis unit.
+   *
+   * @function setUnit
+   * @returns {string}
+   * */
   const setUnit = () => {
     if (props.selectedTimeframe === 1) return "hour";
     return "day";
   };
+
+  /**
+   * Chart configuration
+   *
+   * @constant {object} options
+   * */
   const options = {
     parsing: false,
     interaction: {
@@ -58,10 +82,14 @@ function DashboardVisualization(props) {
       },
       y: {
         beginAtZero: true,
+        title: {
+          display: true,
+          text: props.selectedDatatype === "consumption" ? "kWh" : "kW",
+        },
       },
     },
     plugins: {
-      decimation: decimation,
+      decimation: decimationPlugin,
     },
   };
 
@@ -121,28 +149,17 @@ function DashboardVisualization(props) {
         </Card.Body>
         <Card.Body as={Row} className="">
           <Col
-            className={`chart mx-3 mt-4 justify-content-center flex-grow-1 ${
-              Object.keys(props.data).length > 0 ? "chart-bg-color" : ""
-            }`}
+            className={`d-flex flex-column chart mx-3 mt-4 justify-content-center flex-grow-1 chart-bg-color`}
           >
-            {Object.keys(props.data).length === 0 ? (
-              <h5 className="text-center py-3 my-auto">No data</h5>
-            ) : (
-              <Line data={props.data} options={options} />
-            )}
-          </Col>
-        </Card.Body>
-        <Card.Body as={Row}>
-          <Col className="d-flex justify-content-center">
-            <Button
-              className="d-flex flex-row align-items-center gap-3"
-              variant="primary"
-              size="md"
-              onClick={props.handleFetch}
-            >
-              <FaSync className="fs-5" />
-              <span>Sync</span>
-            </Button>
+            <Line data={props.data} options={options} />
+            <div className="text-center">
+              <h5 className="bold">
+                {props.data.datasets.length === 1 &&
+                props.data.datasets[0].label === "No data"
+                  ? "No data"
+                  : null}
+              </h5>
+            </div>
           </Col>
         </Card.Body>
       </Col>
@@ -151,12 +168,14 @@ function DashboardVisualization(props) {
 }
 
 DashboardVisualization.propTypes = {
+  /** Selected timeframe for the visualization. Indicates number of days (1, 7, or 30). */
   selectedTimeframe: PropTypes.number,
+  /** Selected datatype. Can be consumption or demand. */
   selectedDatatype: PropTypes.string,
   setSelectedDatatype: PropTypes.func,
   setSelectedTimeframe: PropTypes.func,
+  /** Data for the selected meters, according to selected parameters. */
   data: PropTypes.object,
-  handleFetch: PropTypes.func,
 };
 
 export default DashboardVisualization;

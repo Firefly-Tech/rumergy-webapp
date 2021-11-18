@@ -1,4 +1,32 @@
-import { React, useState } from "react";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: components/LoginPages.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: components/LoginPages.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import { React, useState } from "react";
 import { Col, Row } from "react-bootstrap";
 import { FaArrowLeft } from "react-icons/fa";
 import {
@@ -123,7 +151,6 @@ export default function LoginPages() {
    * @function handleLoginSubmit
    * @param {object} values - Formik object with form values
    * @param {function} setSubmitting - Formik function to handle submitting state
-   * @async
    * */
   const handleLoginSubmit = async (values, { setSubmitting }) => {
     setLoading(true);
@@ -284,7 +311,7 @@ export default function LoginPages() {
         return [1];
       });
 
-    if (!userByUsername.length && !userByEmail.length) {
+    if (!userByUsername.length &amp;&amp; !userByEmail.length) {
       setLoading(false);
       return false;
     }
@@ -387,77 +414,100 @@ export default function LoginPages() {
   };
 
   return (
-    <>
-      <Row className="h-100">
-        <Col sm={6} className="flex-fill p-0">
-          <div className="logo-container d-flex flex-column">
-            <Link
+    &lt;>
+      &lt;Row className="h-100">
+        &lt;Col sm={6} className="flex-fill p-0">
+          &lt;div className="logo-container d-flex flex-column">
+            &lt;Link
               to="/dashboard"
               className="login-back-button d-flex flex-row gap-2 align-items-center p-3 text-decoration-none fs-5"
             >
-              <FaArrowLeft className="" />
-              <h5 className="mb-0">Back</h5>
-            </Link>
-            <img
+              &lt;FaArrowLeft className="" />
+              &lt;h5 className="mb-0">Back&lt;/h5>
+            &lt;/Link>
+            &lt;img
               src={logo}
               alt="Logo"
               className="login-rumergy-logo img-fluid mx-auto my-auto"
             />
-          </div>
-        </Col>
-        <Col
+          &lt;/div>
+        &lt;/Col>
+        &lt;Col
           sm={6}
           className="d-flex login-form justify-content-center align-items-center"
         >
-          <Switch>
-            <>
-              <div className="my-auto flex-fill">
-                <Route exact path={path}>
-                  <LoginForm
+          &lt;Switch>
+            &lt;>
+              &lt;div className="my-auto flex-fill">
+                &lt;Route exact path={path}>
+                  &lt;LoginForm
                     loading={loading}
                     handleSubmit={handleLoginSubmit}
                   />
-                </Route>
-                <Route path={`${path}/create-account`}>
-                  <CreateAccount
+                &lt;/Route>
+                &lt;Route path={`${path}/create-account`}>
+                  &lt;CreateAccount
                     loading={loading}
                     handleSubmit={handleCreateAccountSubmit}
                     userExists={userExists}
                   />
-                </Route>
-                <Route path={`${path}/access-pending`}>
-                  <AccessPending />
-                </Route>
-                <Route path={`${path}/send-access-request`}>
-                  <RepeatAccessRequest
+                &lt;/Route>
+                &lt;Route path={`${path}/access-pending`}>
+                  &lt;AccessPending />
+                &lt;/Route>
+                &lt;Route path={`${path}/send-access-request`}>
+                  &lt;RepeatAccessRequest
                     loading={loading}
                     handleSubmit={handleRepeatAccessRequest}
                   />
-                </Route>
-                <Route path={`${path}/forgot-password`}>
-                  <ForgotPassword
+                &lt;/Route>
+                &lt;Route path={`${path}/forgot-password`}>
+                  &lt;ForgotPassword
                     handleSubmit={handleForgotPasswordSubmit}
                     loading={loading}
                   />
-                </Route>
-                <Route path={`${path}/password-reset`}>
-                  <PasswordReset
+                &lt;/Route>
+                &lt;Route path={`${path}/password-reset`}>
+                  &lt;PasswordReset
                     loading={loading}
                     handleSubmit={handlePasswordResetSubmit}
                     verifyToken={verifyToken}
                   />
-                </Route>
-              </div>
-            </>
-          </Switch>
-        </Col>
-      </Row>
-      <ErrorModal
+                &lt;/Route>
+              &lt;/div>
+            &lt;/>
+          &lt;/Switch>
+        &lt;/Col>
+      &lt;/Row>
+      &lt;ErrorModal
         show={show}
         handleClose={handleClose}
         errorMessage={errorMessage}
         errorName={errorName}
       />
-    </>
+    &lt;/>
   );
 }
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#authStateChange">authStateChange</a></li><li><a href="global.html#checkRestrictions">checkRestrictions</a></li><li><a href="global.html#clearSelected">clearSelected</a></li><li><a href="global.html#confirmPasswordReset">confirmPasswordReset</a></li><li><a href="global.html#Dashboard">Dashboard</a></li><li><a href="global.html#datatypeRadios">datatypeRadios</a></li><li><a href="global.html#debounce">debounce</a></li><li><a href="global.html#debounceCallback">debounceCallback</a></li><li><a href="global.html#decimation">decimation</a></li><li><a href="global.html#deselectMeter">deselectMeter</a></li><li><a href="global.html#deselectMeterDebounced">deselectMeterDebounced</a></li><li><a href="global.html#ErrorModal">ErrorModal</a></li><li><a href="global.html#fetchData">fetchData</a></li><li><a href="global.html#handleAccessRequestCreation">handleAccessRequestCreation</a></li><li><a href="global.html#handleClose">handleClose</a></li><li><a href="global.html#handleCreateAccountSubmit">handleCreateAccountSubmit</a></li><li><a href="global.html#handleFetch">handleFetch</a></li><li><a href="global.html#handleForgotPasswordSubmit">handleForgotPasswordSubmit</a></li><li><a href="global.html#handleLoginSubmit">handleLoginSubmit</a></li><li><a href="global.html#handlePasswordResetSubmit">handlePasswordResetSubmit</a></li><li><a href="global.html#handleRepeatAccessRequest">handleRepeatAccessRequest</a></li><li><a href="global.html#handleSignin">handleSignin</a></li><li><a href="global.html#isLoggedIn">isLoggedIn</a></li><li><a href="global.html#lineColors">lineColors</a></li><li><a href="global.html#lineColorsTransparent">lineColorsTransparent</a></li><li><a href="global.html#loginFormSchema">loginFormSchema</a></li><li><a href="global.html#options">options</a></li><li><a href="global.html#ProvideAuth">ProvideAuth</a></li><li><a href="global.html#SearchBar">SearchBar</a></li><li><a href="global.html#selectMeter">selectMeter</a></li><li><a href="global.html#selectMeterDebounced">selectMeterDebounced</a></li><li><a href="global.html#sendPasswordResetEmail">sendPasswordResetEmail</a></li><li><a href="global.html#setUnit">setUnit</a></li><li><a href="global.html#Sidebar">Sidebar</a></li><li><a href="global.html#sidebarData">sidebarData</a></li><li><a href="global.html#signin">signin</a></li><li><a href="global.html#signup">signup</a></li><li><a href="global.html#timeframeRadios">timeframeRadios</a></li><li><a href="global.html#tryRefresh">tryRefresh</a></li><li><a href="global.html#useAuth">useAuth</a></li><li><a href="global.html#useProvideAuth">useProvideAuth</a></li><li><a href="global.html#userExists">userExists</a></li><li><a href="global.html#verifyToken">verifyToken</a></li><li><a href="global.html#withAppUser">withAppUser</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Wed Nov 17 2021 21:09:48 GMT-0400 (Atlantic Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

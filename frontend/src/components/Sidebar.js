@@ -15,6 +15,13 @@ import Help from "./Help";
 import { useAuth } from "../resources/use-auth";
 import IconButton from "./IconButton";
 
+/**
+ * Links to be shown in sidebar.
+ * Each has a list of roles that can view said link
+ * and will determine if its shown on the sidebar.
+ *
+ * @const sidebarData
+ * */
 const sidebarData = [
   {
     menuName: "Dashboard",
@@ -42,15 +49,30 @@ const sidebarData = [
   },
 ];
 
+/** Navigation sidebar */
 function Sidebar() {
   const location = useLocation();
   const auth = useAuth();
   const history = useHistory();
 
+  /**
+   * Checks if current user role is included
+   * in the link's permission list.
+   *
+   * @function checkRestrictions
+   * @param {array} restrictions - List of roles
+   * @returns {boolean}
+   * */
   const checkRestrictions = (restrictions) => {
     return restrictions.includes(auth.role);
   };
 
+  /**
+   * Determines if current user is logged in.
+   *
+   *@function isLoggedIn
+   *@returns {boolean}
+   * */
   const isLoggedIn = () => {
     return auth.user !== false;
   };

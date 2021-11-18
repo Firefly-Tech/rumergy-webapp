@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: components/LoginForm.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: components/LoginForm.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import { Formik } from "formik";
+import React from "react";
+import PropTypes from "prop-types";
+import { Button, Form, InputGroup, Spinner, Row, Col } from "react-bootstrap";
+import { Link, useRouteMatch } from "react-router-dom";
+import * as Yup from "yup";
+
+/**
+ * Yup validation schema for login form
+ *
+ * @constant {object} loginFormSchema
+ * */
+const loginFormSchema = Yup.object().shape({
+  username: Yup.string().required("Username required"),
+  password: Yup.string().required("Password required"),
+});
+
+/** Form for user login */
+export default function LoginForm(props) {
+  const { path } = useRouteMatch();
+
+  return (
+    &lt;>
+      &lt;Row className="mb-4">
+        &lt;Col className="d-flex flex-row align-items-center gap-4">
+          &lt;h2 className="bold mb-0">Member Login&lt;/h2>
+          {props.loading &amp;&amp; &lt;Spinner animation="border" variant="secondary" />}
+        &lt;/Col>
+      &lt;/Row>
+      &lt;Row>
+        &lt;Col>
+          &lt;Formik
+            initialValues={{ username: "", password: "" }}
+            validationSchema={loginFormSchema}
+            onSubmit={props.handleSubmit}
+          >
+            {(formik) => (
+              &lt;Form
+                className="d-flex flex-column flex-fill"
+                onSubmit={formik.handleSubmit}
+                noValidate
+              >
+                &lt;Form.Group className="mb-3">
+                  &lt;Form.Label>Username&lt;/Form.Label>
+                  &lt;InputGroup hasValidation>
+                    &lt;Form.Control
+                      id="username"
+                      placeholder="Enter username"
+                      isInvalid={!!formik.errors.username}
+                      {...formik.getFieldProps("username")}
+                    />
+                    &lt;Form.Control.Feedback type="invalid">
+                      {formik.errors.username}
+                    &lt;/Form.Control.Feedback>
+                  &lt;/InputGroup>
+                &lt;/Form.Group>
+                &lt;Form.Group className="mb-3">
+                  &lt;Form.Label>Password&lt;/Form.Label>
+                  &lt;InputGroup hasValidation>
+                    &lt;Form.Control
+                      id="password"
+                      type="password"
+                      placeholder="Password"
+                      isInvalid={!!formik.errors.password}
+                      {...formik.getFieldProps("password")}
+                    />
+                    &lt;Form.Control.Feedback type="invalid">
+                      {formik.errors.password}
+                    &lt;/Form.Control.Feedback>
+                  &lt;/InputGroup>
+                &lt;/Form.Group>
+                &lt;Button
+                  variant="primary"
+                  type="submit"
+                  disabled={formik.isSubmitting}
+                >
+                  Login
+                &lt;/Button>
+                &lt;div className="login-page-links d-flex flex-row justify-content-center align-items-center mt-2 gap-2">
+                  &lt;Link to={`${path}/forgot-password`}>Forgot password?&lt;/Link>
+                  &lt;span>|&lt;/span>
+                  &lt;Link to={`${path}/create-account`}>Create Account&lt;/Link>
+                &lt;/div>
+              &lt;/Form>
+            )}
+          &lt;/Formik>
+        &lt;/Col>
+      &lt;/Row>
+    &lt;/>
+  );
+}
+
+LoginForm.propTypes = {
+  loading: PropTypes.bool,
+  /** Handle login submit */
+  handleSubmit: PropTypes.func,
+};
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#authStateChange">authStateChange</a></li><li><a href="global.html#checkRestrictions">checkRestrictions</a></li><li><a href="global.html#clearSelected">clearSelected</a></li><li><a href="global.html#confirmPasswordReset">confirmPasswordReset</a></li><li><a href="global.html#Dashboard">Dashboard</a></li><li><a href="global.html#datatypeRadios">datatypeRadios</a></li><li><a href="global.html#debounce">debounce</a></li><li><a href="global.html#debounceCallback">debounceCallback</a></li><li><a href="global.html#decimation">decimation</a></li><li><a href="global.html#deselectMeter">deselectMeter</a></li><li><a href="global.html#deselectMeterDebounced">deselectMeterDebounced</a></li><li><a href="global.html#ErrorModal">ErrorModal</a></li><li><a href="global.html#fetchData">fetchData</a></li><li><a href="global.html#handleAccessRequestCreation">handleAccessRequestCreation</a></li><li><a href="global.html#handleClose">handleClose</a></li><li><a href="global.html#handleCreateAccountSubmit">handleCreateAccountSubmit</a></li><li><a href="global.html#handleFetch">handleFetch</a></li><li><a href="global.html#handleForgotPasswordSubmit">handleForgotPasswordSubmit</a></li><li><a href="global.html#handleLoginSubmit">handleLoginSubmit</a></li><li><a href="global.html#handlePasswordResetSubmit">handlePasswordResetSubmit</a></li><li><a href="global.html#handleRepeatAccessRequest">handleRepeatAccessRequest</a></li><li><a href="global.html#handleSignin">handleSignin</a></li><li><a href="global.html#isLoggedIn">isLoggedIn</a></li><li><a href="global.html#lineColors">lineColors</a></li><li><a href="global.html#lineColorsTransparent">lineColorsTransparent</a></li><li><a href="global.html#loginFormSchema">loginFormSchema</a></li><li><a href="global.html#options">options</a></li><li><a href="global.html#ProvideAuth">ProvideAuth</a></li><li><a href="global.html#SearchBar">SearchBar</a></li><li><a href="global.html#selectMeter">selectMeter</a></li><li><a href="global.html#selectMeterDebounced">selectMeterDebounced</a></li><li><a href="global.html#sendPasswordResetEmail">sendPasswordResetEmail</a></li><li><a href="global.html#setUnit">setUnit</a></li><li><a href="global.html#Sidebar">Sidebar</a></li><li><a href="global.html#sidebarData">sidebarData</a></li><li><a href="global.html#signin">signin</a></li><li><a href="global.html#signup">signup</a></li><li><a href="global.html#timeframeRadios">timeframeRadios</a></li><li><a href="global.html#tryRefresh">tryRefresh</a></li><li><a href="global.html#useAuth">useAuth</a></li><li><a href="global.html#useProvideAuth">useProvideAuth</a></li><li><a href="global.html#userExists">userExists</a></li><li><a href="global.html#verifyToken">verifyToken</a></li><li><a href="global.html#withAppUser">withAppUser</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Wed Nov 17 2021 21:09:48 GMT-0400 (Atlantic Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

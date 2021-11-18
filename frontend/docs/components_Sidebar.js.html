@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: components/Sidebar.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: components/Sidebar.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import React from "react";
+import { Nav } from "react-bootstrap";
+import { roles } from "../resources/constants";
+import {
+  FaChartLine,
+  FaBolt,
+  FaInfoCircle,
+  FaSignInAlt,
+  FaSignOutAlt,
+  FaUsers,
+  FaEnvelopeOpen,
+} from "react-icons/fa";
+import { NavLink, useLocation, useHistory } from "react-router-dom";
+import Help from "./Help";
+import { useAuth } from "../resources/use-auth";
+import IconButton from "./IconButton";
+
+/**
+ * Links to be shown in sidebar.
+ * Each has a list of roles that can view said link
+ * and will determine if its shown on the sidebar.
+ *
+ * @const sidebarData
+ * */
+const sidebarData = [
+  {
+    menuName: "Dashboard",
+    link: "/dashboard",
+    userRestrictions: [roles.General, roles.Advanced, roles.Inactive],
+    icon: &lt;FaChartLine className="fs-5" />,
+  },
+  {
+    menuName: "About",
+    link: "/about",
+    userRestrictions: [roles.General, roles.Advanced, roles.Inactive],
+    icon: &lt;FaInfoCircle className="fs-5" />,
+  },
+  {
+    menuName: "Users",
+    link: "/admin/manage-users",
+    userRestrictions: [roles.Admin],
+    icon: &lt;FaUsers className="fs-5" />,
+  },
+  {
+    menuName: "Access Requests",
+    link: "/admin/manage-access-requests",
+    userRestrictions: [roles.Admin],
+    icon: &lt;FaEnvelopeOpen className="fs-5" />,
+  },
+];
+
+/** Navigation sidebar */
+function Sidebar() {
+  const location = useLocation();
+  const auth = useAuth();
+  const history = useHistory();
+
+  /**
+   * Checks if current user role is included
+   * in the link's permission list.
+   *
+   * @function checkRestrictions
+   * @param {array} restrictions - List of roles
+   * @returns {boolean}
+   * */
+  const checkRestrictions = (restrictions) => {
+    return restrictions.includes(auth.role);
+  };
+
+  /**
+   * Determines if current user is logged in.
+   *
+   *@function isLoggedIn
+   *@returns {boolean}
+   * */
+  const isLoggedIn = () => {
+    return auth.user !== false;
+  };
+
+  return (
+    &lt;div className="sidebar d-flex flex-sm-column flex-grow-1 align-items-sm-stretch align-items-center">
+      {/* Header */}
+      &lt;div className="d-flex flex-row justify-content-center align-items-center text-white p-sm-3 px-3 gap-2">
+        &lt;FaBolt className="fs-5" />
+        &lt;h2 className="bold mb-0 d-none d-sm-inline">RUMergy&lt;/h2>
+      &lt;/div>
+      {/* Nav */}
+      &lt;Nav
+        className=" flex-sm-column flex-row flex-nowrap flex-shrink-1 flex-sm-grow-0 flex-grow-1 mb-sm-auto mb-0 justify-content-center align-items-center align-items-sm-stretch"
+        activeKey={location.pathname}
+      >
+        {sidebarData.map((item, index) => {
+          return (
+            checkRestrictions(item.userRestrictions) &amp;&amp; (
+              &lt;Nav.Item className="sidebar-item" key={index}>
+                &lt;Nav.Link
+                  as={NavLink}
+                  to={item.link}
+                  className="d-flex gap-2 align-items-center"
+                >
+                  {item.icon}
+                  &lt;span className="ms-1 d-none d-sm-inline">
+                    {item.menuName}
+                  &lt;/span>
+                &lt;/Nav.Link>
+              &lt;/Nav.Item>
+            )
+          );
+        })}
+      &lt;/Nav>
+      {/* Footer */}
+      &lt;div className="d-flex flex-column flex-sm-row align-items-center mt-sm-auto p-sm-3 px-3 gap-sm-0 gap-3 fs-6">
+        &lt;div className="me-sm-auto">
+          &lt;IconButton
+            icon={isLoggedIn() ? &lt;FaSignOutAlt /> : &lt;FaSignInAlt />}
+            optionalText={isLoggedIn() ? "Logout" : "Login"}
+            clickAction={
+              isLoggedIn()
+                ? () => {
+                    auth.signout();
+                    history.push("/");
+                  }
+                : () => history.push("/login")
+            }
+          />
+        &lt;/div>
+        &lt;Help />
+      &lt;/div>
+    &lt;/div>
+  );
+}
+
+export default Sidebar;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#authStateChange">authStateChange</a></li><li><a href="global.html#checkRestrictions">checkRestrictions</a></li><li><a href="global.html#clearSelected">clearSelected</a></li><li><a href="global.html#confirmPasswordReset">confirmPasswordReset</a></li><li><a href="global.html#Dashboard">Dashboard</a></li><li><a href="global.html#datatypeRadios">datatypeRadios</a></li><li><a href="global.html#debounce">debounce</a></li><li><a href="global.html#debounceCallback">debounceCallback</a></li><li><a href="global.html#decimation">decimation</a></li><li><a href="global.html#deselectMeter">deselectMeter</a></li><li><a href="global.html#deselectMeterDebounced">deselectMeterDebounced</a></li><li><a href="global.html#ErrorModal">ErrorModal</a></li><li><a href="global.html#fetchData">fetchData</a></li><li><a href="global.html#handleAccessRequestCreation">handleAccessRequestCreation</a></li><li><a href="global.html#handleClose">handleClose</a></li><li><a href="global.html#handleCreateAccountSubmit">handleCreateAccountSubmit</a></li><li><a href="global.html#handleFetch">handleFetch</a></li><li><a href="global.html#handleForgotPasswordSubmit">handleForgotPasswordSubmit</a></li><li><a href="global.html#handleLoginSubmit">handleLoginSubmit</a></li><li><a href="global.html#handlePasswordResetSubmit">handlePasswordResetSubmit</a></li><li><a href="global.html#handleRepeatAccessRequest">handleRepeatAccessRequest</a></li><li><a href="global.html#handleSignin">handleSignin</a></li><li><a href="global.html#isLoggedIn">isLoggedIn</a></li><li><a href="global.html#lineColors">lineColors</a></li><li><a href="global.html#lineColorsTransparent">lineColorsTransparent</a></li><li><a href="global.html#loginFormSchema">loginFormSchema</a></li><li><a href="global.html#options">options</a></li><li><a href="global.html#ProvideAuth">ProvideAuth</a></li><li><a href="global.html#SearchBar">SearchBar</a></li><li><a href="global.html#selectMeter">selectMeter</a></li><li><a href="global.html#selectMeterDebounced">selectMeterDebounced</a></li><li><a href="global.html#sendPasswordResetEmail">sendPasswordResetEmail</a></li><li><a href="global.html#setUnit">setUnit</a></li><li><a href="global.html#Sidebar">Sidebar</a></li><li><a href="global.html#sidebarData">sidebarData</a></li><li><a href="global.html#signin">signin</a></li><li><a href="global.html#signup">signup</a></li><li><a href="global.html#timeframeRadios">timeframeRadios</a></li><li><a href="global.html#tryRefresh">tryRefresh</a></li><li><a href="global.html#useAuth">useAuth</a></li><li><a href="global.html#useProvideAuth">useProvideAuth</a></li><li><a href="global.html#userExists">userExists</a></li><li><a href="global.html#verifyToken">verifyToken</a></li><li><a href="global.html#withAppUser">withAppUser</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Wed Nov 17 2021 21:09:48 GMT-0400 (Atlantic Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

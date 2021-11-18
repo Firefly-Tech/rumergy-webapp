@@ -5,11 +5,17 @@ import { Button, Form, InputGroup, Spinner, Row, Col } from "react-bootstrap";
 import { Link, useRouteMatch } from "react-router-dom";
 import * as Yup from "yup";
 
+/**
+ * Yup validation schema for login form
+ *
+ * @constant {object} loginFormSchema
+ * */
 const loginFormSchema = Yup.object().shape({
   username: Yup.string().required("Username required"),
   password: Yup.string().required("Password required"),
 });
 
+/** Form for user login */
 export default function LoginForm(props) {
   const { path } = useRouteMatch();
 
@@ -86,5 +92,6 @@ export default function LoginForm(props) {
 
 LoginForm.propTypes = {
   loading: PropTypes.bool,
+  /** Handle login submit */
   handleSubmit: PropTypes.func,
 };

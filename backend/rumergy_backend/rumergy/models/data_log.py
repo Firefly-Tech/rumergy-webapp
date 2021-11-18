@@ -13,3 +13,4 @@ class DataLog(models.Model):
     data_points = models.ManyToManyField(DataPoint, related_name="data_logs")
     start_date = models.DateTimeField(default=now)
     end_date = models.DateTimeField(default=now)
+    sampling_rate = models.PositiveIntegerField(default=3)

@@ -17,6 +17,7 @@ class DataLogSerializer(serializers.ModelSerializer):
             "user",
             "start_date",
             "end_date",
+            "sampling_rate"
             "data_log_measures",
             "data_points",
         ]

@@ -1,6 +1,5 @@
 from django.db import models
 from django.contrib.auth.models import User
-
 from rumergy_backend.rumergy.models.data_point import DataPoint
 from .meter import Meter
 from django.utils.timezone import now

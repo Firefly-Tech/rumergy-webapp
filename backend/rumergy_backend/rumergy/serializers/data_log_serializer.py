@@ -1,6 +1,5 @@
 from rest_framework import serializers
 from rumergy_backend.rumergy.models import DataLog, DataPoint
-from rumergy_backend.rumergy.models.data_log_measures import DataLogMeasures
 
 
 class DataLogSerializer(serializers.ModelSerializer):

@@ -1,9 +1,9 @@
+from django.utils.timezone import now
 from rest_framework import viewsets
 from rest_framework import permissions
 from rumergy_backend.rumergy.serializers.data_log_serializer import DataLogSerializer
 from rumergy_backend.rumergy.models.data_log import DataLog
 from rumergy_backend.rumergy.models.data_log_measures import DataLogMeasures
-from rumergy_backend.rumergy.models.data_point import DataPoint
 from rumergy_backend.rumergy.models.meter import Meter
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -20,9 +20,12 @@ class DataLogViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=["get"])
     def download(self, request, pk=None):
         datalog = DataLog.objects.get(id=pk)
+        if datalog.end_date > now():
+            return Response("This data log has not finished yet", status.HTTP_400_BAD_REQUEST)
         meter = Meter.objects.get(id=datalog.meter.pk)
         filename = meter.name + "'s Data Log Results"
         datapoints = datalog.data_points
+
         try:
             measures = DataLogMeasures.objects.filter(data_log=pk).order_by("-timestamp")
         except:

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Home</title>
+    <title>JSDoc: Source: components/CustomDataTable.jsx</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,32 +17,53 @@
 
 <div id="main">
 
-    <h1 class="page-title">Home</h1>
+    <h1 class="page-title">Source: components/CustomDataTable.jsx</h1>
 
     
 
 
 
     
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import React from "react";
+import DataTable from "react-data-table-component";
 
+/**
+ * Custom style for react-data-table-component.
+ *
+ * @constant {object} customStyle
+ * */
+const customStyle = {
+  headRow: {
+    style: {
+      fontSize: "16px",
+      backgroundColor: "#f2f3f8",
+      borderBottomStyle: "none",
+    },
+  },
+  rows: {
+    style: {
+      fontSize: "14px",
+    },
+  },
+  pagination: {
+    style: {
+      backgroundColor: "#f2f3f8",
+      borderTopStyle: "none",
+    },
+  },
+};
 
-    <h3> </h3>
+/** Data table wrapper with custom style */
+function CustomDataTable(props) {
+  return &lt;DataTable customStyles={customStyle} {...props} />;
+}
 
-
-
-
-
-
-
-
-
-
-    
-
-
-
-
-
+export default CustomDataTable;
+</code></pre>
+        </article>
+    </section>
 
 
 

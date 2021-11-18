@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Home</title>
+    <title>JSDoc: Source: components/ManagementBar.jsx</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,32 +17,85 @@
 
 <div id="main">
 
-    <h1 class="page-title">Home</h1>
+    <h1 class="page-title">Source: components/ManagementBar.jsx</h1>
 
     
 
 
 
     
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import React from "react";
+import PropTypes from "prop-types";
+import { Card, Button, InputGroup, FormControl } from "react-bootstrap";
+import { FaPlus, FaTimes, FaRedo } from "react-icons/fa";
+import IconButton from "./IconButton";
 
+/** Bar for admin management screens */
+function ManagementBar(props) {
+  return (
+    &lt;Card className="manage-card d-flex flex-row align-items-center py-3">
+      &lt;div className="me-auto px-3">
+        &lt;InputGroup>
+          &lt;FormControl
+            placeholder="Filter entries"
+            value={props.filterText}
+            onChange={(e) => {
+              props.setFilterText(e.target.value);
+            }}
+            disabled={props.loading}
+          />
+          &lt;Button
+            variant="primary"
+            onClick={props.handleClear}
+            disabled={props.loading}
+          >
+            &lt;FaTimes className="fs-5" />
+          &lt;/Button>
+        &lt;/InputGroup>
+      &lt;/div>
+      &lt;div className="d-flex flex-row align-items-center px-4 gap-4">
+        &lt;IconButton
+          icon={&lt;FaRedo className="fs-5" />}
+          clickAction={props.onRefresh}
+        />
+        {props.addButton &amp;&amp; (
+          &lt;Button
+            variant="primary"
+            className="d-flex flex-row align-items-center gap-3"
+            onClick={props.onAdd}
+          >
+            &lt;FaPlus className="fs-5" />
+            &lt;span className="d-none d-sm-inline">{props.addText}&lt;/span>
+          &lt;/Button>
+        )}
+      &lt;/div>
+    &lt;/Card>
+  );
+}
 
-    <h3> </h3>
+ManagementBar.propTypes = {
+  /** Search bar text value */
+  filterText: PropTypes.string,
+  setFilterText: PropTypes.func,
+  loading: PropTypes.bool,
+  /** Determines if add button is desired */
+  addButton: PropTypes.bool,
+  /** Text for add button */
+  addText: PropTypes.string,
+  /** Clear handler for search bar */
+  handleClear: PropTypes.func,
+  /** Refresh handler */
+  onRefresh: PropTypes.func,
+  /** Add handler */
+  onAdd: PropTypes.func,
+};
 
-
-
-
-
-
-
-
-
-
-    
-
-
-
-
-
+export default ManagementBar;
+</code></pre>
+        </article>
+    </section>
 
 
 

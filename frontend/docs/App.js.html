@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Home</title>
+    <title>JSDoc: Source: App.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,32 +17,96 @@
 
 <div id="main">
 
-    <h1 class="page-title">Home</h1>
+    <h1 class="page-title">Source: App.js</h1>
 
     
 
 
 
     
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import { React } from "react";
+import "./App.scss";
+import { Route, Redirect, Switch } from "react-router-dom";
+import { Container, Row, Col } from "react-bootstrap";
+import Sidebar from "./components/Sidebar";
+import { roles } from "./resources/constants";
+import Dashboard from "./components/Dashboard";
+import LoginPages from "./components/LoginPages";
+import { useAuth } from "./resources/use-auth";
+import ManageUsers from "./components/ManageUsers";
+import ManageAccessRequests from "./components/ManageAccessRequests";
 
+const includeSidebar = ["/dashboard*", "/admin*", "/advanced*", "/about*"];
 
-    <h3> </h3>
+/** Main app component */
+function App() {
+  const auth = useAuth();
 
+  /**
+   * Determinres redirect link
+   * depending on user role.
+   *
+   * @function rootRedirect
+   * @returns {string} Redirect link
+   * */
+  const rootRedirect = () => {
+    return (
+      ((auth.role === roles.General ||
+        auth.role === roles.Advanced ||
+        auth.role === roles.Inactive) &amp;&amp;
+        "/dashboard") ||
+      "/admin/manage-meters"
+    );
+  };
 
+  return (
+    &lt;Container fluid className="overflow-hidden">
+      &lt;Row className="vh-100 overflow-hidden">
+        &lt;Route path={includeSidebar}>
+          &lt;Col
+            sm={3}
+            xl={2}
+            className="d-flex flex-column sticky-top px-0 pr-sm-2"
+          >
+            &lt;Sidebar />
+          &lt;/Col>
+        &lt;/Route>
+        &lt;Col className="pt-sm-0">
+          &lt;Switch>
+            &lt;Route path="/dashboard">
+              {(auth.role === roles.Admin &amp;&amp; (
+                &lt;Redirect to="/admin/manage-meters" />
+              )) || &lt;Dashboard />}
+            &lt;/Route>
+            &lt;Route path="/login">
+              &lt;LoginPages />
+            &lt;/Route>
+            &lt;Route path="/admin/manage-users">
+              &lt;ManageUsers />
+            &lt;/Route>
+            &lt;Route path="/admin/manage-access-requests">
+              &lt;ManageAccessRequests />
+            &lt;/Route>
+            &lt;Route path="/" exact>
+              &lt;Redirect to={rootRedirect()} />
+            &lt;/Route>
+            {/* TODO: Add 404 page */}
+            &lt;Route path="*">
+              &lt;h3>Page not found&lt;/h3>
+            &lt;/Route>
+          &lt;/Switch>
+        &lt;/Col>
+      &lt;/Row>
+    &lt;/Container>
+  );
+}
 
-
-
-
-
-
-
-
-    
-
-
-
-
-
+export default App;
+</code></pre>
+        </article>
+    </section>
 
 
 

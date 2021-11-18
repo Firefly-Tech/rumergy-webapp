@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Home</title>
+    <title>JSDoc: Source: components/DashboardMeterItem.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,32 +17,47 @@
 
 <div id="main">
 
-    <h1 class="page-title">Home</h1>
+    <h1 class="page-title">Source: components/DashboardMeterItem.js</h1>
 
     
 
 
 
     
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import React from "react";
+import PropTypes from "prop-types";
+import IconButton from "./IconButton";
+import { FaPlus, FaMinus } from "react-icons/fa";
 
+/** Meter item for dashboard meter lists */
+function DashboardMeterItem(props) {
+  return (
+    &lt;div className="meter-item mb-3">
+      &lt;span className="meter-name">{props.meter.name}&lt;/span>
+      &lt;div className="meter-item-button">
+        &lt;IconButton
+          icon={(props.isAdd &amp;&amp; &lt;FaPlus />) || &lt;FaMinus />}
+          clickAction={() => props.clickAction(props.meter)}
+        />
+      &lt;/div>
+    &lt;/div>
+  );
+}
 
-    <h3> </h3>
+DashboardMeterItem.propTypes = {
+  /** Meter object */
+  meter: PropTypes.object,
+  clickAction: PropTypes.func,
+  /** Determines icon to be displayed */
+  isAdd: PropTypes.bool,
+};
 
-
-
-
-
-
-
-
-
-
-    
-
-
-
-
-
+export default DashboardMeterItem;
+</code></pre>
+        </article>
+    </section>
 
 
 

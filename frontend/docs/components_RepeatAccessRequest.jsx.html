@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Home</title>
+    <title>JSDoc: Source: components/RepeatAccessRequest.jsx</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,32 +17,153 @@
 
 <div id="main">
 
-    <h1 class="page-title">Home</h1>
+    <h1 class="page-title">Source: components/RepeatAccessRequest.jsx</h1>
 
     
 
 
 
     
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import PropTypes from "prop-types";
+import { Formik } from "formik";
+import React, { useState } from "react";
+import { Row, Col, Form, InputGroup, Button, Spinner } from "react-bootstrap";
+import * as Yup from "yup";
+import { useHistory } from "react-router";
 
+/**
+ * Yup validation schema for access request form
+ *
+ * @constant {object} repeatAccessRequestSchema
+ * */
+const repeatAccessRequestSchema = Yup.object().shape({
+  occupation: Yup.string()
+    .required("Occupation required")
+    .matches(/^[a-zA-Z]+$/, "Invalid format")
+    .max(50, "Must be at most 50 characters."),
+  justification: Yup.string()
+    .required("Justification required")
+    .max(200, "Must be at most 200 characters."),
+});
 
-    <h3> </h3>
+/** Form for access requests unrelated to account creation */
+function RepeatAccessRequest(props) {
+  const [success, setSuccess] = useState(false);
 
+  const history = useHistory();
 
+  // Redirect to access pending page on success
+  if (success) {
+    history.push("/login/access-pending");
+  }
 
+  return (
+    &lt;>
+      &lt;Row className="mb-4">
+        &lt;Row className="mb-2">
+          &lt;Col className="d-flex flex-row align-items-center gap-4">
+            &lt;h2 className="bold mb-0">Access Request&lt;/h2>
+            {props.loading &amp;&amp; (
+              &lt;Spinner animation="border" variant="secondary" />
+            )}
+          &lt;/Col>
+        &lt;/Row>
+        &lt;Row>
+          &lt;Col className>
+            &lt;span className="text-muted">
+              {
+                "You do not have access to the site. Please submit your request below."
+              }
+            &lt;/span>
+          &lt;/Col>
+        &lt;/Row>
+      &lt;/Row>
+      &lt;Row>
+        &lt;Col>
+          &lt;Formik
+            initialValues={{
+              occupation: "",
+              justification: "",
+            }}
+            validationSchema={repeatAccessRequestSchema}
+            onSubmit={async (values, handlers) => {
+              setSuccess(await props.handleSubmit(values, handlers));
+            }}
+          >
+            {(formik) => (
+              &lt;Form
+                className="d-flex flex-column flex-fill"
+                onSubmit={formik.handleSubmit}
+                noValidate
+              >
+                &lt;Row className="mb-3">
+                  &lt;Form.Group as={Col}>
+                    &lt;Form.Label>Occupation&lt;/Form.Label>
+                    &lt;InputGroup hasValidation>
+                      &lt;Form.Control
+                        id="occupation"
+                        placeholder="Occupation"
+                        isInvalid={!!formik.errors.occupation}
+                        {...formik.getFieldProps("occupation")}
+                      />
+                      &lt;Form.Control.Feedback type="invalid">
+                        {formik.errors.occupation}
+                      &lt;/Form.Control.Feedback>
+                    &lt;/InputGroup>
+                  &lt;/Form.Group>
+                &lt;/Row>
+                &lt;Row className="mb-4">
+                  &lt;Form.Label className="mb-0">Justification&lt;/Form.Label>
+                  &lt;Form.Text className="mb-2" muted>
+                    Provide a justification for your access request. 200
+                    characters maximum.
+                  &lt;/Form.Text>
+                  &lt;InputGroup hasValidation>
+                    &lt;Form.Control
+                      id="justification"
+                      as="textarea"
+                      placeholder="Justification"
+                      style={{ height: "100px" }}
+                      isInvalid={!!formik.errors.justification}
+                      {...formik.getFieldProps("justification")}
+                    />
+                    &lt;Form.Control.Feedback type="invalid">
+                      {formik.errors.justification}
+                    &lt;/Form.Control.Feedback>
+                  &lt;/InputGroup>
+                &lt;/Row>
+                &lt;Row>
+                  &lt;Col className="d-flex justify-content-center">
+                    &lt;Button
+                      className="flex-fill"
+                      type="submit"
+                      variant="primary"
+                    >
+                      Submit
+                    &lt;/Button>
+                  &lt;/Col>
+                &lt;/Row>
+              &lt;/Form>
+            )}
+          &lt;/Formik>
+        &lt;/Col>
+      &lt;/Row>
+    &lt;/>
+  );
+}
 
+RepeatAccessRequest.propTypes = {
+  loading: PropTypes.bool,
+  /** Handle repeat access request submit */
+  handleSubmit: PropTypes.func,
+};
 
-
-
-
-
-
-    
-
-
-
-
-
+export default RepeatAccessRequest;
+</code></pre>
+        </article>
+    </section>
 
 
 

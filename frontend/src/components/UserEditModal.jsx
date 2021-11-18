@@ -8,6 +8,11 @@ import { FaSync, FaTrash, FaExclamation, FaCheck } from "react-icons/fa";
 
 const { General, ...userRoles } = roles;
 
+/**
+ * Yup validation schema for user edit form.
+ *
+ * @constant {object} userAddFormSchema
+ * */
 const userEditFormSchema = Yup.object().shape({
   firstName: Yup.string()
     .min(1, "Must be at least 1 character")
@@ -23,6 +28,7 @@ const userEditFormSchema = Yup.object().shape({
   role: Yup.string().required("Role required").oneOf(Object.values(userRoles)),
 });
 
+/** Modal for user edits in user management dashboard */
 function UserEditModal(props) {
   const [isUpdate, setIsUpdate] = useState(false);
   const [isDelete, setIsDelete] = useState(false);
@@ -30,6 +36,11 @@ function UserEditModal(props) {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState(false);
 
+  /**
+   * Resets all state.
+   *
+   * @function resetAll
+   * */
   const resetAll = () => {
     setIsUpdate(false);
     setIsDelete(false);
@@ -271,10 +282,14 @@ function UserEditModal(props) {
 }
 
 UserEditModal.propTypes = {
+  /** Determines whether modal should be shown */
   show: PropTypes.bool,
   handleClose: PropTypes.func,
+  /** User entry data */
   selectedEditEntry: PropTypes.object,
+  /** Edit handler */
   handleEdit: PropTypes.func,
+  /** Deletion handler */
   handleDelete: PropTypes.func,
 };
 

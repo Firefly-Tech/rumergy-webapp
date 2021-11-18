@@ -2,6 +2,7 @@ import React from "react";
 import { Row, Col, Button } from "react-bootstrap";
 import { useHistory } from "react-router-dom";
 
+/** Access pending message */
 function AccessPending() {
   const history = useHistory();
   return (

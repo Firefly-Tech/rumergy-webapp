@@ -6,21 +6,38 @@ import DashboardMeterItem from "./DashboardMeterItem";
 import IconButton from "./IconButton";
 import SearchBar from "./SearchBar";
 
+/** Card that lists meters that can be selected on dashboard */
 function DashboardMeterSelect(props) {
   const [searchActive, setSearchActive] = useState(false);
   const [filteredEntries, setFilteredEntries] = useState([]);
   const [filterText, setFilterText] = useState("");
 
   useEffect(() => {
+    /**
+     * Filter meters if either the meter list,
+     * filter text, or search status changes.
+     *
+     * @memberof DashboardMeterSelect
+     * */
     meterSearch();
   }, [props.meterList, filterText, searchActive]);
 
+  /**
+   * Toggles the search bar.
+   *
+   * @function toggleSearch
+   * */
   const toggleSearch = () => {
     setSearchActive(!searchActive);
     setFilterText("");
     setFilteredEntries([]);
   };
 
+  /**
+   * Meter filtering handler.
+   *
+   * @function meterSearch
+   * */
   const meterSearch = () => {
     setFilteredEntries(
       props.meterList.filter((meter) => {
@@ -71,7 +88,9 @@ function DashboardMeterSelect(props) {
 }
 
 DashboardMeterSelect.propTypes = {
+  /** List of meters */
   meterList: PropTypes.array,
+  /** Function to select a meter */
   selectMeter: PropTypes.func,
 };
 

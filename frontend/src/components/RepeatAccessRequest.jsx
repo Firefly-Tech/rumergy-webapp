@@ -5,6 +5,11 @@ import { Row, Col, Form, InputGroup, Button, Spinner } from "react-bootstrap";
 import * as Yup from "yup";
 import { useHistory } from "react-router";
 
+/**
+ * Yup validation schema for access request form
+ *
+ * @constant {object} repeatAccessRequestSchema
+ * */
 const repeatAccessRequestSchema = Yup.object().shape({
   occupation: Yup.string()
     .required("Occupation required")
@@ -15,11 +20,13 @@ const repeatAccessRequestSchema = Yup.object().shape({
     .max(200, "Must be at most 200 characters."),
 });
 
+/** Form for access requests unrelated to account creation */
 function RepeatAccessRequest(props) {
   const [success, setSuccess] = useState(false);
 
   const history = useHistory();
 
+  // Redirect to access pending page on success
   if (success) {
     history.push("/login/access-pending");
   }
@@ -121,6 +128,7 @@ function RepeatAccessRequest(props) {
 
 RepeatAccessRequest.propTypes = {
   loading: PropTypes.bool,
+  /** Handle repeat access request submit */
   handleSubmit: PropTypes.func,
 };
 

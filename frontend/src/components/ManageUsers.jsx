@@ -38,19 +38,43 @@ function ManageUsers() {
   const [selectedEditEntry, setSelectedEditEntry] =
     useState(emptyEditUserEntry);
   const [showEdit, setShowEdit] = useState(false);
+
+  /**
+   * Handles hiding the edit modal.
+   *
+   * @function handleCloseEdit
+   * */
   const handleCloseEdit = () => setShowEdit(false);
+
+  /**
+   * Handles showing the edit modal.
+   *
+   * @function handleShowEdit
+   * */
   const handleShowEdit = () => setShowEdit(true);
 
   // Add modal state
   const [showAdd, setShowAdd] = useState(false);
+
+  /**
+   * Handles hiding the add modal.
+   *
+   * @function handleCloseAdd
+   * */
   const handleCloseAdd = () => setShowAdd(false);
+
+  /**
+   * Handles showing the add modal.
+   *
+   * @function handleShowAdd
+   * */
   const handleShowAdd = () => setShowAdd(true);
 
   const auth = useRequireAuth("/login", [roles.Admin]);
 
   useEffect(() => {
     /**
-     * User data fetch on load.
+     * Fetch user data on load.
      *
      * @memberof ManageUsers
      * */

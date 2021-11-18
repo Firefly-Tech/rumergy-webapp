@@ -8,6 +8,11 @@ import { FaPlus, FaExclamation, FaCheck } from "react-icons/fa";
 
 const { General, ...userRoles } = roles;
 
+/**
+ * Yup validation schema for user add form.
+ *
+ * @constant {object} userAddFormSchema
+ * */
 const userAddFormSchema = Yup.object().shape({
   firstName: Yup.string()
     .min(1, "Must be at least 1 character")
@@ -36,12 +41,18 @@ const userAddFormSchema = Yup.object().shape({
   role: Yup.string().required("Role required").oneOf(Object.values(userRoles)),
 });
 
+/** Modal for user creation in user management dashboard */
 function UserAddModal(props) {
   const [isConfirm, setIsConfirm] = useState(false);
 
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState(false);
 
+  /**
+   * Resets all state.
+   *
+   * @function resetAll
+   * */
   const resetAll = () => {
     setIsConfirm(false);
     setSuccess(false);
@@ -275,8 +286,10 @@ function UserAddModal(props) {
 }
 
 UserAddModal.propTypes = {
+  /** Determines whether modal should be shown */
   show: PropTypes.bool,
   handleClose: PropTypes.func,
+  /** Submission handler */
   handleSubmit: PropTypes.func,
 };
 

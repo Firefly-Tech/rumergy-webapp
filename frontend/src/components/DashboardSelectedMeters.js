@@ -6,21 +6,38 @@ import DashboardMeterItem from "./DashboardMeterItem";
 import IconButton from "./IconButton";
 import SearchBar from "./SearchBar";
 
+/** Card that lists selected meters on dashboard */
 function DashboardSelectedMeters(props) {
   const [searchActive, setSearchActive] = useState(false);
   const [filteredEntries, setFilteredEntries] = useState([]);
   const [filterText, setFilterText] = useState("");
 
   useEffect(() => {
+    /**
+     * Filter meters if either the meter list,
+     * filter text, or search status changes.
+     *
+     * @memberof DashboardSelectedMeters
+     * */
     meterSearch();
   }, [props.selectedMeters, filterText, searchActive]);
 
+  /**
+   * Toggles the search bar.
+   *
+   * @function toggleSearch
+   * */
   const toggleSearch = () => {
     setSearchActive(!searchActive);
     setFilterText("");
     setFilteredEntries([]);
   };
 
+  /**
+   * Meter filtering handler.
+   *
+   * @function meterSearch
+   * */
   const meterSearch = () => {
     setFilteredEntries(
       props.selectedMeters.filter((meter) => {
@@ -78,8 +95,11 @@ function DashboardSelectedMeters(props) {
 }
 
 DashboardSelectedMeters.propTypes = {
+  /** List of selected meters */
   selectedMeters: PropTypes.array,
+  /** Function to deselect a meter */
   deselectMeter: PropTypes.func,
+  /** Function to clear all selected meters */
   clearSelected: PropTypes.func,
 };
 

@@ -6,6 +6,11 @@ import * as Yup from "yup";
 import { Row, Col, Spinner, Button, Form, InputGroup } from "react-bootstrap";
 import { useHistory } from "react-router";
 
+/**
+ * Yup validation schema for password reset form.
+ *
+ * @constant {object} passwordResetSchema
+ * */
 const passwordResetSchema = Yup.object().shape({
   password: Yup.string()
     .min(8, "Must be at least 8 characters")
@@ -27,14 +32,21 @@ function PasswordReset(props) {
   const query = useSearch();
   const history = useHistory();
 
-  // Get token and validate
   useEffect(async () => {
+    /**
+     * Get token on page load
+     * from query parameters and
+     * validate token.
+     *
+     * @memberof PasswordReset
+     * */
     let token = query.get("token");
     if (token) {
       setToken(await props.verifyToken(token));
     }
-  }, [token]);
+  }, []);
 
+  // Display success message on success
   if (success) {
     return (
       <>
@@ -58,6 +70,7 @@ function PasswordReset(props) {
     );
   }
 
+  // If token is invalid
   if (!props.loading && !token) {
     return (
       <>
@@ -167,7 +180,9 @@ function PasswordReset(props) {
 
 PasswordReset.propTypes = {
   loading: PropTypes.bool,
+  /** Handle password reset submit */
   handleSubmit: PropTypes.func,
+  /** Token verification function */
   verifyToken: PropTypes.func,
 };
 

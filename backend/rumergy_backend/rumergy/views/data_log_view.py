@@ -35,8 +35,8 @@ class DataLogViewSet(viewsets.ModelViewSet):
         response['Content-Disposition'] = 'attachment; filename="%s.csv"' % filename
         # Create the CSV writer using the HttpResponse as the "file"
         writer = csv.writer(response)
-        writer.writerow(["Date", "Time", "Data Point", "Value", "Unit"])
+        writer.writerow(["Date and Time", "Data Point", "Value", "Unit"])
         for measure in measures:
-            writer.writerow([measure.timestamp.date(), measure.timestamp.time(), measure.data_point.name,
+            writer.writerow([measure.timestamp.strftime("%m/%d/%Y, %H:%M:%S"), measure.data_point.name,
                              measure.value, measure.data_point.unit])
         return response

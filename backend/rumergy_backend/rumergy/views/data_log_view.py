@@ -24,7 +24,6 @@ class DataLogViewSet(viewsets.ModelViewSet):
             return Response("This data log has not finished yet", status.HTTP_400_BAD_REQUEST)
         meter = Meter.objects.get(id=datalog.meter.pk)
         filename = meter.name + "'s Data Log Results"
-        datapoints = datalog.data_points
 
         try:
             measures = DataLogMeasures.objects.filter(data_log=pk).order_by("-timestamp")
@@ -36,8 +35,8 @@ class DataLogViewSet(viewsets.ModelViewSet):
         response['Content-Disposition'] = 'attachment; filename="%s.csv"' % filename
         # Create the CSV writer using the HttpResponse as the "file"
         writer = csv.writer(response)
-        writer.writerow(["Date", " Data Point", " Value", " Unit"])
+        writer.writerow(["Date", "Time", "Data Point", "Value", "Unit"])
         for measure in measures:
-            for datapoint in datapoints.all():
-                writer.writerow([measure.timestamp, datapoint.name, measure.value, datapoint.unit])
+            writer.writerow([measure.timestamp.date(), measure.timestamp.time(), measure.data_point.name,
+                             measure.value, measure.data_point.unit])
         return response

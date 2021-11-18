@@ -132,7 +132,6 @@ function useProvideAuth() {
    * */
   const signup = async (username, password, email, firstName, lastName) => {
     let bearer = await withAppUser();
-    console.log(bearer);
 
     return axios
       .post(

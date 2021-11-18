@@ -131,9 +131,12 @@ function useProvideAuth() {
    * @returns {object} userData
    * */
   const signup = async (username, password, email, firstName, lastName) => {
+    let bearer = await withAppUser();
+    console.log(bearer);
+
     return axios
       .post(
-        `${apiHost}/api/users/`,
+        `${apiHost}/api/users/signup/`,
         {
           username: username,
           password: password,
@@ -141,10 +144,9 @@ function useProvideAuth() {
           profile: {
             first_name: firstName,
             last_name: lastName,
-            role: roles.Inactive,
           },
         },
-        { headers: { Authorization: await withAppUser() } }
+        { headers: { Authorization: bearer } }
       )
       .then((res) => {
         return res.data;
@@ -232,10 +234,9 @@ function useProvideAuth() {
    * Handles authentication for requests made without user login.
    *
    * @function withAppUser
-   * @param {string} token - Password reset token
-   * @param {string} password - New password
    * @throws Will throw an error if request fails
    * @returns {string} Authoriztion header
+   * @async
    * */
   const withAppUser = async () => {
     const appUserLogin = async () => {

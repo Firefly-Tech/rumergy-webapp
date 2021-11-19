@@ -100,28 +100,3 @@ def decode_message(result, data_type):
     else:
         return decoder.decode_32bit_float()
 
-
-
-
-def data_logger():
-    '''Get data logs entries '''
-    ''' TODO Add header with access token to requests '''
-    logs = requests.get('http://127.0.0.1:8000/api/data-logs/').json()
-    
-    for log in logs:
-        log_id = log['id']
-        meter_id = log['meter']
-        data_points = log['data_points']
-        start_date = log['start_date']
-        end_date = log['end_date']
-
-        '''TODO convert start_date to datetime object'''
-        if datetime.now() < start_date:
-            for point in data_points:
-                meter_ip = requests.get(f'http://127.0.0.1:8000/api/meters/{meter_id}/').json()['ip']
-                schedule_reading(meter_ip, point, start_date, end_date)
-
-
-def schedule_reading():
-    pass
-

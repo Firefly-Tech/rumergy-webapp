@@ -1,6 +1,11 @@
 import React from "react";
 import DataTable from "react-data-table-component";
 
+/**
+ * Custom style for react-data-table-component.
+ *
+ * @constant {object} customStyle
+ * */
 const customStyle = {
   headRow: {
     style: {
@@ -22,6 +27,7 @@ const customStyle = {
   },
 };
 
+/** Data table wrapper with custom style */
 function CustomDataTable(props) {
   return <DataTable customStyles={customStyle} {...props} />;
 }

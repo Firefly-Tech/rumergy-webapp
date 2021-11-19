@@ -12,10 +12,17 @@ import ManageAccessRequests from "./components/ManageAccessRequests";
 
 const includeSidebar = ["/dashboard*", "/admin*", "/advanced*", "/about*"];
 
+/** Main app component */
 function App() {
   const auth = useAuth();
 
-  // TODO: Add redirect for INA user
+  /**
+   * Determinres redirect link
+   * depending on user role.
+   *
+   * @function rootRedirect
+   * @returns {string} Redirect link
+   * */
   const rootRedirect = () => {
     return (
       ((auth.role === roles.General ||

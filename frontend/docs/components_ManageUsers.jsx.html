@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: components/ManageUsers.jsx</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: components/ManageUsers.jsx</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import React, { useState, useEffect } from "react";
+import { useRequireAuth } from "../resources/use-require-auth";
+import { roles } from "../resources/constants";
+import { Row, Col, Spinner } from "react-bootstrap";
+import IconButton from "./IconButton";
+import { FaPen } from "react-icons/fa";
+import UserEditModal from "./UserEditModal";
+import UserAddModal from "./UserAddModal";
+import ManagementBar from "./ManagementBar";
+import CustomDataTable from "./CustomDataTable";
+
+/**
+ * Initial value for selectedEditEntry
+ *
+ * @constant {object} emptyEditUserEntry
+ * */
+const emptyEditUserEntry = {
+  id: null,
+  profile: {
+    first_name: "",
+    last_name: "",
+    role: "",
+  },
+  email: "",
+};
+
+/** User management screen for admins. */
+function ManageUsers() {
+  const [loading, setLoading] = useState(false);
+  const [users, setUsers] = useState([]);
+
+  // Filter state
+  const [filterText, setFilterText] = useState("");
+  const [resetPaginationToggle, setResetPaginationToggle] = useState(false);
+  const [filteredEntries, setFilteredEntries] = useState([]);
+
+  // Edit modal state
+  const [selectedEditEntry, setSelectedEditEntry] =
+    useState(emptyEditUserEntry);
+  const [showEdit, setShowEdit] = useState(false);
+
+  /**
+   * Handles hiding the edit modal.
+   *
+   * @function handleCloseEdit
+   * */
+  const handleCloseEdit = () => setShowEdit(false);
+
+  /**
+   * Handles showing the edit modal.
+   *
+   * @function handleShowEdit
+   * */
+  const handleShowEdit = () => setShowEdit(true);
+
+  // Add modal state
+  const [showAdd, setShowAdd] = useState(false);
+
+  /**
+   * Handles hiding the add modal.
+   *
+   * @function handleCloseAdd
+   * */
+  const handleCloseAdd = () => setShowAdd(false);
+
+  /**
+   * Handles showing the add modal.
+   *
+   * @function handleShowAdd
+   * */
+  const handleShowAdd = () => setShowAdd(true);
+
+  const auth = useRequireAuth("/login", [roles.Admin]);
+
+  useEffect(() => {
+    /**
+     * Fetch user data on load.
+     *
+     * @memberof ManageUsers
+     * */
+    fetchUsers();
+  }, []);
+
+  useEffect(() => {
+    /**
+     * Updates filtered entries if the filter text or
+     * users list changes.
+     *
+     * @memberof ManageUsers
+     * */
+    setLoading(true);
+    setFilteredEntries(
+      users.filter((user) =>
+        user.userString
+          .toLowerCase()
+          .includes(filterText.split(" ").join("").toLowerCase())
+      )
+    );
+    setLoading(false);
+  }, [users, filterText]);
+
+  /**
+   * Handles fetching user data.
+   *
+   * @function fetchUsers
+   * @async
+   * */
+  const fetchUsers = async () => {
+    setLoading(true);
+    const appUsername = process.env.REACT_APP_RUMERGY_USER;
+    let data = await auth.userAxiosInstance
+      .get(`${auth.apiHost}/api/users`)
+      .then((res) => {
+        return res.data;
+      })
+      .catch(() => {
+        return [];
+      });
+
+    // Filter out app user so it can't be modified
+    data = data.filter((user) => user.username != appUsername);
+
+    if (data.length) {
+      data = data.map((user) => {
+        // Build string with user attributes
+        // for filtering.
+        let userStringElements = [
+          user.id,
+          user.username,
+          user.email,
+          user.profile.first_name,
+          user.profile.last_name,
+          user.profile.role,
+        ];
+
+        return { userString: userStringElements.join(""), ...user };
+      });
+    }
+    setUsers(data);
+    setLoading(false);
+  };
+
+  /**
+   * Columns for data table.
+   *
+   * @constant {object} columns
+   * */
+  const columns = [
+    {
+      name: "Action",
+      cell: (row) => (
+        &lt;IconButton
+          icon={&lt;FaPen className="fs-5" />}
+          clickAction={() => {
+            setSelectedEditEntry(row);
+            handleShowEdit();
+          }}
+        />
+      ),
+      button: true,
+      allowOverflow: true,
+    },
+    { name: "ID", selector: (row) => row.id, sortable: true },
+    { name: "Username", selector: (row) => row.username, sortable: true },
+    { name: "Email", selector: (row) => row.email, sortable: true },
+    {
+      name: "First Name",
+      selector: (row) => row.profile.first_name,
+      sortable: true,
+    },
+    {
+      name: "Last Name",
+      selector: (row) => row.profile.last_name,
+      sortable: true,
+    },
+    { name: "Role", selector: (row) => row.profile.role, sortable: true },
+  ];
+
+  /**
+   * Handles clearing the search bar.
+   * Resets table pagination too.
+   *
+   * @function handleClear
+   * */
+  const handleClear = () => {
+    if (filterText) {
+      setResetPaginationToggle(!resetPaginationToggle);
+      setFilterText("");
+    }
+  };
+
+  /**
+   * Handles adding a new user.
+   *
+   * @function handleAdd
+   * @param {object} values - Formik object with form values
+   * @param {function} setSubmitting - Formik function to handle submitting state
+   * @returns {boolean} True if successful
+   * @async
+   * */
+  const handleAdd = async (values, { setSubmitting }) => {
+    setLoading(true);
+    let data = {
+      username: values.username,
+      email: values.email,
+      password: values.password,
+      profile: {
+        first_name: values.firstName,
+        last_name: values.lastName,
+        role: values.role,
+      },
+    };
+
+    return auth.userAxiosInstance
+      .post(`${auth.apiHost}/api/users/`, data)
+      .then(() => {
+        fetchUsers();
+        return true;
+      })
+      .catch(() => {
+        return false;
+      })
+      .finally(() => {
+        setSubmitting(false);
+        setLoading(false);
+      });
+  };
+
+  /**
+   * Handles editing a user entry.
+   *
+   * @function handleEdit
+   * @param {number} id - User id
+   * @param {object} values - Formik object with form values
+   * @param {function} setSubmitting - Formik function to handle submitting state
+   * @returns {boolean} True if successful
+   * @async
+   * */
+  const handleEdit = async (id, values, { setSubmitting }) => {
+    setLoading(true);
+    let data = {
+      profile: {
+        first_name: values.firstName,
+        last_name: values.lastName,
+        role: values.role,
+      },
+      email: values.email,
+    };
+
+    return auth.userAxiosInstance
+      .patch(`${auth.apiHost}/api/users/${id}/`, data)
+      .then(() => {
+        fetchUsers();
+        return true;
+      })
+      .catch(() => {
+        return false;
+      })
+      .finally(() => {
+        setSubmitting(false);
+        setLoading(false);
+      });
+  };
+
+  /**
+   * Handles deleting a user entry.
+   *
+   * @function handleDelete
+   * @param {number} id - User id
+   * @param {function} setSubmitting - Formik function to handle submitting state
+   * @returns {boolean} True if successful
+   * @async
+   * */
+  const handleDelete = (id, { setSubmitting }) => {
+    setLoading(true);
+
+    return auth.userAxiosInstance
+      .delete(`${auth.apiHost}/api/users/${id}/`)
+      .then(() => {
+        fetchUsers();
+        return true;
+      })
+      .catch(() => {
+        return false;
+      })
+      .finally(() => {
+        setSubmitting(false);
+        setLoading(false);
+      });
+  };
+
+  return (
+    &lt;>
+      &lt;Row className="h-100">
+        &lt;Col className="d-flex flex-column px-4 pt-4">
+          &lt;Row>
+            &lt;Col
+              sm={12}
+              className="d-flex flex-row align-items-center pb-4 gap-4"
+            >
+              &lt;h1 className="bold mb-0">Users&lt;/h1>
+              {loading &amp;&amp; &lt;Spinner variant="secondary" animation="border" />}
+            &lt;/Col>
+          &lt;/Row>
+          &lt;Row className="pb-5">
+            &lt;Col sm={12}>
+              &lt;ManagementBar
+                filterText={filterText}
+                setFilterText={setFilterText}
+                loading={loading}
+                addButton
+                addText={"Add new user"}
+                handleClear={handleClear}
+                onRefresh={fetchUsers}
+                onAdd={handleShowAdd}
+              />
+            &lt;/Col>
+          &lt;/Row>
+          &lt;Row>
+            &lt;Col className="user-table">
+              &lt;CustomDataTable
+                columns={columns}
+                data={filteredEntries}
+                progressPending={loading}
+                pagination
+                highlightOnHover
+              />
+            &lt;/Col>
+          &lt;/Row>
+        &lt;/Col>
+      &lt;/Row>
+      &lt;UserEditModal
+        show={showEdit}
+        handleClose={handleCloseEdit}
+        selectedEditEntry={selectedEditEntry}
+        handleEdit={handleEdit}
+        handleDelete={handleDelete}
+      />
+      &lt;UserAddModal
+        show={showAdd}
+        handleClose={handleCloseAdd}
+        handleSubmit={handleAdd}
+      />
+    &lt;/>
+  );
+}
+
+export default ManageUsers;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#AccessPending">AccessPending</a></li><li><a href="global.html#App">App</a></li><li><a href="global.html#authStateChange">authStateChange</a></li><li><a href="global.html#checkRestrictions">checkRestrictions</a></li><li><a href="global.html#clearSelected">clearSelected</a></li><li><a href="global.html#columns">columns</a></li><li><a href="global.html#confirmPasswordReset">confirmPasswordReset</a></li><li><a href="global.html#createAccountFormSchema">createAccountFormSchema</a></li><li><a href="global.html#CustomDataTable">CustomDataTable</a></li><li><a href="global.html#customStyle">customStyle</a></li><li><a href="global.html#Dashboard">Dashboard</a></li><li><a href="global.html#DashboardMeterItem">DashboardMeterItem</a></li><li><a href="global.html#DashboardMeterSelect">DashboardMeterSelect</a></li><li><a href="global.html#DashboardSelectedMeters">DashboardSelectedMeters</a></li><li><a href="global.html#datatypeRadios">datatypeRadios</a></li><li><a href="global.html#debounce">debounce</a></li><li><a href="global.html#debounceCallback">debounceCallback</a></li><li><a href="global.html#decimation">decimation</a></li><li><a href="global.html#decrementStep">decrementStep</a></li><li><a href="global.html#deselectMeter">deselectMeter</a></li><li><a href="global.html#deselectMeterDebounced">deselectMeterDebounced</a></li><li><a href="global.html#emptyEditUserEntry">emptyEditUserEntry</a></li><li><a href="global.html#ErrorModal">ErrorModal</a></li><li><a href="global.html#fetchAccessRequests">fetchAccessRequests</a></li><li><a href="global.html#fetchData">fetchData</a></li><li><a href="global.html#fetchUsers">fetchUsers</a></li><li><a href="global.html#forgotPasswordSchema">forgotPasswordSchema</a></li><li><a href="global.html#handleAccessRequestCreation">handleAccessRequestCreation</a></li><li><a href="global.html#handleAdd">handleAdd</a></li><li><a href="global.html#handleClear">handleClear</a></li><li><a href="global.html#handleClose">handleClose</a></li><li><a href="global.html#handleCloseAdd">handleCloseAdd</a></li><li><a href="global.html#handleCloseConfirm">handleCloseConfirm</a></li><li><a href="global.html#handleCloseEdit">handleCloseEdit</a></li><li><a href="global.html#handleCloseInfo">handleCloseInfo</a></li><li><a href="global.html#handleCreateAccountSubmit">handleCreateAccountSubmit</a></li><li><a href="global.html#handleDelete">handleDelete</a></li><li><a href="global.html#handleEdit">handleEdit</a></li><li><a href="global.html#handleFetch">handleFetch</a></li><li><a href="global.html#handleForgotPasswordSubmit">handleForgotPasswordSubmit</a></li><li><a href="global.html#handleLoginSubmit">handleLoginSubmit</a></li><li><a href="global.html#handlePasswordResetSubmit">handlePasswordResetSubmit</a></li><li><a href="global.html#handleRepeatAccessRequest">handleRepeatAccessRequest</a></li><li><a href="global.html#handleShowAdd">handleShowAdd</a></li><li><a href="global.html#handleShowConfirm">handleShowConfirm</a></li><li><a href="global.html#handleShowEdit">handleShowEdit</a></li><li><a href="global.html#handleSignin">handleSignin</a></li><li><a href="global.html#handleSubmit">handleSubmit</a></li><li><a href="global.html#IconButton">IconButton</a></li><li><a href="global.html#incrementStep">incrementStep</a></li><li><a href="global.html#isLoggedIn">isLoggedIn</a></li><li><a href="global.html#lineColors">lineColors</a></li><li><a href="global.html#lineColorsTransparent">lineColorsTransparent</a></li><li><a href="global.html#loginFormSchema">loginFormSchema</a></li><li><a href="global.html#ManageAccessRequests">ManageAccessRequests</a></li><li><a href="global.html#ManagementBar">ManagementBar</a></li><li><a href="global.html#ManageUsers">ManageUsers</a></li><li><a href="global.html#meterSearch">meterSearch</a></li><li><a href="global.html#options">options</a></li><li><a href="global.html#passwordResetSchema">passwordResetSchema</a></li><li><a href="global.html#ProvideAuth">ProvideAuth</a></li><li><a href="global.html#renderStep">renderStep</a></li><li><a href="global.html#RepeatAccessRequest">RepeatAccessRequest</a></li><li><a href="global.html#repeatAccessRequestSchema">repeatAccessRequestSchema</a></li><li><a href="global.html#resetAll">resetAll</a></li><li><a href="global.html#rootRedirect">rootRedirect</a></li><li><a href="global.html#SearchBar">SearchBar</a></li><li><a href="global.html#selectMeter">selectMeter</a></li><li><a href="global.html#selectMeterDebounced">selectMeterDebounced</a></li><li><a href="global.html#sendPasswordResetEmail">sendPasswordResetEmail</a></li><li><a href="global.html#setUnit">setUnit</a></li><li><a href="global.html#Sidebar">Sidebar</a></li><li><a href="global.html#sidebarData">sidebarData</a></li><li><a href="global.html#signin">signin</a></li><li><a href="global.html#signup">signup</a></li><li><a href="global.html#StepOne">StepOne</a></li><li><a href="global.html#StepTwo">StepTwo</a></li><li><a href="global.html#timeframeRadios">timeframeRadios</a></li><li><a href="global.html#toggleSearch">toggleSearch</a></li><li><a href="global.html#tryRefresh">tryRefresh</a></li><li><a href="global.html#useAuth">useAuth</a></li><li><a href="global.html#useProvideAuth">useProvideAuth</a></li><li><a href="global.html#userAddFormSchema">userAddFormSchema</a></li><li><a href="global.html#UserAddModal">UserAddModal</a></li><li><a href="global.html#UserEditModal">UserEditModal</a></li><li><a href="global.html#userExists">userExists</a></li><li><a href="global.html#verifyToken">verifyToken</a></li><li><a href="global.html#withAppUser">withAppUser</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Wed Nov 17 2021 23:13:40 GMT-0400 (Atlantic Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

@@ -5,5 +5,6 @@ from .building_serializer import BuildingSerializer
 from .access_request_serializer import AccessRequestSerializer
 from .data_log_serializer import DataLogSerializer
 from .data_log_measures_serializer import DataLogMeasuresSerializer
+from .data_point_serializer import DataPointSerializer
 from .user_serializer import UserSerializer
 from .jwt_serializer import RumergyObtainPairSerializer

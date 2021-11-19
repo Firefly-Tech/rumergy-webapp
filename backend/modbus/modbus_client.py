@@ -28,9 +28,9 @@ Params:
 '''
 def connect_meter(ip, port):
 
-    client = ModbusClient(ip, port=port, retries=3)
+    meter = ModbusClient(ip, port=port, retries=3)
    
-    if not client.connect():
+    if not meter.connect():
      
         print(f"Fail to connect to meter with ip address: {ip}")  
            # Set meter status to ERROR  
@@ -44,7 +44,7 @@ def connect_meter(ip, port):
         except Exception as e:
             print("Error updating meter status", e)
     else:
-        return client  
+        return meter  
     
 
 '''read_point(): reads any data point given the client, addresses and register type
@@ -58,21 +58,22 @@ def connect_meter(ip, port):
 
         end_address - The end address of the data point to read as represented in the Modbus Point Map.
 
-    returns - Returns the result of the reading obtained from the registers of the given client.
+    returns - Returns the result of the reading obtained from the registers of the given meter.
             The result could be one or more registers, representing a 16-bit integer value or a 
             32-bit floating point value
 '''
-def read_point(client, regtype, start_address, end_address):
+def read_point(meter, regtype, start_address, end_address):
     count = end_address - start_address + 1
+    
     try:
         if regtype == 'HOLD':
-            result = client.read_holding_registers(start_address, count, unit=0x01)
+            result = meter.read_holding_registers(start_address, count, unit=0x01)
         elif regtype == 'DISC':
-            result = client.read_discrete_inputs(start_address, count, unit=0x01)
+            result = meter.read_discrete_inputs(start_address, count, unit=0x01)
         elif regtype == 'INPU':
-            result = client.read_input_registers(start_address, count, unit=0x01)
+            result = meter.read_input_registers(start_address, count, unit=0x01)
         else:
-            result  = client.read_coils(start_address, count, unit=0x01)
+            result  = meter.read_coils(start_address, count, unit=0x01)
         
         return result
 

@@ -1,0 +1,27 @@
+.meter-model-table {
+  .icon-button {
+    color: black;
+    font-size: 1.1em;
+  }
+
+  .icon-button:hover {
+    color: $dark-grey;
+    transition: $hover-transition;
+  }
+}
+
+.manage-card {
+  background-color: #dedede;
+  .icon-button {
+    color: black;
+    font-size: 1.1em;
+  }
+  .icon-button:hover {
+    color: $dark-grey;
+    transition: $hover-transition;
+  }
+}
+
+.meter-model-fields {
+  height: 50vh;
+}

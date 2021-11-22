@@ -7,6 +7,10 @@ class DataPoint(models.Model):
         MeterModel, related_name="data_points", on_delete=models.CASCADE
     )
     name = models.CharField(max_length=100)
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['model', 'name'], name="unique data point name")
+        ]
     unit = models.CharField(max_length=10)
     start_address = models.PositiveSmallIntegerField()
     end_address = models.PositiveSmallIntegerField()

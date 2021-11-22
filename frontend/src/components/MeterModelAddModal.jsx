@@ -61,12 +61,11 @@ const meterModelAddFormSchema = Yup.object().shape({
           .required("Unit is required"),
         startAddress: Yup.number("Must be a number")
           .integer("Must be an integer")
-          .positive("Must be positive")
+          .min(0, "Must be 0 or greater.")
           .max(65535, "Maximum address number is 65535")
           .required("Start address required"),
         endAddress: Yup.number("Must be a number")
           .integer("Must be an integer")
-          .positive("Must be positive")
           .max(65535, "Maximum address number is 65535")
           .min(
             Yup.ref("startAddress"),
@@ -94,11 +93,13 @@ function MeterModelAddModal(props) {
 
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const resetAll = () => {
     setIsConfirm(false);
     setSuccess(false);
     setError(false);
+    setErrorMessage("");
   };
 
   return (
@@ -114,7 +115,7 @@ function MeterModelAddModal(props) {
     >
       <Modal.Header closeButton>
         <Modal.Title>
-          <h4 className="bold"> Add Meter Model</h4>
+          <h4 className="bold">Add Entry</h4>
         </Modal.Title>
       </Modal.Header>
       <Formik
@@ -142,8 +143,11 @@ function MeterModelAddModal(props) {
         validationSchema={meterModelAddFormSchema}
         onSubmit={async (values, handlers) => {
           let status = await props.handleSubmit(values, handlers);
-          if (status) setSuccess(true);
-          else setError(true);
+          if (status.success) setSuccess(true);
+          else {
+            setError(true);
+            setErrorMessage(status.errorMessage);
+          }
         }}
       >
         {(formik) => (
@@ -225,7 +229,7 @@ function MeterModelAddModal(props) {
                           <Row className="mb-2">
                             <Col className="d-flex flex-row gap-2 align-items-center">
                               <FaExclamation />
-                              An error occured. Please try again.
+                              {errorMessage}
                             </Col>
                           </Row>
                           <Row>

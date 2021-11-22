@@ -7,6 +7,8 @@ import { roles } from "../resources/constants";
 import ManagementBar from "./ManagementBar";
 import CustomDataTable from "./CustomDataTable";
 import MeterModelAddModal from "./MeterModelAddModal";
+import MeterModelEditModal from "./MeterModelEditModal";
+import { buildStatus } from "../resources/helpers";
 
 const emptyEditMeterModelEntry = {
   id: null,
@@ -39,10 +41,21 @@ function ManageMeterModels() {
   const auth = useRequireAuth("/login", [roles.Admin]);
 
   useEffect(() => {
+    /**
+     * Initial meter model data fetch.
+     *
+     * @memberof ManageMeterModels
+     * */
     fetchMeterModels();
   }, []);
 
   useEffect(() => {
+    /**
+     * Updates filtered entries if the filter text or
+     * meter model list changes.
+     *
+     * @memberof ManageMeterModels
+     * */
     setLoading(true);
     setFilteredEntries(
       meterModels.filter((meterModels) =>
@@ -54,8 +67,15 @@ function ManageMeterModels() {
     setLoading(false);
   }, [meterModels, filterText]);
 
+  /**
+   * Handles fetching meter model data.
+   *
+   * @function fetchMeterModels
+   * @async
+   * */
   const fetchMeterModels = async () => {
     setLoading(true);
+
     let data = await auth.userAxiosInstance
       .get(`${auth.apiHost}/api/meter-models`)
       .then((res) => {
@@ -83,6 +103,17 @@ function ManageMeterModels() {
                 });
             })
           );
+          dataPoints = dataPoints.map((dataPoint) => {
+            return {
+              id: dataPoint.id,
+              name: dataPoint.name,
+              unit: dataPoint.unit,
+              startAddress: dataPoint.start_address,
+              endAddress: dataPoint.end_address,
+              dataType: dataPoint.data_type,
+              registerType: dataPoint.register_type,
+            };
+          });
 
           let dataPointNames = dataPoints.map((dataPoint) => {
             return dataPoint.name;
@@ -108,7 +139,11 @@ function ManageMeterModels() {
     setLoading(false);
   };
 
-  //Datatable columns
+  /**
+   * Columns for data table.
+   *
+   * @constant {object} columns
+   * */
   const columns = [
     {
       name: "Action",
@@ -133,6 +168,12 @@ function ManageMeterModels() {
     },
   ];
 
+  /**
+   * Handles clearing the search bar.
+   * Resets table pagination too.
+   *
+   * @function handleClear
+   * */
   const handleClear = () => {
     if (filterText) {
       setResetPaginationToggle(!resetPaginationToggle);
@@ -140,56 +181,182 @@ function ManageMeterModels() {
     }
   };
 
+  /**
+   * Handles adding a new meter model.
+   *
+   * @function handleAdd
+   * @param {object} values - Formik object with form values
+   * @param {function} setSubmitting - Formik function to handle submitting state
+   * @returns {object} Object with operation status.
+   * @async
+   * */
   const handleAdd = async (values, { setSubmitting }) => {
     setLoading(true);
+
     // Meter model post data
     let meterModelData = {
       name: values.name,
     };
 
     // Post meter model
+    let meterModel = await auth.userAxiosInstance
+      .post(`${auth.apiHost}/api/meter-models/`, meterModelData)
+      .then((res) => {
+        return res.data;
+      })
+      .catch(() => {
+        return null;
+      });
+
+    if (!meterModel) {
+      setLoading(false);
+      setSubmitting(false);
+      return buildStatus(false, "Failed to create meter model.");
+    }
 
     // Data points post data array
-    let dataPointsData = values.dataPoints.map(dataPoint => {
+    let dataPointsData = values.dataPoints.map((dataPoint) => {
+      return {
+        name: dataPoint.name.toLowerCase(),
+        model: meterModel.id,
+        unit: dataPoint.unit.toLowerCase(),
+        start_address: dataPoint.startAddress,
+        end_address: dataPoint.endAddress,
+        data_type: dataPoint.dataType,
+        register_type: dataPoint.registerType,
+      };
+    });
 
-    })
+    // Create data points
+    let status = buildStatus(true);
+    for (let i = 0; i < dataPointsData.length; i++) {
+      await auth.userAxiosInstance
+        .post(`${auth.apiHost}/api/data-points/`, dataPointsData[i])
+        .catch(() => {
+          status = buildStatus(
+            false,
+            `Failed to create data point: ${dataPointsData[i].name}`
+          );
+        });
+      if (!status.success) break;
+    }
 
-    return auth.userAxiosInstance
-      .post(`${auth.apiHost}/api/meter-models`, meterModelData)
-      .then(() => {
-        fetchMeterModels();
-        return true;
-      })
-      .catch(() => {
-        return false;
-      })
-      .finally(() => {
-        setSubmitting(false);
-        setLoading(false);
-      });
+    fetchMeterModels();
+    setSubmitting(false);
+    setLoading(false);
+
+    return status;
   };
 
-  const handleEdit = async (id, values, { setSubmitting }) => {
+  /**
+   * Handles editing a meter model entry.
+   *
+   * @function handleEdit
+   * @param {object} values - Formik object with form values
+   * @param {function} setSubmitting - Formik function to handle submitting state
+   * @returns {object} Object with operation status.
+   * @async
+   * */
+  const handleEdit = async (values, { setSubmitting }) => {
     setLoading(true);
-    let data = {
+
+    // Meter model update data
+    let meterModelData = {
       name: values.name,
-      model: values.model,
-      datafields: values.datafields,
     };
 
-    return auth.userAxiosInstance
-      .patch(`${auth.apiHost}/api/meter-models/${id}/`, data) //ask about this
-      .then(() => {
-        fetchMeterModels();
-        return true;
-      })
+    let status = buildStatus(true);
+    await auth.userAxiosInstance
+      .patch(
+        `${auth.apiHost}/api/meter-models/${selectedEditEntry.id}/`,
+        meterModelData
+      )
       .catch(() => {
-        return false;
-      })
-      .finally(() => {
+        status = buildStatus(false, "Failed to update meter model.");
+      });
+    if (!status.success) {
+      setSubmitting(false);
+      setLoading(false);
+      return status;
+    }
+
+    let dataPointsData = values.dataPoints.map((dataPoint) => {
+      return {
+        id: "id" in dataPoint ? dataPoint.id : null,
+        name: dataPoint.name.toLowerCase(),
+        model: selectedEditEntry.id,
+        unit: dataPoint.unit.toLowerCase(),
+        start_address: dataPoint.startAddress,
+        end_address: dataPoint.endAddress,
+        data_type: dataPoint.dataType,
+        register_type: dataPoint.registerType,
+      };
+    });
+
+    for (let i = 0; i < dataPointsData.length; i++) {
+      // New datapoint
+      if (!dataPointsData[i].id) {
+        await auth.userAxiosInstance
+          .post(`${auth.apiHost}/api/data-points/`, dataPointsData[i])
+          .catch(() => {
+            status = buildStatus(
+              false,
+              `Failed to create data point: ${dataPointsData[i].name}`
+            );
+          });
+      } else {
+        await auth.userAxiosInstance
+          .patch(
+            `${auth.apiHost}/api/data-points/${dataPointsData[i].id}/`,
+            dataPointsData[i]
+          )
+          .catch(() => {
+            status = buildStatus(
+              false,
+              `Failed to update data point: ${dataPointsData[i].name}`
+            );
+          });
+      }
+
+      if (!status.success) {
         setSubmitting(false);
         setLoading(false);
+        return status;
+      }
+    }
+
+    let filteredDataPointsData = dataPointsData.filter(
+      (dataPoint) => dataPoint.id !== null
+    );
+
+    // Data point deletion
+    if (filteredDataPointsData.length < selectedEditEntry.dataPoints.length) {
+      let originalIDs = selectedEditEntry.dataPoints.map((dataPoint) => {
+        return dataPoint.id;
       });
+      let newIDs = filteredDataPointsData.map((dataPoint) => {
+        return dataPoint.id;
+      });
+
+      for (let i = 0; i < originalIDs.length; i++) {
+        if (newIDs.includes(originalIDs[i])) continue;
+        await auth.userAxiosInstance
+          .delete(`${auth.apiHost}/api/data-points/${originalIDs[i]}/`)
+          .catch(() => {
+            status = buildStatus(
+              false,
+              `Failed to delete data point: ${selectedEditEntry.dataPoints[i].name}`
+            );
+          });
+        if (!status.success) break;
+      }
+    }
+
+    fetchMeterModels();
+    setSubmitting(false);
+    setLoading(false);
+
+    return status;
   };
 
   const handleDelete = async (id, { setSubmitting }) => {
@@ -199,10 +366,10 @@ function ManageMeterModels() {
       .delete(`${auth.apiHost}/api/meter-models/${id}/`)
       .then(() => {
         fetchMeterModels();
-        return true;
+        return buildStatus(true);
       })
       .catch(() => {
-        return false;
+        return buildStatus(false, "Failed to delete meter model.");
       })
       .finally(() => {
         setSubmitting(false);
@@ -254,6 +421,13 @@ function ManageMeterModels() {
         show={showAdd}
         handleClose={handleCloseAdd}
         handleSubmit={handleAdd}
+      />
+      <MeterModelEditModal
+        show={showEdit}
+        handleClose={handleCloseEdit}
+        handleEdit={handleEdit}
+        handleDelete={handleDelete}
+        selectedEditEntry={selectedEditEntry}
       />
     </>
   );

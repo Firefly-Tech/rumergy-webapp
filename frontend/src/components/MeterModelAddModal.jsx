@@ -88,6 +88,7 @@ const meterModelAddFormSchema = Yup.object().shape({
     ),
 });
 
+/** Modal for meter model creation */
 function MeterModelAddModal(props) {
   const [isConfirm, setIsConfirm] = useState(false);
 
@@ -95,6 +96,11 @@ function MeterModelAddModal(props) {
   const [error, setError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
+  /**
+   * Resets all state.
+   *
+   * @function resetAll
+   * */
   const resetAll = () => {
     setIsConfirm(false);
     setSuccess(false);
@@ -310,8 +316,10 @@ function MeterModelAddModal(props) {
 }
 
 MeterModelAddModal.propTypes = {
+  /** Determines whether modal should be shown */
   show: PropTypes.bool,
   handleClose: PropTypes.func,
+  /** Submission handler */
   handleSubmit: PropTypes.func,
 };
 

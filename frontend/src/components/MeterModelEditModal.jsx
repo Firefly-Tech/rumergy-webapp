@@ -334,10 +334,14 @@ function MeterModelEditModal(props) {
 }
 
 MeterModelEditModal.propTypes = {
+  /** Determines whether modal should be shown */
   show: PropTypes.bool,
   handleClose: PropTypes.func,
+  /** User entry data */
   selectedEditEntry: PropTypes.object,
+  /** Edit handler */
   handleEdit: PropTypes.func,
+  /** Deletion handler */
   handleDelete: PropTypes.func,
 };
 

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Source: components/UserEditModal.jsx</title>
+    <title>JSDoc: Source: components/MeterModelAddModal.jsx</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Source: components/UserEditModal.jsx</h1>
+    <h1 class="page-title">Source: components/MeterModelAddModal.jsx</h1>
 
     
 
@@ -29,37 +29,96 @@
             <pre class="prettyprint source linenums"><code>import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { Modal, Row, Col, Button, Form, InputGroup } from "react-bootstrap";
-import { Formik } from "formik";
+import { FieldArray, Formik } from "formik";
 import * as Yup from "yup";
-import { roles } from "../resources/constants";
-import { FaSync, FaTrash, FaExclamation, FaCheck } from "react-icons/fa";
-
-const { General, ...userRoles } = roles;
+import { FaPlus, FaExclamation, FaCheck } from "react-icons/fa";
+import DataPointFieldGroup from "./DataPointFieldGroup";
 
 /**
- * Yup validation schema for user edit form.
+ * Data types for register data
  *
- * @constant {object} userAddFormSchema
+ * @constant {object} dataTypes
  * */
-const userEditFormSchema = Yup.object().shape({
-  firstName: Yup.string()
-    .min(1, "Must be at least 1 character")
-    .max(50, "Must be at most 50 characters")
-    .required("First name is required")
-    .matches(/\b([A-ZÀ-ÿ][-,a-z. ']+[ ]*)+/, "Invalid format"),
-  lastName: Yup.string()
-    .min(1, "Must be at least 1 character")
-    .max(50, "Must be at most 50 characters")
-    .required("Last name is required")
-    .matches(/\b([A-ZÀ-ÿ][-,a-z. ']+[ ]*)+/, "Invalid format"),
-  email: Yup.string().email("Invalid email format").required("Email required"),
-  role: Yup.string().required("Role required").oneOf(Object.values(userRoles)),
+const dataTypes = {
+  Integer: "INT",
+  Float: "FLT",
+};
+
+/**
+ * Modbus register types
+ *
+ * @constant {object} registerTypes
+ * */
+const registerTypes = {
+  Coil: "COIL",
+  Discrete: "DISC",
+  Input: "INPU",
+  Holding: "HOLD",
+};
+
+/**
+ * Adding Yup method to test object property
+ * uniqueness
+ */
+Yup.addMethod(Yup.array, "unique", function (message, mapper = (a) => a) {
+  return this.test("unique", message, function (list) {
+    return list.length === new Set(list.map(mapper)).size;
+  });
 });
 
-/** Modal for user edits in user management dashboard */
-function UserEditModal(props) {
-  const [isUpdate, setIsUpdate] = useState(false);
-  const [isDelete, setIsDelete] = useState(false);
+/**
+ * Yup validation schema for meter model add form.
+ *
+ * @constant {object} meterModelAddFormSchema
+ * */
+const meterModelAddFormSchema = Yup.object().shape({
+  name: Yup.string()
+    .min(1, "Must be at least 1 character")
+    .max(60, "Must be at most 60 characters")
+    .required("Name is required"),
+  dataPoints: Yup.array()
+    .of(
+      Yup.object().shape({
+        name: Yup.string()
+          .min(1, "Must be at least 1 character")
+          .max(50, "Must be at most 50 characters")
+          .required("Name is required"),
+        unit: Yup.string()
+          .min(1, "Must be at least 1 character")
+          .max(10, "Must be at most 10 characters")
+          .required("Unit is required"),
+        startAddress: Yup.number("Must be a number")
+          .integer("Must be an integer")
+          .min(0, "Must be 0 or greater.")
+          .max(65535, "Maximum address number is 65535")
+          .required("Start address required"),
+        endAddress: Yup.number("Must be a number")
+          .integer("Must be an integer")
+          .max(65535, "Maximum address number is 65535")
+          .min(
+            Yup.ref("startAddress"),
+            "End address must be greater or equal to start address"
+          )
+          .required("End address required"),
+        dataType: Yup.string()
+          .required("Data type required")
+          .oneOf(Object.values(dataTypes)),
+        registerType: Yup.string()
+          .required("Register type required")
+          .oneOf(Object.values(registerTypes)),
+      })
+    )
+    .unique("Data point names must be unique", (dataPoint) => dataPoint.name)
+    .required("Data points required")
+    .min(
+      2,
+      "At a minimum, the consumption and demand data points must be provided"
+    ),
+});
+
+/** Modal for meter model creation */
+function MeterModelAddModal(props) {
+  const [isConfirm, setIsConfirm] = useState(false);
 
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState(false);
@@ -71,8 +130,7 @@ function UserEditModal(props) {
    * @function resetAll
    * */
   const resetAll = () => {
-    setIsUpdate(false);
-    setIsDelete(false);
+    setIsConfirm(false);
     setSuccess(false);
     setError(false);
     setErrorMessage("");
@@ -91,38 +149,40 @@ function UserEditModal(props) {
     >
       &lt;Modal.Header closeButton>
         &lt;Modal.Title>
-          &lt;h4 className="bold">Edit Entry&lt;/h4>
+          &lt;h4 className="bold">Add Entry&lt;/h4>
         &lt;/Modal.Title>
       &lt;/Modal.Header>
       &lt;Formik
         initialValues={{
-          firstName: props.selectedEditEntry.profile.first_name,
-          lastName: props.selectedEditEntry.profile.last_name,
-          email: props.selectedEditEntry.email,
-          role: props.selectedEditEntry.profile.role,
+          name: "",
+          dataPoints: [
+            {
+              name: "consumption",
+              unit: "kwh",
+              startAddress: "",
+              endAddress: "",
+              dataType: dataTypes.Float,
+              registerType: registerTypes.Holding,
+            },
+            {
+              name: "demand",
+              unit: "kw",
+              startAddress: "",
+              endAddress: "",
+              dataType: dataTypes.Float,
+              registerType: registerTypes.Holding,
+            },
+          ],
         }}
-        validationSchema={userEditFormSchema}
+        validationSchema={meterModelAddFormSchema}
         onSubmit={async (values, handlers) => {
-          let status;
-          if (isUpdate) {
-            status = await props.handleEdit(
-              props.selectedEditEntry.id,
-              values,
-              handlers
-            );
-          } else {
-            status = await props.handleDelete(
-              props.selectedEditEntry.id,
-              handlers
-            );
-          }
+          let status = await props.handleSubmit(values, handlers);
           if (status.success) setSuccess(true);
           else {
             setError(true);
             setErrorMessage(status.errorMessage);
           }
         }}
-        enableReinitialize
       >
         {(formik) => (
           &lt;>
@@ -131,69 +191,63 @@ function UserEditModal(props) {
               noValidate
               className="d-flex flex-column"
             >
-              &lt;Modal.Body>
-                &lt;Form.Group className="mb-3">
-                  &lt;Form.Label>First Name&lt;/Form.Label>
-                  &lt;InputGroup hasValidation>
-                    &lt;Form.Control
-                      id="firstName"
-                      placeholder="Enter first name"
-                      isInvalid={!!formik.errors.firstName}
-                      {...formik.getFieldProps("firstName")}
+              &lt;Modal.Body className="meter-model-fields overflow-auto px-3">
+                &lt;Row>
+                  &lt;Col className="">
+                    &lt;Form.Group className="mb-3">
+                      &lt;Form.Label>Meter Name&lt;/Form.Label>
+                      &lt;InputGroup hasValidation>
+                        &lt;Form.Control
+                          id="name"
+                          placeholder="Enter meter name"
+                          isInvalid={!!formik.errors.name}
+                          {...formik.getFieldProps("name")}
+                        />
+                        &lt;Form.Control.Feedback type="invalid">
+                          {formik.errors.name}
+                        &lt;/Form.Control.Feedback>
+                      &lt;/InputGroup>
+                    &lt;/Form.Group>
+                    &lt;FieldArray
+                      name="dataPoints"
+                      render={({ insert, remove, push }) => (
+                        &lt;>
+                          {formik.values.dataPoints.map((dataPoint, index) => (
+                            &lt;DataPointFieldGroup
+                              key={index}
+                              index={index}
+                              formik={formik}
+                              remove={remove}
+                              staticName={
+                                index &lt; 2 &amp;&amp;
+                                (dataPoint.name === "consumption" ||
+                                  dataPoint.name === "demand")
+                              }
+                              dataTypes={dataTypes}
+                              registerTypes={registerTypes}
+                            />
+                          ))}
+                          &lt;Button
+                            variant="primary"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              push({
+                                name: "",
+                                unit: "",
+                                startAddress: "",
+                                endAddress: "",
+                                dataType: dataTypes.Float,
+                                registerType: registerTypes.Holding,
+                              });
+                            }}
+                          >
+                            Add datapoint
+                          &lt;/Button>
+                        &lt;/>
+                      )}
                     />
-                    &lt;Form.Control.Feedback type="invalid">
-                      {formik.errors.firstName}
-                    &lt;/Form.Control.Feedback>
-                  &lt;/InputGroup>
-                &lt;/Form.Group>
-                &lt;Form.Group className="mb-3">
-                  &lt;Form.Label>Last Name&lt;/Form.Label>
-                  &lt;InputGroup hasValidation>
-                    &lt;Form.Control
-                      id="lastName"
-                      placeholder="Enter last name"
-                      isInvalid={!!formik.errors.lastName}
-                      {...formik.getFieldProps("lastName")}
-                    />
-                    &lt;Form.Control.Feedback type="invalid">
-                      {formik.errors.lastName}
-                    &lt;/Form.Control.Feedback>
-                  &lt;/InputGroup>
-                &lt;/Form.Group>
-                &lt;Form.Group className="mb-3">
-                  &lt;Form.Label>Role&lt;/Form.Label>
-                  &lt;InputGroup hasValidation>
-                    &lt;Form.Select
-                      id="role"
-                      placeholder="Select role"
-                      isInvalid={!!formik.errors.role}
-                      {...formik.getFieldProps("role")}
-                    >
-                      {Object.keys(userRoles).map((key, index) => (
-                        &lt;option key={index} value={userRoles[key]}>
-                          {key}
-                        &lt;/option>
-                      ))}
-                    &lt;/Form.Select>
-                    &lt;Form.Control.Feedback type="invalid">
-                      {formik.errors.role}
-                    &lt;/Form.Control.Feedback>
-                  &lt;/InputGroup>
-                &lt;/Form.Group>
-                &lt;Form.Group className="mb-3">
-                  &lt;Form.Label>Email&lt;/Form.Label>
-                  &lt;InputGroup hasValidation>
-                    &lt;Form.Control
-                      id="email"
-                      placeholder="Enter email"
-                      isInvalid={!!formik.errors.email}
-                      {...formik.getFieldProps("email")}
-                    />
-                    &lt;Form.Control.Feedback type="invalid">
-                      {formik.errors.email}
-                    &lt;/Form.Control.Feedback>
-                  &lt;/InputGroup>
-                &lt;/Form.Group>
+                  &lt;/Col>
+                &lt;/Row>
               &lt;/Modal.Body>
               &lt;Modal.Footer className="d-flex flex-column">
                 {success || error ? (
@@ -221,7 +275,7 @@ function UserEditModal(props) {
                                   resetAll();
                                 }}
                               >
-                                Try again
+                                Try Again
                               &lt;/Button>
                             &lt;/Col>
                           &lt;/Row>
@@ -231,45 +285,31 @@ function UserEditModal(props) {
                   &lt;/Row>
                 ) : (
                   &lt;>
-                    {isUpdate || isDelete ? (
+                    {isConfirm ? (
                       &lt;Row className="mb-3">
-                        &lt;Col>
-                          {`Are you sure you wish to ${
-                            isUpdate ? "update" : "delete"
-                          } this entry?`}
-                        &lt;/Col>
+                        &lt;Col>{"Are you sure you wish to add this model?"}&lt;/Col>
                       &lt;/Row>
                     ) : null}
                     &lt;Row>
                       &lt;Col className="d-flex flex-row gap-4 justify-content-center align-items-center mx-auto">
-                        {isUpdate || isDelete ? (
+                        {isConfirm ? (
                           &lt;>
                             &lt;Button
                               type="submit"
-                              variant={isUpdate ? "primary" : "danger"}
-                              className={`d-flex flex-row align-items-center gap-2 ${
-                                isDelete ? "text-white" : ""
-                              }`}
+                              variant="primary"
+                              className={
+                                "d-flex flexx-row align-items-center gap-2"
+                              }
                             >
-                              {isUpdate ? (
-                                &lt;>
-                                  &lt;FaSync />
-                                  Update
-                                &lt;/>
-                              ) : (
-                                &lt;>
-                                  &lt;FaTrash />
-                                  Delete
-                                &lt;/>
-                              )}
+                              &lt;FaPlus />
+                              Add
                             &lt;/Button>
                             &lt;Button
                               variant="secondary"
                               className="d-flex flex-row align-items-center gap-2 text-white"
                               onClick={(e) => {
                                 e.preventDefault();
-                                setIsUpdate(false);
-                                setIsDelete(false);
+                                setIsConfirm(false);
                               }}
                             >
                               Cancel
@@ -282,22 +322,11 @@ function UserEditModal(props) {
                               className="d-flex flex-row align-items-center gap-2"
                               onClick={(e) => {
                                 e.preventDefault();
-                                setIsUpdate(true);
+                                setIsConfirm(true);
                               }}
                             >
-                              &lt;FaSync />
-                              Update
-                            &lt;/Button>
-                            &lt;Button
-                              variant="danger"
-                              className="d-flex flex-row align-items-center gap-2 text-white"
-                              onClick={(e) => {
-                                e.preventDefault();
-                                setIsDelete(true);
-                              }}
-                            >
-                              &lt;FaTrash />
-                              Delete
+                              &lt;FaPlus />
+                              Add
                             &lt;/Button>
                           &lt;/>
                         )}
@@ -314,19 +343,15 @@ function UserEditModal(props) {
   );
 }
 
-UserEditModal.propTypes = {
+MeterModelAddModal.propTypes = {
   /** Determines whether modal should be shown */
   show: PropTypes.bool,
   handleClose: PropTypes.func,
-  /** User entry data */
-  selectedEditEntry: PropTypes.object,
-  /** Edit handler */
-  handleEdit: PropTypes.func,
-  /** Deletion handler */
-  handleDelete: PropTypes.func,
+  /** Submission handler */
+  handleSubmit: PropTypes.func,
 };
 
-export default UserEditModal;
+export default MeterModelAddModal;
 </code></pre>
         </article>
     </section>

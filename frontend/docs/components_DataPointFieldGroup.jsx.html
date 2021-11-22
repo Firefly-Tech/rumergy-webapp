@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Source: components/AccessPending.js</title>
+    <title>JSDoc: Source: components/DataPointFieldGroup.jsx</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Source: components/AccessPending.js</h1>
+    <h1 class="page-title">Source: components/DataPointFieldGroup.jsx</h1>
 
     
 
@@ -26,36 +26,184 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>import React from "react";
-import { Row, Col, Button } from "react-bootstrap";
-import { useHistory } from "react-router-dom";
+            <pre class="prettyprint source linenums"><code>import React, { useState } from "react";
+import PropTypes from "prop-types";
+import { Card, Form, InputGroup } from "react-bootstrap";
+import IconButton from "./IconButton";
+import { FaTimes } from "react-icons/fa";
 
-/** Access pending message */
-function AccessPending() {
-  const history = useHistory();
+function DataPointFieldGroup(props) {
+  /**
+   * Checks if an error exists for the given property.
+   *
+   * @function checkDataPointError
+   * @param {string} property - Data point property
+   * @returns {bool}
+   * */
+  const checkDataPointError = (property) => {
+    return Array.isArray(props.formik.errors.dataPoints)
+      ? props.formik.errors.dataPoints[props.index] !== undefined
+        ? !!props.formik.errors.dataPoints[props.index][property]
+        : false
+      : false;
+  };
+
+  /**
+   * Returns the error string for the given property;
+   * if it exists.
+   *
+   * @function getDataPointError
+   * @param {string} property - Data point property
+   * @returns {string}
+   * */
+  const getDataPointError = (property) => {
+    return Array.isArray(props.formik.errors.dataPoints)
+      ? props.formik.errors.dataPoints[props.index] !== undefined
+        ? props.formik.errors.dataPoints[props.index][property]
+        : null
+      : null;
+  };
+
   return (
-    &lt;>
-      &lt;Row>
-        &lt;Col className="d-flex flex-column justify-content-center text-center">
-          &lt;h2 className="bold">Request sent&lt;/h2>
-          &lt;span className="text-muted mb-4">
-            Your access to the site is pending approval.
-          &lt;/span>
-          &lt;Button
-            variant="primary"
-            onClick={() => {
-              history.push("/dashboard");
-            }}
-          >
-            Back to dashboard
-          &lt;/Button>
-        &lt;/Col>
-      &lt;/Row>
-    &lt;/>
+    &lt;Card className="manage-card mb-4">
+      &lt;Card.Title className="d-flex flex-row px-3 pt-3 bold">
+        &lt;h4 className="bold me-auto">{`Data Point ${props.index + 1}`}&lt;/h4>
+        {!props.staticName ? (
+          &lt;IconButton
+            clickAction={() => props.remove(props.index)}
+            icon={&lt;FaTimes />}
+          />
+        ) : null}
+      &lt;/Card.Title>
+      &lt;Card.Subtitle className="px-3 text-danger">
+        {typeof props.formik.errors.dataPoints === "string" ? (
+          &lt;div>{props.formik.errors.dataPoints}&lt;/div>
+        ) : null}
+      &lt;/Card.Subtitle>
+      &lt;Card.Body>
+        &lt;Form.Group className="mb-3">
+          &lt;Form.Label>Name&lt;/Form.Label>
+          &lt;InputGroup hasValidation>
+            &lt;Form.Control
+              id={`dataPoints.${props.index}.name`}
+              placeholder="Enter data point name"
+              disabled={props.staticName}
+              isInvalid={checkDataPointError("name")}
+              {...props.formik.getFieldProps(`dataPoints.${props.index}.name`)}
+            />
+            &lt;Form.Control.Feedback type="invalid">
+              {getDataPointError("name")}
+            &lt;/Form.Control.Feedback>
+          &lt;/InputGroup>
+        &lt;/Form.Group>
+        &lt;Form.Group className="mb-3">
+          &lt;Form.Label>Units&lt;/Form.Label>
+          &lt;InputGroup hasValidation>
+            &lt;Form.Control
+              id={`dataPoints.${props.index}.unit`}
+              placeholder="Enter the units for this datapoint"
+              disabled={props.staticName}
+              isInvalid={checkDataPointError("unit")}
+              {...props.formik.getFieldProps(`dataPoints.${props.index}.unit`)}
+            />
+            &lt;Form.Control.Feedback type="invalid">
+              {getDataPointError("unit")}
+            &lt;/Form.Control.Feedback>
+          &lt;/InputGroup>
+        &lt;/Form.Group>
+        &lt;Form.Group className="mb-3">
+          &lt;Form.Label>Starting Address&lt;/Form.Label>
+          &lt;InputGroup hasValidation>
+            &lt;Form.Control
+              id={`dataPoints.${props.index}.startAddress`}
+              type="number"
+              placeholder="Enter starting register address"
+              isInvalid={checkDataPointError("startAddress")}
+              {...props.formik.getFieldProps(
+                `dataPoints.${props.index}.startAddress`
+              )}
+            />
+            &lt;Form.Control.Feedback type="invalid">
+              {getDataPointError("startAddress")}
+            &lt;/Form.Control.Feedback>
+          &lt;/InputGroup>
+        &lt;/Form.Group>
+        &lt;Form.Group className="mb-3">
+          &lt;Form.Label>Ending Address&lt;/Form.Label>
+          &lt;InputGroup hasValidation>
+            &lt;Form.Control
+              id={`dataPoints.${props.index}.endAddress`}
+              type="number"
+              placeholder="Enter ending register address"
+              isInvalid={checkDataPointError("endAddress")}
+              {...props.formik.getFieldProps(
+                `dataPoints.${props.index}.endAddress`
+              )}
+            />
+            &lt;Form.Control.Feedback type="invalid">
+              {getDataPointError("endAddress")}
+            &lt;/Form.Control.Feedback>
+          &lt;/InputGroup>
+        &lt;/Form.Group>
+        &lt;Form.Group className="mb-3">
+          &lt;Form.Label>Register Type&lt;/Form.Label>
+          &lt;InputGroup hasValidation>
+            &lt;Form.Select
+              id={`dataPoints.${props.index}.registerType`}
+              placeholder="Select role"
+              isInvalid={checkDataPointError("registerType")}
+              {...props.formik.getFieldProps(
+                `dataPoints.${props.index}.registerType`
+              )}
+            >
+              {Object.keys(props.registerTypes).map((key, index) => (
+                &lt;option key={index} value={props.registerTypes[key]}>
+                  {key}
+                &lt;/option>
+              ))}
+            &lt;/Form.Select>
+            &lt;Form.Control.Feedback type="invalid">
+              {getDataPointError("registerType")}
+            &lt;/Form.Control.Feedback>
+          &lt;/InputGroup>
+        &lt;/Form.Group>
+        &lt;Form.Group className="mb-3">
+          &lt;Form.Label>Data Type&lt;/Form.Label>
+          &lt;InputGroup hasValidation>
+            &lt;Form.Select
+              id={`dataPoints.${props.index}.dataType`}
+              placeholder="Select role"
+              isInvalid={checkDataPointError("dataType")}
+              {...props.formik.getFieldProps(
+                `dataPoints.${props.index}.dataType`
+              )}
+            >
+              {Object.keys(props.dataTypes).map((key, index) => (
+                &lt;option key={index} value={props.dataTypes[key]}>
+                  {key}
+                &lt;/option>
+              ))}
+            &lt;/Form.Select>
+            &lt;Form.Control.Feedback type="invalid">
+              {getDataPointError("dataType")}
+            &lt;/Form.Control.Feedback>
+          &lt;/InputGroup>
+        &lt;/Form.Group>
+      &lt;/Card.Body>
+    &lt;/Card>
   );
 }
 
-export default AccessPending;
+DataPointFieldGroup.propTypes = {
+  staticName: PropTypes.bool,
+  index: PropTypes.number,
+  formik: PropTypes.object,
+  remove: PropTypes.func,
+  dataTypes: PropTypes.object,
+  registerTypes: PropTypes.object,
+};
+
+export default DataPointFieldGroup;
 </code></pre>
         </article>
     </section>

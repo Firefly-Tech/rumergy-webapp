@@ -5,12 +5,12 @@ from apscheduler.schedulers.background import BackgroundScheduler
 # from django_apscheduler.jobstores import DjangoJobStore
 # from django_apscheduler.models import DjangoJobExecution
 from django_apscheduler import util
-from modbus import modbus_client as Modbus
+import modbus_client as Modbus
 import requests
 
 
 
-# scheduler = BackgroundScheduler()
+scheduler = BackgroundScheduler()
 
 def print_read(meter, regtype, start, end):
     result = Modbus.decode_message(Modbus.read_point(meter, regtype, start, end),'FLT')
@@ -27,7 +27,7 @@ def data_logger():
         data_points = log['data_points']
         start_date = log['start_date']
         end_date = log['end_date']
-        sampling = 
+        sampling_rate = log['sampling_rate']
 
         # print(start_date)
         start = datetime.strptime(f"{start_date}","%Y-%m-%dT%H:%M:%SZ")
@@ -49,24 +49,23 @@ def data_logger():
 
 
                 # schedule_reading(meter_ip, point, start_date, end_date)
-                scheduler.add_job(print_read, 'interval', [meter, point_regtype, point_start_address, point_end_address], start_date=start, end_date=end, seconds=3)
+                scheduler.add_job(print_read, 'interval', [meter, point_regtype, point_start_address, point_end_address], start_date=start, end_date=end, seconds=sampling_rate)
 
 
 def start():
-    scheduler = BackgroundScheduler()
     scheduler.start()
     data_logger()
-    # try:
-    #     # This is here to simulate application activity (which keeps the main thread alive).
-    #     while True:
-    #         pass
-    #         # time.sleep(2)
-    # except (KeyboardInterrupt, SystemExit):
-    #     # Not strictly necessary if daemonic mode is enabled but should be done if possible
-    #     scheduler.shutdown()
+    try:
+        # This is here to simulate application activity (which keeps the main thread alive).
+        while True:
+            pass
+            # time.sleep(2)
+    except (KeyboardInterrupt, SystemExit):
+        # Not strictly necessary if daemonic mode is enabled but should be done if possible
+        scheduler.shutdown()
 
-# if __name__ == '__main__':
-    # start()
+if __name__ == '__main__':
+    start()
  
 #     # scheduler = BackgroundScheduler()
 #     # meter = Modbus.connect_meter('192.168.0.2', 502)

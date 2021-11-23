@@ -10,8 +10,13 @@ class Meter(models.Model):
     meter_model = models.ForeignKey(MeterModel, related_name='meters', on_delete=models.RESTRICT)
     building = models.ForeignKey(Building, related_name='meters', on_delete=models.RESTRICT)
     name = models.CharField(max_length=30, unique=True)
-    ip = models.CharField(max_length=30, unique=True)
+    ip = models.CharField(max_length=30)
     port = models.IntegerField(default=502)
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['ip', 'port'], name="unique meter IP")
+        ]
+        
     substation = models.CharField(max_length=60)
     longitude = models.FloatField()
     latitude = models.FloatField()

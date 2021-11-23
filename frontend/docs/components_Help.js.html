@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Source: components/ErrorModal.js</title>
+    <title>JSDoc: Source: components/Help.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Source: components/ErrorModal.js</h1>
+    <h1 class="page-title">Source: components/Help.js</h1>
 
     
 
@@ -26,40 +26,136 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>import React from "react";
+            <pre class="prettyprint source linenums"><code>import React, { useState } from "react";
 import PropTypes from "prop-types";
-import { Modal, Button } from "react-bootstrap";
+import { Modal, Row, Col } from "react-bootstrap";
+import { FaQuestionCircle } from "react-icons/fa";
+import IconButton from "./IconButton";
+import ReactPlayer from "react-player/youtube";
+import { useRouteMatch } from "react-router-dom";
 
-/** Modal used for displaying errors to the user */
-function ErrorModal(props) {
+/**
+ * TODO: Finish adding real data
+ * Help data to be displayed.
+ * Keys must be the url to be matched.
+ *
+ * @constant {object}
+ * */
+const helpData = {
+  "manage-meters": {
+    title: "Manage Meters",
+    description: "this is description",
+    url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+  },
+  "manage-meter-models": {
+    title: "Manage Meter Models",
+    description: "This is the description",
+    url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+  },
+  dashboard: {
+    title: "Dashboard",
+    description:
+      'contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source. Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of "de Finibus Bonorum et Malorum" (The Extremes of Good and Evil) by Cicero, written in 45 BC. This book is a treatise on the theory of ethics, very popular during the Renaissance. The first line of Lorem Ipsum, "Lorem ipsum dolor sit amet..", comes from a line in section 1.10.32.',
+    url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+  },
+};
+
+/** Displays help for current page */
+function Help() {
+  const [show, setShow] = useState(false);
+
+  /**
+   * Handles hiding the help modal.
+   *
+   * @function handleClose
+   * */
+  const handleClose = () => setShow(false);
+
+  /**
+   * Handles showing the help modal.
+   *
+   * @function handleShow
+   * */
+  const handleShow = () => setShow(true);
+
+  const { url } = useRouteMatch();
+
+  /**
+   * Get the help data matching the current page.
+   *
+   * @function getMatching
+   * @returns {object} Help data object
+   * */
+  const getMatching = () => {
+    let key = url.split("/").at(-1);
+
+    return key in helpData
+      ? helpData[key]
+      : {
+          title: "No matching help found",
+          description: "No help was found for the current page.",
+          url: "",
+        };
+  };
+
   return (
-    &lt;Modal centered size="lg" show={props.show} onHide={props.handleClose}>
+    &lt;>
+      &lt;IconButton
+        icon={&lt;FaQuestionCircle />}
+        clickAction={() => {
+          handleShow();
+        }}
+      />
+      &lt;HelpModal
+        show={show}
+        handleClose={handleClose}
+        matching={getMatching()}
+      />
+    &lt;/>
+  );
+}
+
+/** Modal to show help for current page */
+function HelpModal(props) {
+  return (
+    &lt;Modal
+      centered
+      size="lg"
+      show={props.show}
+      onHide={props.handleClose}
+      backdrop="static"
+    >
       &lt;Modal.Header closeButton>
         &lt;Modal.Title>
-          &lt;h4 className="bold">{props.errorName}&lt;/h4>
+          &lt;h4 className="bold">Help&lt;/h4>
         &lt;/Modal.Title>
       &lt;/Modal.Header>
-      &lt;Modal.Body>{props.errorMessage}&lt;/Modal.Body>
-      &lt;Modal.Footer>
-        &lt;Button variant="primary" onClick={props.handleClose}>
-          Okay
-        &lt;/Button>
-      &lt;/Modal.Footer>
+      &lt;Modal.Body>
+        &lt;Row>
+          &lt;Col>
+            &lt;h4 className="bold">{props.matching.title}&lt;/h4>
+            &lt;p>{props.matching.description}&lt;/p>
+          &lt;/Col>
+        &lt;/Row>
+        &lt;Row>
+          &lt;Col className="d-flex flex-row justify-content-center">
+            &lt;ReactPlayer url={props.matching.url} />
+          &lt;/Col>
+        &lt;/Row>
+      &lt;/Modal.Body>
     &lt;/Modal>
   );
 }
 
-ErrorModal.propTypes = {
+HelpModal.propTypes = {
   /** Determines whether modal should be shown */
   show: PropTypes.bool,
   handleClose: PropTypes.func,
-  /** Title of the modal */
-  errorName: PropTypes.string,
-  /** Message to be displayed */
-  errorMessage: PropTypes.string,
+  /** Help data matching current url */
+  matching: PropTypes.object,
 };
 
-export default ErrorModal;
+export default Help;
 </code></pre>
         </article>
     </section>

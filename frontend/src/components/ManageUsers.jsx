@@ -8,7 +8,13 @@ import UserEditModal from "./UserEditModal";
 import UserAddModal from "./UserAddModal";
 import ManagementBar from "./ManagementBar";
 import CustomDataTable from "./CustomDataTable";
+import { buildStatus } from "../resources/helpers";
 
+/**
+ * Initial value for selectedEditEntry
+ *
+ * @constant {object} emptyEditUserEntry
+ * */
 const emptyEditUserEntry = {
   id: null,
   profile: {
@@ -19,6 +25,7 @@ const emptyEditUserEntry = {
   email: "",
 };
 
+/** User management screen for admins. */
 function ManageUsers() {
   const [loading, setLoading] = useState(false);
   const [users, setUsers] = useState([]);
@@ -32,21 +39,56 @@ function ManageUsers() {
   const [selectedEditEntry, setSelectedEditEntry] =
     useState(emptyEditUserEntry);
   const [showEdit, setShowEdit] = useState(false);
+
+  /**
+   * Handles hiding the edit modal.
+   *
+   * @function handleCloseEdit
+   * */
   const handleCloseEdit = () => setShowEdit(false);
+
+  /**
+   * Handles showing the edit modal.
+   *
+   * @function handleShowEdit
+   * */
   const handleShowEdit = () => setShowEdit(true);
 
   // Add modal state
   const [showAdd, setShowAdd] = useState(false);
+
+  /**
+   * Handles hiding the add modal.
+   *
+   * @function handleCloseAdd
+   * */
   const handleCloseAdd = () => setShowAdd(false);
+
+  /**
+   * Handles showing the add modal.
+   *
+   * @function handleShowAdd
+   * */
   const handleShowAdd = () => setShowAdd(true);
 
   const auth = useRequireAuth("/login", [roles.Admin]);
 
-  useEffect(async () => {
-    await fetchUsers();
+  useEffect(() => {
+    /**
+     * Fetch user data on load.
+     *
+     * @memberof ManageUsers
+     * */
+    fetchUsers();
   }, []);
 
   useEffect(() => {
+    /**
+     * Updates filtered entries if the filter text or
+     * users list changes.
+     *
+     * @memberof ManageUsers
+     * */
     setLoading(true);
     setFilteredEntries(
       users.filter((user) =>
@@ -58,6 +100,12 @@ function ManageUsers() {
     setLoading(false);
   }, [users, filterText]);
 
+  /**
+   * Handles fetching user data.
+   *
+   * @function fetchUsers
+   * @async
+   * */
   const fetchUsers = async () => {
     setLoading(true);
     const appUsername = process.env.REACT_APP_RUMERGY_USER;
@@ -75,6 +123,8 @@ function ManageUsers() {
 
     if (data.length) {
       data = data.map((user) => {
+        // Build string with user attributes
+        // for filtering.
         let userStringElements = [
           user.id,
           user.username,
@@ -91,6 +141,11 @@ function ManageUsers() {
     setLoading(false);
   };
 
+  /**
+   * Columns for data table.
+   *
+   * @constant {object} columns
+   * */
   const columns = [
     {
       name: "Action",
@@ -122,6 +177,12 @@ function ManageUsers() {
     { name: "Role", selector: (row) => row.profile.role, sortable: true },
   ];
 
+  /**
+   * Handles clearing the search bar.
+   * Resets table pagination too.
+   *
+   * @function handleClear
+   * */
   const handleClear = () => {
     if (filterText) {
       setResetPaginationToggle(!resetPaginationToggle);
@@ -129,6 +190,15 @@ function ManageUsers() {
     }
   };
 
+  /**
+   * Handles adding a new user.
+   *
+   * @function handleAdd
+   * @param {object} values - Formik object with form values
+   * @param {function} setSubmitting - Formik function to handle submitting state
+   * @returns {object} Object with operation status.
+   * @async
+   * */
   const handleAdd = async (values, { setSubmitting }) => {
     setLoading(true);
     let data = {
@@ -146,10 +216,10 @@ function ManageUsers() {
       .post(`${auth.apiHost}/api/users/`, data)
       .then(() => {
         fetchUsers();
-        return true;
+        return buildStatus(true);
       })
       .catch(() => {
-        return false;
+        return buildStatus(false, "Failed to create user.");
       })
       .finally(() => {
         setSubmitting(false);
@@ -157,6 +227,16 @@ function ManageUsers() {
       });
   };
 
+  /**
+   * Handles editing a user entry.
+   *
+   * @function handleEdit
+   * @param {number} id - User id
+   * @param {object} values - Formik object with form values
+   * @param {function} setSubmitting - Formik function to handle submitting state
+   * @returns {object} Object with operation status.
+   * @async
+   * */
   const handleEdit = async (id, values, { setSubmitting }) => {
     setLoading(true);
     let data = {
@@ -172,10 +252,10 @@ function ManageUsers() {
       .patch(`${auth.apiHost}/api/users/${id}/`, data)
       .then(() => {
         fetchUsers();
-        return true;
+        return buildStatus(true);
       })
       .catch(() => {
-        return false;
+        return buildStatus(false, "Failed to update user.");
       })
       .finally(() => {
         setSubmitting(false);
@@ -183,6 +263,15 @@ function ManageUsers() {
       });
   };
 
+  /**
+   * Handles deleting a user entry.
+   *
+   * @function handleDelete
+   * @param {number} id - User id
+   * @param {function} setSubmitting - Formik function to handle submitting state
+   * @returns {object} Object with operation status.
+   * @async
+   * */
   const handleDelete = (id, { setSubmitting }) => {
     setLoading(true);
 
@@ -190,10 +279,10 @@ function ManageUsers() {
       .delete(`${auth.apiHost}/api/users/${id}/`)
       .then(() => {
         fetchUsers();
-        return true;
+        return buildStatus(true);
       })
       .catch(() => {
-        return false;
+        return buildStatus(false, "Failed to delete user.");
       })
       .finally(() => {
         setSubmitting(false);

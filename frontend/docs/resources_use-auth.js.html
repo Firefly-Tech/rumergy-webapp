@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: resources/use-auth.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: resources/use-auth.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import React, { useState, useEffect, useContext, createContext } from "react";
+import PropTypes from "prop-types";
+import axios from "axios";
+import { roles } from "./constants";
+import { useHistory } from "react-router-dom";
+
+const authContext = createContext();
+
+/** Provider component that wraps your app and makes auth object available
+ * to any child component that calls useAuth().
+ *
+ * @function ProvideAuth
+ * */
+export function ProvideAuth({ children }) {
+  const auth = useProvideAuth();
+  return &lt;authContext.Provider value={auth}>{children}&lt;/authContext.Provider>;
+}
+
+ProvideAuth.propTypes = {
+  children: PropTypes.object,
+};
+
+/** Hook for child components to get the auth object
+ * and re-render when it changes.
+ *
+ * @function useAuth
+ * */
+export const useAuth = () => {
+  return useContext(authContext);
+};
+
+/** Provider hook that creates auth object and handles state. */
+function useProvideAuth() {
+  const [user, setUser] = useState(null);
+  const [role, setRole] = useState(null);
+  const [accessToken, setAccessToken] = useState(null);
+
+  const history = useHistory();
+  const apiHost = process.env.REACT_APP_API_HOST;
+
+  // Axios instance for users
+  const userAxiosInstance = axios.create();
+
+  /** Request interceptor. Adds bearer token to all requests */
+  userAxiosInstance.interceptors.request.use(
+    async (config) => {
+      config.headers = {
+        Authorization: `Bearer ${accessToken}`,
+      };
+      return config;
+    },
+    (error) => {
+      Promise.reject(error);
+    }
+  );
+
+  /** Response interceptor. Attempts refresh if request is unauthorized. */
+  userAxiosInstance.interceptors.response.use(
+    (response) => {
+      return response;
+    },
+    async (error) => {
+      const originalRequest = error.config;
+      if (error.response.status === 401 &amp;&amp; !originalRequest._retry) {
+        originalRequest._retry = true;
+        try {
+          const access = await tryRefresh(localStorage.getItem("refresh"));
+          setAccessToken(access);
+          userAxiosInstance.defaults.headers.common[
+            "Authorization"
+          ] = `Bearer ${access}`;
+          originalRequest.headers["Authorization"] = `Bearer ${access}`;
+          return axios(originalRequest);
+        } catch (error) {
+          signout();
+          history.push("/login");
+          return Promise.reject(error);
+        }
+      }
+      return Promise.reject(error);
+    }
+  );
+
+  // App user
+  // For non-logged in requests
+  const [appRefreshToken, setAppRefreshToken] = useState(null);
+
+  /**
+   * User signin request
+   *
+   * @async
+   * @function signin
+   * @param {string} username
+   * @param {string} password
+   * @returns {object} userData
+   * */
+  const signin = async (username, password) => {
+    return axios
+      .post(`${apiHost}/api/token/`, {
+        username: username,
+        password: password,
+      })
+      .then((res) => {
+        setAccessToken(res.data.access);
+        let userObject = {
+          username: res.data.user.username,
+          id: res.data.user.id,
+        };
+        setUser(userObject);
+        setRole(res.data.user.role);
+        localStorage.setItem("refresh", res.data.refresh);
+
+        return res.data.user;
+      })
+      .catch((error) => {
+        throw error;
+      });
+  };
+
+  /**
+   * User signup request.
+   * Asigned inactive role by default.
+   *
+   * @async
+   * @function signup
+   * @param {string} username
+   * @param {string} password
+   * @param {string} email
+   * @param {string} firstName
+   * @param {string} lastName
+   * @returns {object} userData
+   * */
+  const signup = async (username, password, email, firstName, lastName) => {
+    let bearer = await withAppUser();
+
+    return axios
+      .post(
+        `${apiHost}/api/users/signup/`,
+        {
+          username: username,
+          password: password,
+          email: email,
+          profile: {
+            first_name: firstName,
+            last_name: lastName,
+          },
+        },
+        { headers: { Authorization: bearer } }
+      )
+      .then((res) => {
+        return res.data;
+      })
+      .catch((error) => {
+        throw error;
+      });
+  };
+
+  /**
+   * Signs out current user
+   *
+   * @function
+   * @returns {boolean}
+   * */
+  const signout = () => {
+    setUser(false);
+    setAccessToken(null);
+    setRole(roles.General);
+    localStorage.removeItem("refresh");
+
+    return true;
+  };
+
+  /**
+   * Attempts to refresh with the given token
+   *
+   * @function tryRefresh
+   * @param {string} refreshToken - The refresh token to refresh with.
+   * @returns {string} accessToken - New access token.
+   * @throws Will throw an error if refresh token is invalid.
+   * */
+  const tryRefresh = async (refreshToken) => {
+    return axios
+      .post(`${apiHost}/api/token/refresh/`, {
+        refresh: refreshToken,
+      })
+      .then((res) => {
+        return res.data.access;
+      })
+      .catch((error) => {
+        throw error;
+      });
+  };
+
+  /**
+   * Submits a password reset request
+   * and triggers an email with a token
+   * being sent to the given email.
+   *
+   * @function sendPasswordResetEmail
+   * @param {string} email - User's email
+   * @throws Will throw an error if request fails
+   * */
+  const sendPasswordResetEmail = async (email) => {
+    axios
+      .post(`${apiHost}/api/password_reset/`, {
+        email: email,
+      })
+      .catch((error) => {
+        throw error;
+      });
+  };
+
+  /**
+   * Confirms a password reset
+   *
+   * @function confirmPasswordReset
+   * @param {string} token - Password reset token
+   * @param {string} password - New password
+   * @throws Will throw an error if request fails
+   * */
+  const confirmPasswordReset = async (token, password) => {
+    axios
+      .post(`${apiHost}/api/password_reset/confirm/`, {
+        token: token,
+        password: password,
+      })
+      .catch((error) => {
+        throw error;
+      });
+  };
+
+  /**
+   * Handles authentication for requests made without user login.
+   *
+   * @function withAppUser
+   * @throws Will throw an error if request fails
+   * @returns {string} Authoriztion header
+   * @async
+   * */
+  const withAppUser = async () => {
+    const appUserLogin = async () => {
+      const loginResponse = await axios
+        .post(`${apiHost}/api/token/`, {
+          username: process.env.REACT_APP_RUMERGY_USER,
+          password: process.env.REACT_APP_RUMERGY_PASS,
+        })
+        .then((res) => {
+          return res.data;
+        })
+        .catch((error) => {
+          throw error;
+        });
+      setAppRefreshToken(loginResponse.refresh);
+
+      return `Bearer ${loginResponse.access}`;
+    };
+
+    if (!appRefreshToken) {
+      return appUserLogin();
+    }
+
+    try {
+      const access = await tryRefresh(appRefreshToken);
+
+      return `Bearer ${access}`;
+    } catch (error) {
+      if (error.response.status !== 401) {
+        throw error;
+      }
+      return appUserLogin();
+    }
+  };
+
+  /**
+   * Checks for change in auth state with refreshToken and passes
+   * auth data (user, accessToken, role) to callback.
+   *
+   * @function authStateChange
+   * @param {function} callBack - callback function
+   * @param {string} refresh - refresh token from local storage
+   * */
+  const authStateChange = async (callBack) => {
+    if (!localStorage.getItem("refresh")) return callBack(null, null, null);
+
+    try {
+      let access = await tryRefresh(localStorage.getItem("refresh"));
+      let userObject = await axios
+        .get(`${apiHost}/api/users/get_user_from_auth`, {
+          headers: {
+            Authorization: `Bearer ${access}`,
+          },
+        })
+        .then((res) => {
+          return res.data;
+        })
+        .catch((error) => {
+          throw error;
+        });
+      let role = userObject.profile.role;
+      userObject = {
+        username: userObject.username,
+        id: userObject.id,
+      };
+
+      callBack(userObject, access, role);
+    } catch (error) {
+      callBack(null, null, null);
+    }
+  };
+
+  // Subscribe to user on mount
+  // Because this sets state in the callback it will cause any ...
+  // ... component that utilizes this hook to re-render with the ...
+  // ... latest auth object.
+
+  useEffect(() => {
+    /**
+     * Cleanup for auth provider.
+     *
+     * @memberof useProvideAuth
+     * */
+    const unsubscribe = authStateChange((userObject, access, userRole) => {
+      if (userObject &amp;&amp; access &amp;&amp; userRole) {
+        setUser(userObject);
+        setAccessToken(access);
+        setRole(userRole);
+      } else {
+        setUser(false);
+        setAccessToken(null);
+        setRole(roles.General);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  // Return the user objects and auth methods
+
+  return {
+    user,
+    role,
+    signin,
+    signup,
+    signout,
+    sendPasswordResetEmail,
+    confirmPasswordReset,
+    withAppUser,
+    apiHost,
+    userAxiosInstance,
+  };
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#AccessPending">AccessPending</a></li><li><a href="global.html#App">App</a></li><li><a href="global.html#authStateChange">authStateChange</a></li><li><a href="global.html#buildStatus">buildStatus</a></li><li><a href="global.html#checkDataPointError">checkDataPointError</a></li><li><a href="global.html#checkRestrictions">checkRestrictions</a></li><li><a href="global.html#clearSelected">clearSelected</a></li><li><a href="global.html#columns">columns</a></li><li><a href="global.html#confirmPasswordReset">confirmPasswordReset</a></li><li><a href="global.html#createAccountFormSchema">createAccountFormSchema</a></li><li><a href="global.html#CustomDataTable">CustomDataTable</a></li><li><a href="global.html#customStyle">customStyle</a></li><li><a href="global.html#Dashboard">Dashboard</a></li><li><a href="global.html#DashboardMeterItem">DashboardMeterItem</a></li><li><a href="global.html#DashboardMeterSelect">DashboardMeterSelect</a></li><li><a href="global.html#DashboardSelectedMeters">DashboardSelectedMeters</a></li><li><a href="global.html#datatypeRadios">datatypeRadios</a></li><li><a href="global.html#dataTypes">dataTypes</a></li><li><a href="global.html#debounce">debounce</a></li><li><a href="global.html#debounceCallback">debounceCallback</a></li><li><a href="global.html#decimation">decimation</a></li><li><a href="global.html#decrementStep">decrementStep</a></li><li><a href="global.html#deselectMeter">deselectMeter</a></li><li><a href="global.html#deselectMeterDebounced">deselectMeterDebounced</a></li><li><a href="global.html#emptyEditMeterModelEntry">emptyEditMeterModelEntry</a></li><li><a href="global.html#emptyEditUserEntry">emptyEditUserEntry</a></li><li><a href="global.html#ErrorModal">ErrorModal</a></li><li><a href="global.html#fetchAccessRequests">fetchAccessRequests</a></li><li><a href="global.html#fetchData">fetchData</a></li><li><a href="global.html#fetchMeterModels">fetchMeterModels</a></li><li><a href="global.html#fetchUsers">fetchUsers</a></li><li><a href="global.html#forgotPasswordSchema">forgotPasswordSchema</a></li><li><a href="global.html#getDataPointError">getDataPointError</a></li><li><a href="global.html#getMatching">getMatching</a></li><li><a href="global.html#handleAccessRequestCreation">handleAccessRequestCreation</a></li><li><a href="global.html#handleAdd">handleAdd</a></li><li><a href="global.html#handleClear">handleClear</a></li><li><a href="global.html#handleClose">handleClose</a></li><li><a href="global.html#handleCloseAdd">handleCloseAdd</a></li><li><a href="global.html#handleCloseConfirm">handleCloseConfirm</a></li><li><a href="global.html#handleCloseEdit">handleCloseEdit</a></li><li><a href="global.html#handleCloseInfo">handleCloseInfo</a></li><li><a href="global.html#handleCreateAccountSubmit">handleCreateAccountSubmit</a></li><li><a href="global.html#handleDelete">handleDelete</a></li><li><a href="global.html#handleEdit">handleEdit</a></li><li><a href="global.html#handleFetch">handleFetch</a></li><li><a href="global.html#handleForgotPasswordSubmit">handleForgotPasswordSubmit</a></li><li><a href="global.html#handleLoginSubmit">handleLoginSubmit</a></li><li><a href="global.html#handlePasswordResetSubmit">handlePasswordResetSubmit</a></li><li><a href="global.html#handleRepeatAccessRequest">handleRepeatAccessRequest</a></li><li><a href="global.html#handleShow">handleShow</a></li><li><a href="global.html#handleShowAdd">handleShowAdd</a></li><li><a href="global.html#handleShowConfirm">handleShowConfirm</a></li><li><a href="global.html#handleShowEdit">handleShowEdit</a></li><li><a href="global.html#handleSignin">handleSignin</a></li><li><a href="global.html#handleSubmit">handleSubmit</a></li><li><a href="global.html#Help">Help</a></li><li><a href="global.html#helpData">helpData</a></li><li><a href="global.html#HelpModal">HelpModal</a></li><li><a href="global.html#IconButton">IconButton</a></li><li><a href="global.html#incrementStep">incrementStep</a></li><li><a href="global.html#isLoggedIn">isLoggedIn</a></li><li><a href="global.html#lineColors">lineColors</a></li><li><a href="global.html#lineColorsTransparent">lineColorsTransparent</a></li><li><a href="global.html#loginFormSchema">loginFormSchema</a></li><li><a href="global.html#ManageAccessRequests">ManageAccessRequests</a></li><li><a href="global.html#ManagementBar">ManagementBar</a></li><li><a href="global.html#ManageMeterModels">ManageMeterModels</a></li><li><a href="global.html#ManageUsers">ManageUsers</a></li><li><a href="global.html#meterModelAddFormSchema">meterModelAddFormSchema</a></li><li><a href="global.html#MeterModelAddModal">MeterModelAddModal</a></li><li><a href="global.html#meterSearch">meterSearch</a></li><li><a href="global.html#options">options</a></li><li><a href="global.html#passwordResetSchema">passwordResetSchema</a></li><li><a href="global.html#ProvideAuth">ProvideAuth</a></li><li><a href="global.html#registerTypes">registerTypes</a></li><li><a href="global.html#renderStep">renderStep</a></li><li><a href="global.html#RepeatAccessRequest">RepeatAccessRequest</a></li><li><a href="global.html#repeatAccessRequestSchema">repeatAccessRequestSchema</a></li><li><a href="global.html#resetAll">resetAll</a></li><li><a href="global.html#rootRedirect">rootRedirect</a></li><li><a href="global.html#SearchBar">SearchBar</a></li><li><a href="global.html#selectMeter">selectMeter</a></li><li><a href="global.html#selectMeterDebounced">selectMeterDebounced</a></li><li><a href="global.html#sendPasswordResetEmail">sendPasswordResetEmail</a></li><li><a href="global.html#setUnit">setUnit</a></li><li><a href="global.html#Sidebar">Sidebar</a></li><li><a href="global.html#sidebarData">sidebarData</a></li><li><a href="global.html#signin">signin</a></li><li><a href="global.html#signup">signup</a></li><li><a href="global.html#StepOne">StepOne</a></li><li><a href="global.html#StepTwo">StepTwo</a></li><li><a href="global.html#timeframeRadios">timeframeRadios</a></li><li><a href="global.html#toggleSearch">toggleSearch</a></li><li><a href="global.html#tryRefresh">tryRefresh</a></li><li><a href="global.html#useAuth">useAuth</a></li><li><a href="global.html#useProvideAuth">useProvideAuth</a></li><li><a href="global.html#userAddFormSchema">userAddFormSchema</a></li><li><a href="global.html#UserAddModal">UserAddModal</a></li><li><a href="global.html#UserEditModal">UserEditModal</a></li><li><a href="global.html#userExists">userExists</a></li><li><a href="global.html#verifyToken">verifyToken</a></li><li><a href="global.html#withAppUser">withAppUser</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Mon Nov 22 2021 20:17:27 GMT-0400 (Atlantic Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

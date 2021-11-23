@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: components/Dashboard.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: components/Dashboard.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import { React, useEffect, useState, useCallback } from "react";
+import { Col, Row, Spinner } from "react-bootstrap";
+import DashboardMeterSelect from "./DashboardMeterSelect";
+import DashboardSelectedMeters from "./DashboardSelectedMeters";
+import DashboardVisualization from "./DashboardVisualization";
+import ErrorModal from "./ErrorModal";
+import { sub, formatISO, getTime, parseISO } from "date-fns";
+import { useAuth } from "../resources/use-auth";
+import axios from "axios";
+
+/** Line colors for graphs
+ *
+ * @constant {object} lineColors
+ * */
+const lineColors = [
+  "rgb(255, 99, 132)",
+  "rgb(255, 159, 64)",
+  "rgb(75, 192, 192)",
+  "rgb(54, 162, 235)",
+  "rgb(153, 102, 255)",
+];
+
+/** Transparent line colors for graphs
+ *
+ * @constant {object} lineColorsTransparent
+ * */
+const lineColorsTransparent = [
+  "rgba(255, 99, 132, 0.2)",
+  "rgba(255, 159, 64, 0.2)",
+  "rgba(75, 192, 192, 0.2)",
+  "rgba(54, 162, 235, 0.2)",
+  "rgba(153, 102, 255, 0.2)",
+];
+
+/** Initial empty meter data.
+ * Necessary so initial empty graph will
+ * render.
+ *
+ * @constant {object} lineColorsTransparent
+ * */
+const emptyDataSet = {
+  datasets: [
+    {
+      label: "No data",
+      data: [],
+      fill: false,
+    },
+  ],
+};
+
+/**
+ * Dashboard component
+ *
+ * Manages visualization of consumption and
+ * demand data for the meters.
+ * */
+function Dashboard() {
+  const [meterList, setMeterList] = useState([]);
+  const [meterBuffer, setMeterBuffer] = useState([]);
+  const [meterData, setMeterData] = useState(emptyDataSet);
+  const [selectedTimeframe, setSelectedTimeframe] = useState(1);
+  const [selectedDatatype, setSelectedDatatype] = useState("consumption");
+  const [selectedMeters, setSelectedMeters] = useState([]);
+
+  const [show, setShow] = useState(false);
+  const [errorName, setErrorName] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const [loading, setLoading] = useState(false);
+  const [initialLoad, setInitialLoad] = useState(true);
+
+  const auth = useAuth();
+
+  useEffect(async () => {
+    /**
+     * Fetches meter list
+     *
+     * @param {object} auth - Authentication hook
+     * @memberof Dashboard
+     * */
+    setLoading(true);
+    await axios
+      .get(`${auth.apiHost}/api/meters`, {
+        headers: { Authorization: await auth.withAppUser() },
+        params: { status: "ACT" },
+      })
+      .then((res) => {
+        setMeterList(res.data);
+      })
+      .catch(() => {
+        setMeterList([]);
+        setErrorName("Fetch Error");
+        setErrorMessage("Failed to fetch active meter list.");
+        handleShow();
+      });
+    setLoading(false);
+    setInitialLoad(false);
+  }, [auth]);
+
+  useEffect(() => {
+    /**
+     * Sets the meter buffer used by the meter item lists.
+     *
+     *@param {object} meterList - Full list of meters
+     *@memberof Dashboard
+     **/
+    setMeterBuffer(
+      meterList.map((meter) => {
+        return { id: meter.id, name: meter.name };
+      })
+    );
+  }, [meterList]);
+
+  useEffect(() => {
+    /**
+     * Triggers a debounced data fetch upon change of
+     * any of the parameters.
+     *
+     *@param {object} selectedMeters
+     *@param {string} selectedDatatype
+     *@param {number} selectedTimeframe
+     *@memberof Dashboard
+     * */
+    debounceCallback(handleFetch);
+  }, [selectedMeters, selectedDatatype, selectedTimeframe]);
+
+  /* METER LIST HANDLERS */
+
+  /**
+   * Adds given meter to selected meter list.
+   * Also checks that at most 5 meters are in the
+   * list at a time.
+   *
+   * @function selectMeter
+   * @param {object} meter
+   * */
+  const selectMeter = (meter) => {
+    // Max 5 meters at a time
+    if (selectedMeters.length >= 5) {
+      setErrorName("Maximum number of meters reached");
+      setErrorMessage("Can only select 5 meters at a time.");
+      handleShow();
+      return;
+    }
+
+    setSelectedMeters([...selectedMeters, meter]);
+    setMeterBuffer(
+      meterBuffer.filter((bufferMeter) => bufferMeter.id !== meter.id)
+    );
+  };
+
+  /**
+   * Debounced version of the select meter function
+   *
+   * @function selectMeterDebounced
+   * @param {object} meter - Meter object
+   **/
+  const selectedMeterDebounced = (meter) => {
+    debounceCallback(() => selectMeter(meter));
+  };
+
+  /**
+   * Deselects the provided meter
+   *
+   * @function deselectMeter
+   * @param {object} meter - Meter object
+   * */
+  const deselectMeter = (meter) => {
+    setSelectedMeters(
+      selectedMeters.filter((selectedMeter) => selectedMeter.id !== meter.id)
+    );
+    setMeterBuffer([...meterBuffer, meter]);
+  };
+
+  /**
+   * Debounced version of the deselect meter function
+   *
+   * @function deselectMeterDebounced
+   * @param {object} meter - Meter object
+   **/
+  const deselectMeterDebounced = (meter) => {
+    debounceCallback(() => deselectMeter(meter));
+  };
+
+  /**
+   * Clears all selected meters
+   *
+   * @function clearSelected
+   * @public
+   **/
+  const clearSelected = () => {
+    setMeterBuffer([...meterBuffer, ...selectedMeters]);
+    setSelectedMeters([]);
+  };
+
+  /* ERROR MODAL HANDLERS */
+  const handleClose = () => setShow(false);
+  const handleShow = () => setShow(true);
+
+  /**
+   * Handles fetching the meter data with all the selected parameters
+   *
+   * @function handleFetch
+   * */
+  const handleFetch = () => {
+    if (!(selectedMeters.length > 0) &amp;&amp; !initialLoad) {
+      setMeterData(emptyDataSet);
+      setErrorName("No meters selected");
+      setErrorMessage("Select at least one meter to sync the data.");
+      handleShow();
+    } else fetchData();
+  };
+
+  /**
+   * Handles fetching the meter list
+   * with the selected parameters.
+   *
+   * @function fetchData
+   * @async
+   **/
+  const fetchData = async () => {
+    setLoading(true);
+
+    const datatypeLabel =
+      selectedDatatype === "consumption" ? "Consumption" : "Demand";
+
+    var startingDateTime = formatISO(
+      sub(new Date(Date.now()), { days: selectedTimeframe })
+    );
+
+    let data = {
+      datasets: [],
+    };
+
+    for (var i = 0; i &lt; selectedMeters.length; i++) {
+      const meter = selectedMeters[i];
+
+      let tempMeterData = await axios
+        .get(
+          `${auth.apiHost}/api/meters/${meter.id}/meter_data_by_time_frame`,
+          {
+            headers: { Authorization: await auth.withAppUser() },
+            params: {
+              start: startingDateTime,
+              data_type: selectedDatatype,
+            },
+          }
+        )
+        .then((res) => {
+          return res.data.map((meterDataObj) => {
+            return {
+              x: getTime(parseISO(meterDataObj.timestamp)),
+              y: meterDataObj.avg,
+            };
+          });
+        })
+        .catch(() => {
+          setErrorName("Data fetch error");
+          setErrorMessage(`Failed to fetch data for meter: ${meter.name}`);
+          handleShow();
+          return null;
+        });
+      if (!tempMeterData) {
+        data = emptyDataSet;
+        break;
+      }
+      data.datasets.push({
+        label: `${meter.name} ${datatypeLabel}`,
+        data: tempMeterData,
+        fill: false,
+        backgroundColor: lineColors[i],
+        borderColor: lineColorsTransparent[i],
+      });
+    }
+
+    if (!data.datasets.length) data = emptyDataSet;
+
+    setLoading(false);
+    setMeterData(data);
+  };
+
+  /**
+   * Debounces the given function using timers
+   *
+   * @function debounce
+   * @param {function} func - Function to be debounced
+   * @param {number} timeout - Debounce delay in milliseconds
+   * */
+  const debounce = (func, timeout = 300) => {
+    let timer;
+    return (...args) => {
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        func.apply(this, args);
+      }, timeout);
+    };
+  };
+
+  /**
+   * Provides callback for the debounce function
+   *
+   * @function debounceCallback
+   * */
+  const debounceCallback = useCallback(
+    debounce((func) => {
+      func();
+    }, 175)
+  );
+
+  return (
+    &lt;>
+      &lt;Row className="h-100">
+        &lt;Col className="d-flex flex-column px-4 pt-4">
+          &lt;Row>
+            &lt;Col
+              sm={12}
+              className="d-flex flex-row align-items-center pb-4 gap-4"
+            >
+              &lt;h1 className="bold mb-0">Dashboard&lt;/h1>
+              {loading &amp;&amp; &lt;Spinner variant="secondary" animation="border" />}
+            &lt;/Col>
+          &lt;/Row>
+          &lt;Row className="flex-grow-1">
+            &lt;Col sm={3} className="d-flex flex-column justify-content-evenly">
+              &lt;DashboardMeterSelect
+                meterList={meterBuffer}
+                selectMeter={selectedMeterDebounced}
+              />
+              &lt;DashboardSelectedMeters
+                selectedMeters={selectedMeters}
+                deselectMeter={deselectMeterDebounced}
+                clearSelected={clearSelected}
+              />
+            &lt;/Col>
+            &lt;Col sm={9} className="d-flex flex-column justify-content-evenly">
+              &lt;DashboardVisualization
+                selectedDatatype={selectedDatatype}
+                selectedTimeframe={selectedTimeframe}
+                setSelectedDatatype={setSelectedDatatype}
+                setSelectedTimeframe={setSelectedTimeframe}
+                data={meterData}
+              />
+            &lt;/Col>
+          &lt;/Row>
+        &lt;/Col>
+      &lt;/Row>
+      &lt;ErrorModal
+        show={show}
+        handleClose={handleClose}
+        errorMessage={errorMessage}
+        errorName={errorName}
+      />
+    &lt;/>
+  );
+}
+
+export default Dashboard;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#AccessPending">AccessPending</a></li><li><a href="global.html#App">App</a></li><li><a href="global.html#authStateChange">authStateChange</a></li><li><a href="global.html#buildStatus">buildStatus</a></li><li><a href="global.html#checkDataPointError">checkDataPointError</a></li><li><a href="global.html#checkRestrictions">checkRestrictions</a></li><li><a href="global.html#clearSelected">clearSelected</a></li><li><a href="global.html#columns">columns</a></li><li><a href="global.html#confirmPasswordReset">confirmPasswordReset</a></li><li><a href="global.html#createAccountFormSchema">createAccountFormSchema</a></li><li><a href="global.html#CustomDataTable">CustomDataTable</a></li><li><a href="global.html#customStyle">customStyle</a></li><li><a href="global.html#Dashboard">Dashboard</a></li><li><a href="global.html#DashboardMeterItem">DashboardMeterItem</a></li><li><a href="global.html#DashboardMeterSelect">DashboardMeterSelect</a></li><li><a href="global.html#DashboardSelectedMeters">DashboardSelectedMeters</a></li><li><a href="global.html#datatypeRadios">datatypeRadios</a></li><li><a href="global.html#dataTypes">dataTypes</a></li><li><a href="global.html#debounce">debounce</a></li><li><a href="global.html#debounceCallback">debounceCallback</a></li><li><a href="global.html#decimation">decimation</a></li><li><a href="global.html#decrementStep">decrementStep</a></li><li><a href="global.html#deselectMeter">deselectMeter</a></li><li><a href="global.html#deselectMeterDebounced">deselectMeterDebounced</a></li><li><a href="global.html#emptyEditMeterModelEntry">emptyEditMeterModelEntry</a></li><li><a href="global.html#emptyEditUserEntry">emptyEditUserEntry</a></li><li><a href="global.html#ErrorModal">ErrorModal</a></li><li><a href="global.html#fetchAccessRequests">fetchAccessRequests</a></li><li><a href="global.html#fetchData">fetchData</a></li><li><a href="global.html#fetchMeterModels">fetchMeterModels</a></li><li><a href="global.html#fetchUsers">fetchUsers</a></li><li><a href="global.html#forgotPasswordSchema">forgotPasswordSchema</a></li><li><a href="global.html#getDataPointError">getDataPointError</a></li><li><a href="global.html#getMatching">getMatching</a></li><li><a href="global.html#handleAccessRequestCreation">handleAccessRequestCreation</a></li><li><a href="global.html#handleAdd">handleAdd</a></li><li><a href="global.html#handleClear">handleClear</a></li><li><a href="global.html#handleClose">handleClose</a></li><li><a href="global.html#handleCloseAdd">handleCloseAdd</a></li><li><a href="global.html#handleCloseConfirm">handleCloseConfirm</a></li><li><a href="global.html#handleCloseEdit">handleCloseEdit</a></li><li><a href="global.html#handleCloseInfo">handleCloseInfo</a></li><li><a href="global.html#handleCreateAccountSubmit">handleCreateAccountSubmit</a></li><li><a href="global.html#handleDelete">handleDelete</a></li><li><a href="global.html#handleEdit">handleEdit</a></li><li><a href="global.html#handleFetch">handleFetch</a></li><li><a href="global.html#handleForgotPasswordSubmit">handleForgotPasswordSubmit</a></li><li><a href="global.html#handleLoginSubmit">handleLoginSubmit</a></li><li><a href="global.html#handlePasswordResetSubmit">handlePasswordResetSubmit</a></li><li><a href="global.html#handleRepeatAccessRequest">handleRepeatAccessRequest</a></li><li><a href="global.html#handleShow">handleShow</a></li><li><a href="global.html#handleShowAdd">handleShowAdd</a></li><li><a href="global.html#handleShowConfirm">handleShowConfirm</a></li><li><a href="global.html#handleShowEdit">handleShowEdit</a></li><li><a href="global.html#handleSignin">handleSignin</a></li><li><a href="global.html#handleSubmit">handleSubmit</a></li><li><a href="global.html#Help">Help</a></li><li><a href="global.html#helpData">helpData</a></li><li><a href="global.html#HelpModal">HelpModal</a></li><li><a href="global.html#IconButton">IconButton</a></li><li><a href="global.html#incrementStep">incrementStep</a></li><li><a href="global.html#isLoggedIn">isLoggedIn</a></li><li><a href="global.html#lineColors">lineColors</a></li><li><a href="global.html#lineColorsTransparent">lineColorsTransparent</a></li><li><a href="global.html#loginFormSchema">loginFormSchema</a></li><li><a href="global.html#ManageAccessRequests">ManageAccessRequests</a></li><li><a href="global.html#ManagementBar">ManagementBar</a></li><li><a href="global.html#ManageMeterModels">ManageMeterModels</a></li><li><a href="global.html#ManageUsers">ManageUsers</a></li><li><a href="global.html#meterModelAddFormSchema">meterModelAddFormSchema</a></li><li><a href="global.html#MeterModelAddModal">MeterModelAddModal</a></li><li><a href="global.html#meterSearch">meterSearch</a></li><li><a href="global.html#options">options</a></li><li><a href="global.html#passwordResetSchema">passwordResetSchema</a></li><li><a href="global.html#ProvideAuth">ProvideAuth</a></li><li><a href="global.html#registerTypes">registerTypes</a></li><li><a href="global.html#renderStep">renderStep</a></li><li><a href="global.html#RepeatAccessRequest">RepeatAccessRequest</a></li><li><a href="global.html#repeatAccessRequestSchema">repeatAccessRequestSchema</a></li><li><a href="global.html#resetAll">resetAll</a></li><li><a href="global.html#rootRedirect">rootRedirect</a></li><li><a href="global.html#SearchBar">SearchBar</a></li><li><a href="global.html#selectMeter">selectMeter</a></li><li><a href="global.html#selectMeterDebounced">selectMeterDebounced</a></li><li><a href="global.html#sendPasswordResetEmail">sendPasswordResetEmail</a></li><li><a href="global.html#setUnit">setUnit</a></li><li><a href="global.html#Sidebar">Sidebar</a></li><li><a href="global.html#sidebarData">sidebarData</a></li><li><a href="global.html#signin">signin</a></li><li><a href="global.html#signup">signup</a></li><li><a href="global.html#StepOne">StepOne</a></li><li><a href="global.html#StepTwo">StepTwo</a></li><li><a href="global.html#timeframeRadios">timeframeRadios</a></li><li><a href="global.html#toggleSearch">toggleSearch</a></li><li><a href="global.html#tryRefresh">tryRefresh</a></li><li><a href="global.html#useAuth">useAuth</a></li><li><a href="global.html#useProvideAuth">useProvideAuth</a></li><li><a href="global.html#userAddFormSchema">userAddFormSchema</a></li><li><a href="global.html#UserAddModal">UserAddModal</a></li><li><a href="global.html#UserEditModal">UserEditModal</a></li><li><a href="global.html#userExists">userExists</a></li><li><a href="global.html#verifyToken">verifyToken</a></li><li><a href="global.html#withAppUser">withAppUser</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Mon Nov 22 2021 20:17:27 GMT-0400 (Atlantic Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

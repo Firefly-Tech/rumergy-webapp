@@ -6,8 +6,11 @@ import { useHistory } from "react-router-dom";
 
 const authContext = createContext();
 
-// Provider component that wraps your app and makes auth object ...
-// ... available to any child component that calls useAuth().
+/** Provider component that wraps your app and makes auth object available
+ * to any child component that calls useAuth().
+ *
+ * @function ProvideAuth
+ * */
 export function ProvideAuth({ children }) {
   const auth = useProvideAuth();
   return <authContext.Provider value={auth}>{children}</authContext.Provider>;
@@ -17,16 +20,19 @@ ProvideAuth.propTypes = {
   children: PropTypes.object,
 };
 
-// Hook for child components to get the auth object ...
-// ... and re-render when it changes.
+/** Hook for child components to get the auth object
+ * and re-render when it changes.
+ *
+ * @function useAuth
+ * */
 export const useAuth = () => {
   return useContext(authContext);
 };
 
-// Provider hook that creates auth object and handles state
+/** Provider hook that creates auth object and handles state. */
 function useProvideAuth() {
   const [user, setUser] = useState(null);
-  const [role, setRole] = useState(roles.General);
+  const [role, setRole] = useState(null);
   const [accessToken, setAccessToken] = useState(null);
 
   const history = useHistory();
@@ -35,7 +41,7 @@ function useProvideAuth() {
   // Axios instance for users
   const userAxiosInstance = axios.create();
 
-  // Request interceptor
+  /** Request interceptor. Adds bearer token to all requests */
   userAxiosInstance.interceptors.request.use(
     async (config) => {
       config.headers = {
@@ -48,7 +54,7 @@ function useProvideAuth() {
     }
   );
 
-  // Response interceptor
+  /** Response interceptor. Attempts refresh if request is unauthorized. */
   userAxiosInstance.interceptors.response.use(
     (response) => {
       return response;
@@ -79,6 +85,15 @@ function useProvideAuth() {
   // For non-logged in requests
   const [appRefreshToken, setAppRefreshToken] = useState(null);
 
+  /**
+   * User signin request
+   *
+   * @async
+   * @function signin
+   * @param {string} username
+   * @param {string} password
+   * @returns {object} userData
+   * */
   const signin = async (username, password) => {
     return axios
       .post(`${apiHost}/api/token/`, {
@@ -102,10 +117,25 @@ function useProvideAuth() {
       });
   };
 
+  /**
+   * User signup request.
+   * Asigned inactive role by default.
+   *
+   * @async
+   * @function signup
+   * @param {string} username
+   * @param {string} password
+   * @param {string} email
+   * @param {string} firstName
+   * @param {string} lastName
+   * @returns {object} userData
+   * */
   const signup = async (username, password, email, firstName, lastName) => {
+    let bearer = await withAppUser();
+
     return axios
       .post(
-        `${apiHost}/api/users/`,
+        `${apiHost}/api/users/signup/`,
         {
           username: username,
           password: password,
@@ -113,10 +143,9 @@ function useProvideAuth() {
           profile: {
             first_name: firstName,
             last_name: lastName,
-            role: roles.Inactive,
           },
         },
-        { headers: { Authorization: await withAppUser() } }
+        { headers: { Authorization: bearer } }
       )
       .then((res) => {
         return res.data;
@@ -126,8 +155,14 @@ function useProvideAuth() {
       });
   };
 
+  /**
+   * Signs out current user
+   *
+   * @function
+   * @returns {boolean}
+   * */
   const signout = () => {
-    setUser(null);
+    setUser(false);
     setAccessToken(null);
     setRole(roles.General);
     localStorage.removeItem("refresh");
@@ -135,11 +170,14 @@ function useProvideAuth() {
     return true;
   };
 
-  const getAuthBearer = () => {
-    // TODO: Add get new access token
-    return `Bearer ${accessToken}`;
-  };
-
+  /**
+   * Attempts to refresh with the given token
+   *
+   * @function tryRefresh
+   * @param {string} refreshToken - The refresh token to refresh with.
+   * @returns {string} accessToken - New access token.
+   * @throws Will throw an error if refresh token is invalid.
+   * */
   const tryRefresh = async (refreshToken) => {
     return axios
       .post(`${apiHost}/api/token/refresh/`, {
@@ -153,10 +191,52 @@ function useProvideAuth() {
       });
   };
 
-  const sendPasswordResetEmail = (email) => {};
+  /**
+   * Submits a password reset request
+   * and triggers an email with a token
+   * being sent to the given email.
+   *
+   * @function sendPasswordResetEmail
+   * @param {string} email - User's email
+   * @throws Will throw an error if request fails
+   * */
+  const sendPasswordResetEmail = async (email) => {
+    axios
+      .post(`${apiHost}/api/password_reset/`, {
+        email: email,
+      })
+      .catch((error) => {
+        throw error;
+      });
+  };
 
-  const confirmPasswordReset = (code, password) => {};
+  /**
+   * Confirms a password reset
+   *
+   * @function confirmPasswordReset
+   * @param {string} token - Password reset token
+   * @param {string} password - New password
+   * @throws Will throw an error if request fails
+   * */
+  const confirmPasswordReset = async (token, password) => {
+    axios
+      .post(`${apiHost}/api/password_reset/confirm/`, {
+        token: token,
+        password: password,
+      })
+      .catch((error) => {
+        throw error;
+      });
+  };
 
+  /**
+   * Handles authentication for requests made without user login.
+   *
+   * @function withAppUser
+   * @throws Will throw an error if request fails
+   * @returns {string} Authoriztion header
+   * @async
+   * */
   const withAppUser = async () => {
     const appUserLogin = async () => {
       const loginResponse = await axios
@@ -191,6 +271,14 @@ function useProvideAuth() {
     }
   };
 
+  /**
+   * Checks for change in auth state with refreshToken and passes
+   * auth data (user, accessToken, role) to callback.
+   *
+   * @function authStateChange
+   * @param {function} callBack - callback function
+   * @param {string} refresh - refresh token from local storage
+   * */
   const authStateChange = async (callBack) => {
     if (!localStorage.getItem("refresh")) return callBack(null, null, null);
 
@@ -226,13 +314,18 @@ function useProvideAuth() {
   // ... latest auth object.
 
   useEffect(() => {
+    /**
+     * Cleanup for auth provider.
+     *
+     * @memberof useProvideAuth
+     * */
     const unsubscribe = authStateChange((userObject, access, userRole) => {
       if (userObject && access && userRole) {
         setUser(userObject);
         setAccessToken(access);
         setRole(userRole);
       } else {
-        setUser(null);
+        setUser(false);
         setAccessToken(null);
         setRole(roles.General);
       }
@@ -245,7 +338,6 @@ function useProvideAuth() {
 
   return {
     user,
-    accessToken,
     role,
     signin,
     signup,

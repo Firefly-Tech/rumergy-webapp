@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: components/LoginPages.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: components/LoginPages.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import { React, useState } from "react";
+import { Col, Row } from "react-bootstrap";
+import { FaArrowLeft } from "react-icons/fa";
+import {
+  Link,
+  Route,
+  Switch,
+  useHistory,
+  useRouteMatch,
+} from "react-router-dom";
+import logo from "../resources/RUMergy-logos_black.png";
+import { useAuth } from "../resources/use-auth";
+import CreateAccount from "./CreateAccount";
+import ErrorModal from "./ErrorModal";
+import LoginForm from "./LoginForm";
+import axios from "axios";
+import AccessPending from "./AccessPending";
+import { roles } from "../resources/constants";
+import RepeatAccessRequest from "./RepeatAccessRequest";
+import ForgotPassword from "./ForgotPassword";
+import PasswordReset from "./PasswordReset";
+
+/**
+ * Wrapper component that handles state in
+ * all of the pages in the login section.
+ *
+ * Includes: Create account, forgot password,
+ * and password reset.
+ * */
+export default function LoginPages() {
+  const [show, setShow] = useState(false);
+  const [errorName, setErrorName] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const [loading, setLoading] = useState(false);
+
+  const auth = useAuth();
+  const history = useHistory();
+  const { path } = useRouteMatch();
+
+  /**
+   * Handles hiding the error modal.
+   *
+   * @function handleClose
+   * */
+  const handleClose = () => setShow(false);
+
+  /**
+   * Handles showing the error modal.
+   *
+   * @function handleClose
+   * */
+  const handleShow = () => setShow(true);
+
+  /**
+   * Handles user login request.
+   *
+   * @function handleSignin
+   * @param {string} username
+   * @param {string} password
+   * @returns {function} Resulting action
+   * @async
+   * */
+  const handleSignin = async (username, password) => {
+    let userObject;
+    try {
+      userObject = await auth.signin(username, password);
+    } catch (error) {
+      setErrorName(
+        error.response.status === 401 ? "Invalid credentials" : "Error"
+      );
+      setErrorMessage(
+        error.response.status === 401
+          ? "Provided credentials are invalid."
+          : "An error occurred. Please try again."
+      );
+      return handleShow;
+    }
+
+    // Logic for inactive users
+    if (userObject.role === roles.Inactive) {
+      let bearer = await auth.withAppUser();
+
+      // Get status of latest access request
+      try {
+        const accessRequestStatus = await axios
+          .get(
+            `${auth.apiHost}/api/users/${userObject.id}/latest_access_request`,
+            {
+              headers: { Authorization: bearer },
+            }
+          )
+          .then((res) => {
+            if (!res.data) return null;
+            return res.data.status;
+          })
+          .catch((error) => {
+            throw error;
+          });
+
+        // If no active request or no requests at all
+        if (accessRequestStatus !== "ACT" || !accessRequestStatus) {
+          // Redirect to page to request access
+          return () => history.push(`${path}/send-access-request`);
+        } else {
+          // Redirect to pending access page
+          return () => history.push(`${path}/access-pending`);
+        }
+      } catch (error) {
+        auth.signout();
+        setErrorName("Error");
+        setErrorMessage("An error occurred. Please try again.");
+        return handleShow;
+      }
+    } else {
+      return () => history.push("/");
+    }
+  };
+
+  /**
+   * Handles the submit of the login form.
+   *
+   * @function handleLoginSubmit
+   * @param {object} values - Formik object with form values
+   * @param {function} setSubmitting - Formik function to handle submitting state
+   * @async
+   * */
+  const handleLoginSubmit = async (values, { setSubmitting }) => {
+    setLoading(true);
+    let resultAction = await handleSignin(values.username, values.password);
+    setSubmitting(false);
+    setLoading(false);
+    resultAction();
+  };
+
+  /**
+   * Handles access request creation.
+   *
+   * @function handleAccessRequestCreation
+   * @param {number} id - User id related to access request
+   * @param {string} occupation - Occupation description
+   * @param {string} justification - Justification for access request
+   * @async
+   * */
+  const handleAccessRequestCreation = async (id, occupation, justification) => {
+    await axios
+      .post(
+        `${auth.apiHost}/api/access-request/`,
+        {
+          user: id,
+          occupation: occupation,
+          justification: justification,
+        },
+        { headers: { Authorization: await auth.withAppUser() } }
+      )
+      .catch((error) => {
+        throw error;
+      });
+  };
+
+  /**
+   * Handles submission of a repeat access request form.
+   *
+   * @function handleRepeatAccessRequest
+   * @param {object} values - Formik object with form values
+   * @param {function} setSubmitting - Formik function to handle submitting state
+   * @returns {boolean} True if successful
+   * @async
+   * */
+  const handleRepeatAccessRequest = async (values, { setSubmitting }) => {
+    setLoading(true);
+
+    try {
+      // Create access request
+      await handleAccessRequestCreation(
+        auth.user.id,
+        values.occupation,
+        values.justification
+      );
+
+      return true;
+    } catch (e) {
+      setErrorName("Error");
+      setErrorMessage("An error occurred, please try again.");
+      handleShow();
+
+      return false;
+    } finally {
+      setLoading(false);
+      setSubmitting(false);
+    }
+  };
+
+  /**
+   * Handles submission of account creation form.
+   *
+   * @function handleCreateAccountSubmit
+   * @param {object} values - Formik object with form values
+   * @param {function} setSubmitting - Formik function to handle submitting state
+   * @returns {boolean} True if successful
+   * @async
+   * */
+  const handleCreateAccountSubmit = async (values, { setSubmitting }) => {
+    setLoading(true);
+
+    try {
+      // Create user
+      let user = await auth.signup(
+        values.username,
+        values.password,
+        values.email,
+        values.firstName,
+        values.lastName
+      );
+
+      // Create access request
+      await handleAccessRequestCreation(
+        user.id,
+        values.occupation,
+        values.justification
+      );
+
+      return true;
+    } catch (e) {
+      setErrorName("Error");
+      setErrorMessage("An error occurred, please try again.");
+      handleShow();
+
+      return false;
+    } finally {
+      setLoading(false);
+      setSubmitting(false);
+    }
+  };
+
+  /**
+   * Helper function to determine if a user
+   * with the provided username and/or password
+   * already exists in the system.
+   *
+   * @function userExists
+   * @param {string} username
+   * @param {string} email
+   * @async
+   * */
+  const userExists = async (username, email) => {
+    setLoading(true);
+    // Try getting auth for app user
+    let bearer;
+    try {
+      bearer = await auth.withAppUser();
+    } catch (e) {
+      setErrorName("Error");
+      setErrorMessage("An error occurred, please try again.");
+      handleShow();
+      setLoading(false);
+
+      return true;
+    }
+
+    // Get user by their username
+    let userByUsername = await axios
+      .get(`${auth.apiHost}/api/users?username=${username}`, {
+        headers: {
+          Authorization: bearer,
+        },
+      })
+      .then((res) => {
+        return res.data;
+      })
+      .catch(() => {
+        return [1];
+      });
+
+    // Get user by their email
+    let userByEmail = await axios
+      .get(`${auth.apiHost}/api/users?email=${email}`, {
+        headers: { Authorization: bearer },
+      })
+      .then((res) => {
+        return res.data;
+      })
+      .catch(() => {
+        return [1];
+      });
+
+    if (!userByUsername.length &amp;&amp; !userByEmail.length) {
+      setLoading(false);
+      return false;
+    }
+
+    setErrorName("Error");
+    setErrorMessage(
+      `A user with the indicated properties already exists:${
+        userByUsername.length ? " username" : ""
+      }${userByEmail.length ? " email" : ""}`
+    );
+    handleShow();
+    setLoading(false);
+    return true;
+  };
+
+  /**
+   * Handles submission of forgot password form.
+   *
+   * @function handleForgotPasswordSubmit
+   * @param {object} values - Formik object with form values
+   * @param {function} setSubmitting - Formik function to handle submitting state
+   * @returns {boolean} True if successful
+   * @async
+   * */
+  const handleForgotPasswordSubmit = async (values, { setSubmitting }) => {
+    setLoading(true);
+    try {
+      await auth.sendPasswordResetEmail(values.email);
+    } catch (error) {
+      if (error.response.status !== 400) {
+        setErrorName("Error");
+        setErrorMessage("An error occurred. Please try again.");
+        handleShow();
+
+        return false;
+      }
+    } finally {
+      setSubmitting(false);
+      setLoading(false);
+    }
+
+    return true;
+  };
+
+  /**
+   * Handles submission of password reset form.
+   *
+   * @function handlePasswordResetSubmit
+   * @param {string} token - Password reset token
+   * @param {string} values - Formik object with form values
+   * @param {function} setSubmitting - Formik function to handle submitting state
+   * @returns {boolean} True if successful
+   * @async
+   * */
+  const handlePasswordResetSubmit = async (
+    token,
+    values,
+    { setSubmitting }
+  ) => {
+    setLoading(true);
+    try {
+      await auth.confirmPasswordReset(token, values.password);
+    } catch (error) {
+      setErrorName("Error");
+      setErrorMessage("An error occurred. Please try again.");
+      handleShow();
+
+      return false;
+    } finally {
+      setSubmitting(false);
+      setLoading(false);
+    }
+
+    return true;
+  };
+
+  /**
+   * Verifies if password reset token is valid.
+   *
+   * @function  verifyToken
+   * @param {string} token - Password reset token
+   * @returns {string} Password reset token if successful, otherwise null
+   * @async
+   * */
+  const verifyToken = async (token) => {
+    setLoading(true);
+    return axios
+      .post(`${auth.apiHost}/api/password_reset/validate_token/`, {
+        token: token,
+      })
+      .then(() => {
+        return token;
+      })
+      .catch(() => {
+        return null;
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  };
+
+  return (
+    &lt;>
+      &lt;Row className="h-100">
+        &lt;Col sm={6} className="flex-fill p-0">
+          &lt;div className="logo-container d-flex flex-column">
+            &lt;Link
+              to="/dashboard"
+              className="login-back-button d-flex flex-row gap-2 align-items-center p-3 text-decoration-none fs-5"
+            >
+              &lt;FaArrowLeft className="" />
+              &lt;h5 className="mb-0">Back&lt;/h5>
+            &lt;/Link>
+            &lt;img
+              src={logo}
+              alt="Logo"
+              className="login-rumergy-logo img-fluid mx-auto my-auto"
+            />
+          &lt;/div>
+        &lt;/Col>
+        &lt;Col
+          sm={6}
+          className="d-flex login-form justify-content-center align-items-center"
+        >
+          &lt;Switch>
+            &lt;>
+              &lt;div className="my-auto flex-fill">
+                &lt;Route exact path={path}>
+                  &lt;LoginForm
+                    loading={loading}
+                    handleSubmit={handleLoginSubmit}
+                  />
+                &lt;/Route>
+                &lt;Route path={`${path}/create-account`}>
+                  &lt;CreateAccount
+                    loading={loading}
+                    handleSubmit={handleCreateAccountSubmit}
+                    userExists={userExists}
+                  />
+                &lt;/Route>
+                &lt;Route path={`${path}/access-pending`}>
+                  &lt;AccessPending />
+                &lt;/Route>
+                &lt;Route path={`${path}/send-access-request`}>
+                  &lt;RepeatAccessRequest
+                    loading={loading}
+                    handleSubmit={handleRepeatAccessRequest}
+                  />
+                &lt;/Route>
+                &lt;Route path={`${path}/forgot-password`}>
+                  &lt;ForgotPassword
+                    handleSubmit={handleForgotPasswordSubmit}
+                    loading={loading}
+                  />
+                &lt;/Route>
+                &lt;Route path={`${path}/password-reset`}>
+                  &lt;PasswordReset
+                    loading={loading}
+                    handleSubmit={handlePasswordResetSubmit}
+                    verifyToken={verifyToken}
+                  />
+                &lt;/Route>
+              &lt;/div>
+            &lt;/>
+          &lt;/Switch>
+        &lt;/Col>
+      &lt;/Row>
+      &lt;ErrorModal
+        show={show}
+        handleClose={handleClose}
+        errorMessage={errorMessage}
+        errorName={errorName}
+      />
+    &lt;/>
+  );
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#AccessPending">AccessPending</a></li><li><a href="global.html#App">App</a></li><li><a href="global.html#authStateChange">authStateChange</a></li><li><a href="global.html#buildStatus">buildStatus</a></li><li><a href="global.html#checkDataPointError">checkDataPointError</a></li><li><a href="global.html#checkRestrictions">checkRestrictions</a></li><li><a href="global.html#clearSelected">clearSelected</a></li><li><a href="global.html#columns">columns</a></li><li><a href="global.html#confirmPasswordReset">confirmPasswordReset</a></li><li><a href="global.html#createAccountFormSchema">createAccountFormSchema</a></li><li><a href="global.html#CustomDataTable">CustomDataTable</a></li><li><a href="global.html#customStyle">customStyle</a></li><li><a href="global.html#Dashboard">Dashboard</a></li><li><a href="global.html#DashboardMeterItem">DashboardMeterItem</a></li><li><a href="global.html#DashboardMeterSelect">DashboardMeterSelect</a></li><li><a href="global.html#DashboardSelectedMeters">DashboardSelectedMeters</a></li><li><a href="global.html#datatypeRadios">datatypeRadios</a></li><li><a href="global.html#dataTypes">dataTypes</a></li><li><a href="global.html#debounce">debounce</a></li><li><a href="global.html#debounceCallback">debounceCallback</a></li><li><a href="global.html#decimation">decimation</a></li><li><a href="global.html#decrementStep">decrementStep</a></li><li><a href="global.html#deselectMeter">deselectMeter</a></li><li><a href="global.html#deselectMeterDebounced">deselectMeterDebounced</a></li><li><a href="global.html#emptyEditMeterModelEntry">emptyEditMeterModelEntry</a></li><li><a href="global.html#emptyEditUserEntry">emptyEditUserEntry</a></li><li><a href="global.html#ErrorModal">ErrorModal</a></li><li><a href="global.html#fetchAccessRequests">fetchAccessRequests</a></li><li><a href="global.html#fetchData">fetchData</a></li><li><a href="global.html#fetchMeterModels">fetchMeterModels</a></li><li><a href="global.html#fetchUsers">fetchUsers</a></li><li><a href="global.html#forgotPasswordSchema">forgotPasswordSchema</a></li><li><a href="global.html#getDataPointError">getDataPointError</a></li><li><a href="global.html#getMatching">getMatching</a></li><li><a href="global.html#handleAccessRequestCreation">handleAccessRequestCreation</a></li><li><a href="global.html#handleAdd">handleAdd</a></li><li><a href="global.html#handleClear">handleClear</a></li><li><a href="global.html#handleClose">handleClose</a></li><li><a href="global.html#handleCloseAdd">handleCloseAdd</a></li><li><a href="global.html#handleCloseConfirm">handleCloseConfirm</a></li><li><a href="global.html#handleCloseEdit">handleCloseEdit</a></li><li><a href="global.html#handleCloseInfo">handleCloseInfo</a></li><li><a href="global.html#handleCreateAccountSubmit">handleCreateAccountSubmit</a></li><li><a href="global.html#handleDelete">handleDelete</a></li><li><a href="global.html#handleEdit">handleEdit</a></li><li><a href="global.html#handleFetch">handleFetch</a></li><li><a href="global.html#handleForgotPasswordSubmit">handleForgotPasswordSubmit</a></li><li><a href="global.html#handleLoginSubmit">handleLoginSubmit</a></li><li><a href="global.html#handlePasswordResetSubmit">handlePasswordResetSubmit</a></li><li><a href="global.html#handleRepeatAccessRequest">handleRepeatAccessRequest</a></li><li><a href="global.html#handleShow">handleShow</a></li><li><a href="global.html#handleShowAdd">handleShowAdd</a></li><li><a href="global.html#handleShowConfirm">handleShowConfirm</a></li><li><a href="global.html#handleShowEdit">handleShowEdit</a></li><li><a href="global.html#handleSignin">handleSignin</a></li><li><a href="global.html#handleSubmit">handleSubmit</a></li><li><a href="global.html#Help">Help</a></li><li><a href="global.html#helpData">helpData</a></li><li><a href="global.html#HelpModal">HelpModal</a></li><li><a href="global.html#IconButton">IconButton</a></li><li><a href="global.html#incrementStep">incrementStep</a></li><li><a href="global.html#isLoggedIn">isLoggedIn</a></li><li><a href="global.html#lineColors">lineColors</a></li><li><a href="global.html#lineColorsTransparent">lineColorsTransparent</a></li><li><a href="global.html#loginFormSchema">loginFormSchema</a></li><li><a href="global.html#ManageAccessRequests">ManageAccessRequests</a></li><li><a href="global.html#ManagementBar">ManagementBar</a></li><li><a href="global.html#ManageMeterModels">ManageMeterModels</a></li><li><a href="global.html#ManageUsers">ManageUsers</a></li><li><a href="global.html#meterModelAddFormSchema">meterModelAddFormSchema</a></li><li><a href="global.html#MeterModelAddModal">MeterModelAddModal</a></li><li><a href="global.html#meterSearch">meterSearch</a></li><li><a href="global.html#options">options</a></li><li><a href="global.html#passwordResetSchema">passwordResetSchema</a></li><li><a href="global.html#ProvideAuth">ProvideAuth</a></li><li><a href="global.html#registerTypes">registerTypes</a></li><li><a href="global.html#renderStep">renderStep</a></li><li><a href="global.html#RepeatAccessRequest">RepeatAccessRequest</a></li><li><a href="global.html#repeatAccessRequestSchema">repeatAccessRequestSchema</a></li><li><a href="global.html#resetAll">resetAll</a></li><li><a href="global.html#rootRedirect">rootRedirect</a></li><li><a href="global.html#SearchBar">SearchBar</a></li><li><a href="global.html#selectMeter">selectMeter</a></li><li><a href="global.html#selectMeterDebounced">selectMeterDebounced</a></li><li><a href="global.html#sendPasswordResetEmail">sendPasswordResetEmail</a></li><li><a href="global.html#setUnit">setUnit</a></li><li><a href="global.html#Sidebar">Sidebar</a></li><li><a href="global.html#sidebarData">sidebarData</a></li><li><a href="global.html#signin">signin</a></li><li><a href="global.html#signup">signup</a></li><li><a href="global.html#StepOne">StepOne</a></li><li><a href="global.html#StepTwo">StepTwo</a></li><li><a href="global.html#timeframeRadios">timeframeRadios</a></li><li><a href="global.html#toggleSearch">toggleSearch</a></li><li><a href="global.html#tryRefresh">tryRefresh</a></li><li><a href="global.html#useAuth">useAuth</a></li><li><a href="global.html#useProvideAuth">useProvideAuth</a></li><li><a href="global.html#userAddFormSchema">userAddFormSchema</a></li><li><a href="global.html#UserAddModal">UserAddModal</a></li><li><a href="global.html#UserEditModal">UserEditModal</a></li><li><a href="global.html#userExists">userExists</a></li><li><a href="global.html#verifyToken">verifyToken</a></li><li><a href="global.html#withAppUser">withAppUser</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Mon Nov 22 2021 20:17:27 GMT-0400 (Atlantic Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

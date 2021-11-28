@@ -5,17 +5,17 @@ import { Button, Form, InputGroup, Spinner, Row, Col } from "react-bootstrap";
 import { Link, useRouteMatch } from "react-router-dom";
 import * as Yup from "yup";
 
+/**
+ * Yup validation schema for login form
+ *
+ * @constant {object} loginFormSchema
+ * */
 const loginFormSchema = Yup.object().shape({
-  username: Yup.string()
-    .min(4, "Must be at least 4 characters")
-    .max(20, "Must be less than 20 characters")
-    .required("Username required")
-    .matches(/^[a-zA-Z0-9]+([._]?[a-zA-Z0-9]+)*$/, "Invalid username format"),
-  password: Yup.string()
-    .min(8, "Must be at least 8 characters")
-    .required("Password required"),
+  username: Yup.string().required("Username required"),
+  password: Yup.string().required("Password required"),
 });
 
+/** Form for user login */
 export default function LoginForm(props) {
   const { path } = useRouteMatch();
 
@@ -45,7 +45,6 @@ export default function LoginForm(props) {
                   <InputGroup hasValidation>
                     <Form.Control
                       id="username"
-                      type="email"
                       placeholder="Enter username"
                       isInvalid={!!formik.errors.username}
                       {...formik.getFieldProps("username")}
@@ -93,5 +92,6 @@ export default function LoginForm(props) {
 
 LoginForm.propTypes = {
   loading: PropTypes.bool,
+  /** Handle login submit */
   handleSubmit: PropTypes.func,
 };

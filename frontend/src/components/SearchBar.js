@@ -1,29 +1,31 @@
 import React from "react";
 import PropsTypes from "prop-types";
-import { FloatingLabel, Form } from "react-bootstrap";
+import { FormControl, InputGroup } from "react-bootstrap";
 
+/** Text input field for search bars */
 function SearchBar(props) {
   return (
-    <Form
-      onSubmit={(e) => {
-        e.preventDefault();
-      }}
-    >
-      <Form.Control
-        className="dashboard-meter-item-search-bar"
+    <InputGroup>
+      <FormControl
         type="text"
-        placeholder={props.label}
+        placeholder={props.placeholderText}
+        value={props.filterText}
         onChange={(e) => {
           props.searchFunction(e.target.value);
         }}
+        className={props.className}
       />
-    </Form>
+    </InputGroup>
   );
 }
 
 SearchBar.propTypes = {
-  label: PropsTypes.string,
+  placeholderText: PropsTypes.string,
   searchFunction: PropsTypes.func,
+  /** Filter text value */
+  filterText: PropsTypes.string,
+  /** Additional class names */
+  className: PropsTypes.string,
 };
 
 export default SearchBar;

@@ -2,6 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import { Modal, Button } from "react-bootstrap";
 
+/** Modal used for displaying errors to the user */
 function ErrorModal(props) {
   return (
     <Modal centered size="lg" show={props.show} onHide={props.handleClose}>
@@ -21,9 +22,12 @@ function ErrorModal(props) {
 }
 
 ErrorModal.propTypes = {
+  /** Determines whether modal should be shown */
   show: PropTypes.bool,
   handleClose: PropTypes.func,
+  /** Title of the modal */
   errorName: PropTypes.string,
+  /** Message to be displayed */
   errorMessage: PropTypes.string,
 };
 

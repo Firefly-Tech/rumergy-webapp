@@ -1,9 +1,16 @@
 import React from "react";
 import PropTypes from "prop-types";
 
+/** Component to display icon as a button */
 function IconButton(props) {
   return (
-    <button className="icon-button" onClick={props.clickAction}>
+    <button
+      className="icon-button"
+      onClick={(e) => {
+        e.preventDefault();
+        props.clickAction();
+      }}
+    >
       {props.icon}
       {props.optionalText && (
         <span className="d-none d-sm-block">{props.optionalText}</span>
@@ -13,7 +20,9 @@ function IconButton(props) {
 }
 
 IconButton.propTypes = {
+  /** Icon to be used as button (react icon) */
   icon: PropTypes.object,
+  /** Button text */
   optionalText: PropTypes.string,
   clickAction: PropTypes.func,
 };

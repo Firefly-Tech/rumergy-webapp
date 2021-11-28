@@ -68,6 +68,8 @@ def read_point(meter, regtype, start_address, end_address):
     try:
         if regtype == 'HOLD':
             result = meter.read_holding_registers(start_address, count, unit=0x01)
+            if result.isError():
+                print('Modbus Error:', result)
         elif regtype == 'DISC':
             result = meter.read_discrete_inputs(start_address, count, unit=0x01)
         elif regtype == 'INPU':
@@ -100,3 +102,24 @@ def decode_message(result, data_type):
     else:
         return decoder.decode_32bit_float()
 
+
+# def read_points_list(meter_id, points_list):
+#     meter_record = requests.get(f'http://127.0.0.1:8000/api/meters/{meter_id}/').json()
+#     meter_ip = meter_record['ip']
+#     meter_port = meter_record['port']
+#     meter = connect_meter(meter_ip, meter_port)
+#     for point in points_list:
+#         data_point = requests.get(f'http://127.0.0.1:8000/api/data-points/{point}/').json()
+#         start_address = data_point['start_address']
+#         end_address = data_point['end_address']
+#         data_type = data_point['data_type']
+#         regtype = data_point['register_type']
+
+
+
+#         result = decode_message(read_point(meter, regtype, start_address, end_address), data_type)
+#         print(result)
+
+
+
+# read_points_list(1, [1,2])=

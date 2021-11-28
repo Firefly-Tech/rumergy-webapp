@@ -19,6 +19,7 @@ pymodbus = "*"
 requests = "*"
 drf-yasg = "*"
 django-apscheduler = "*"
+rpyc = "*"
 
 [dev-packages]
 pynvim = "*"

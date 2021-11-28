@@ -40,3 +40,19 @@ class DataLogViewSet(viewsets.ModelViewSet):
             writer.writerow([measure.timestamp.strftime("%m/%d/%Y, %H:%M:%S"), measure.data_point.name,
                              measure.value, measure.data_point.unit])
         return response
+
+
+    @action(detail=True, methods=['post'])
+    def schedule(self, request, pk=None):
+        log_id = request.data["id"]
+        log_meter_id = request.data["meter"]
+        log_user_id = request.data["user"]
+        log_data_points = request.data["data_points"]
+
+        #TODO verify date
+        #TODO call function that schedules the read of all data points
+        
+    #     pass
+
+    # def create(self, request):
+        

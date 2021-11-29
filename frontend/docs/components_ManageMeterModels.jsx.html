@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Source: components/ManageUsers.jsx</title>
+    <title>JSDoc: Source: components/ManageMeterModels.jsx</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Source: components/ManageUsers.jsx</h1>
+    <h1 class="page-title">Source: components/ManageMeterModels.jsx</h1>
 
     
 
@@ -27,36 +27,35 @@
     <section>
         <article>
             <pre class="prettyprint source linenums"><code>import React, { useState, useEffect } from "react";
-import { useRequireAuth } from "../resources/use-require-auth";
-import { roles } from "../resources/constants";
-import { Row, Col, Spinner } from "react-bootstrap";
+import { Col, Row, Spinner } from "react-bootstrap";
 import IconButton from "./IconButton";
 import { FaPen } from "react-icons/fa";
-import UserEditModal from "./UserEditModal";
-import UserAddModal from "./UserAddModal";
+import { useRequireAuth } from "../resources/use-require-auth";
+import { roles } from "../resources/constants";
 import ManagementBar from "./ManagementBar";
 import CustomDataTable from "./CustomDataTable";
+import MeterModelAddModal from "./MeterModelAddModal";
+import MeterModelEditModal from "./MeterModelEditModal";
 import { buildStatus } from "../resources/helpers";
 
 /**
  * Initial value for selectedEditEntry
  *
- * @constant {object} emptyEditUserEntry
+ * @constant {object} emptyEditMeterModelEntry
  * */
-const emptyEditUserEntry = {
+const emptyEditMeterModelEntry = {
   id: null,
-  profile: {
-    first_name: "",
-    last_name: "",
-    role: "",
-  },
-  email: "",
+  name: "",
+  dataPoints: [],
 };
 
-/** User management screen for admins. */
-function ManageUsers() {
+/**
+ * Management screen for meter models.
+ * Data points are also managed through this screen.
+ * */
+function ManageMeterModels() {
   const [loading, setLoading] = useState(false);
-  const [users, setUsers] = useState([]);
+  const [meterModels, setMeterModels] = useState([]);
 
   // Filter state
   const [filterText, setFilterText] = useState("");
@@ -64,8 +63,9 @@ function ManageUsers() {
   const [filteredEntries, setFilteredEntries] = useState([]);
 
   // Edit modal state
-  const [selectedEditEntry, setSelectedEditEntry] =
-    useState(emptyEditUserEntry);
+  const [selectedEditEntry, setSelectedEditEntry] = useState(
+    emptyEditMeterModelEntry
+  );
   const [showEdit, setShowEdit] = useState(false);
 
   /**
@@ -103,42 +103,42 @@ function ManageUsers() {
 
   useEffect(() => {
     /**
-     * Fetch user data on load.
+     * Initial meter model data fetch.
      *
-     * @memberof ManageUsers
+     * @memberof ManageMeterModels
      * */
-    fetchUsers();
+    fetchMeterModels();
   }, []);
 
   useEffect(() => {
     /**
      * Updates filtered entries if the filter text or
-     * users list changes.
+     * meter model list changes.
      *
-     * @memberof ManageUsers
+     * @memberof ManageMeterModels
      * */
     setLoading(true);
     setFilteredEntries(
-      users.filter((user) =>
-        user.userString
+      meterModels.filter((meterModels) =>
+        meterModels.meterModelString
           .toLowerCase()
           .includes(filterText.split(" ").join("").toLowerCase())
       )
     );
     setLoading(false);
-  }, [users, filterText]);
+  }, [meterModels, filterText]);
 
   /**
-   * Handles fetching user data.
+   * Handles fetching meter model data.
    *
-   * @function fetchUsers
+   * @function fetchMeterModels
    * @async
    * */
-  const fetchUsers = async () => {
+  const fetchMeterModels = async () => {
     setLoading(true);
-    const appUsername = process.env.REACT_APP_RUMERGY_USER;
+
     let data = await auth.userAxiosInstance
-      .get(`${auth.apiHost}/api/users`)
+      .get(`${auth.apiHost}/api/meter-models`)
       .then((res) => {
         return res.data;
       })
@@ -146,26 +146,57 @@ function ManageUsers() {
         return [];
       });
 
-    // Filter out app user so it can't be modified
-    data = data.filter((user) => user.username != appUsername);
-
     if (data.length) {
-      data = data.map((user) => {
-        // Build string with user attributes
-        // for filtering.
-        let userStringElements = [
-          user.id,
-          user.username,
-          user.email,
-          user.profile.first_name,
-          user.profile.last_name,
-          user.profile.role,
-        ];
+      data = await Promise.all(
+        data.map(async (meterModel) => {
+          // Don't need meters so remove
+          let { meters, ...model } = meterModel;
 
-        return { userString: userStringElements.join(""), ...user };
-      });
+          // Get data points
+          let dataPoints = await Promise.all(
+            model.data_points.map(async (dataPointId) => {
+              return auth
+                .userAxiosInstance(
+                  `${auth.apiHost}/api/data-points/${dataPointId}`
+                )
+                .then((res) => {
+                  return res.data;
+                });
+            })
+          );
+          dataPoints = dataPoints.map((dataPoint) => {
+            return {
+              id: dataPoint.id,
+              name: dataPoint.name,
+              unit: dataPoint.unit,
+              startAddress: dataPoint.start_address,
+              endAddress: dataPoint.end_address,
+              dataType: dataPoint.data_type,
+              registerType: dataPoint.register_type,
+            };
+          });
+
+          let dataPointNames = dataPoints.map((dataPoint) => {
+            return dataPoint.name;
+          });
+
+          let meterModelStringElements = [
+            meterModel.id,
+            meterModel.name,
+            dataPointNames.join(""),
+          ];
+
+          return {
+            id: model.id,
+            name: model.name,
+            dataPoints: dataPoints,
+            dataPointNames: dataPointNames.join(", "),
+            meterModelString: meterModelStringElements.join(""),
+          };
+        })
+      );
     }
-    setUsers(data);
+    setMeterModels(data);
     setLoading(false);
   };
 
@@ -190,19 +221,12 @@ function ManageUsers() {
       allowOverflow: true,
     },
     { name: "ID", selector: (row) => row.id, sortable: true },
-    { name: "Username", selector: (row) => row.username, sortable: true },
-    { name: "Email", selector: (row) => row.email, sortable: true },
+    { name: "Name", selector: (row) => row.name, sortable: true },
     {
-      name: "First Name",
-      selector: (row) => row.profile.first_name,
-      sortable: true,
+      name: "Data Points",
+      selector: (row) => row.dataPointNames,
+      wrap: true,
     },
-    {
-      name: "Last Name",
-      selector: (row) => row.profile.last_name,
-      sortable: true,
-    },
-    { name: "Role", selector: (row) => row.profile.role, sortable: true },
   ];
 
   /**
@@ -219,7 +243,7 @@ function ManageUsers() {
   };
 
   /**
-   * Handles adding a new user.
+   * Handles adding a new meter model.
    *
    * @function handleAdd
    * @param {object} values - Formik object with form values
@@ -229,88 +253,193 @@ function ManageUsers() {
    * */
   const handleAdd = async (values, { setSubmitting }) => {
     setLoading(true);
-    let data = {
-      username: values.username,
-      email: values.email,
-      password: values.password,
-      profile: {
-        first_name: values.firstName,
-        last_name: values.lastName,
-        role: values.role,
-      },
+
+    // Meter model post data
+    let meterModelData = {
+      name: values.name,
     };
 
-    return auth.userAxiosInstance
-      .post(`${auth.apiHost}/api/users/`, data)
-      .then(() => {
-        fetchUsers();
-        return buildStatus(true);
+    // Post meter model
+    let meterModel = await auth.userAxiosInstance
+      .post(`${auth.apiHost}/api/meter-models/`, meterModelData)
+      .then((res) => {
+        return res.data;
       })
       .catch(() => {
-        return buildStatus(false, "Failed to create user.");
-      })
-      .finally(() => {
-        setSubmitting(false);
-        setLoading(false);
+        return null;
       });
+
+    if (!meterModel) {
+      setLoading(false);
+      setSubmitting(false);
+      return buildStatus(false, "Failed to create meter model.");
+    }
+
+    // Data points post data array
+    let dataPointsData = values.dataPoints.map((dataPoint) => {
+      return {
+        name: dataPoint.name.toLowerCase(),
+        model: meterModel.id,
+        unit: dataPoint.unit.toLowerCase(),
+        start_address: dataPoint.startAddress,
+        end_address: dataPoint.endAddress,
+        data_type: dataPoint.dataType,
+        register_type: dataPoint.registerType,
+      };
+    });
+
+    // Create data points
+    let status = buildStatus(true);
+    for (let i = 0; i &lt; dataPointsData.length; i++) {
+      await auth.userAxiosInstance
+        .post(`${auth.apiHost}/api/data-points/`, dataPointsData[i])
+        .catch(() => {
+          status = buildStatus(
+            false,
+            `Failed to create data point: ${dataPointsData[i].name}`
+          );
+        });
+      if (!status.success) break;
+    }
+
+    fetchMeterModels();
+    setSubmitting(false);
+    setLoading(false);
+
+    return status;
   };
 
   /**
-   * Handles editing a user entry.
+   * Handles editing a meter model entry.
    *
    * @function handleEdit
-   * @param {number} id - User id
    * @param {object} values - Formik object with form values
    * @param {function} setSubmitting - Formik function to handle submitting state
    * @returns {object} Object with operation status.
    * @async
    * */
-  const handleEdit = async (id, values, { setSubmitting }) => {
+  const handleEdit = async (values, { setSubmitting }) => {
     setLoading(true);
-    let data = {
-      profile: {
-        first_name: values.firstName,
-        last_name: values.lastName,
-        role: values.role,
-      },
-      email: values.email,
+
+    // Meter model update data
+    let meterModelData = {
+      name: values.name,
     };
 
-    return auth.userAxiosInstance
-      .patch(`${auth.apiHost}/api/users/${id}/`, data)
-      .then(() => {
-        fetchUsers();
-        return buildStatus(true);
-      })
+    let status = buildStatus(true);
+    await auth.userAxiosInstance
+      .patch(
+        `${auth.apiHost}/api/meter-models/${selectedEditEntry.id}/`,
+        meterModelData
+      )
       .catch(() => {
-        return buildStatus(false, "Failed to update user.");
-      })
-      .finally(() => {
+        status = buildStatus(false, "Failed to update meter model.");
+      });
+    if (!status.success) {
+      setSubmitting(false);
+      setLoading(false);
+      return status;
+    }
+
+    let dataPointsData = values.dataPoints.map((dataPoint) => {
+      return {
+        id: "id" in dataPoint ? dataPoint.id : null,
+        name: dataPoint.name.toLowerCase(),
+        model: selectedEditEntry.id,
+        unit: dataPoint.unit.toLowerCase(),
+        start_address: dataPoint.startAddress,
+        end_address: dataPoint.endAddress,
+        data_type: dataPoint.dataType,
+        register_type: dataPoint.registerType,
+      };
+    });
+
+    for (let i = 0; i &lt; dataPointsData.length; i++) {
+      // New datapoint
+      if (!dataPointsData[i].id) {
+        await auth.userAxiosInstance
+          .post(`${auth.apiHost}/api/data-points/`, dataPointsData[i])
+          .catch(() => {
+            status = buildStatus(
+              false,
+              `Failed to create data point: ${dataPointsData[i].name}`
+            );
+          });
+      } else {
+        await auth.userAxiosInstance
+          .patch(
+            `${auth.apiHost}/api/data-points/${dataPointsData[i].id}/`,
+            dataPointsData[i]
+          )
+          .catch(() => {
+            status = buildStatus(
+              false,
+              `Failed to update data point: ${dataPointsData[i].name}`
+            );
+          });
+      }
+
+      if (!status.success) {
         setSubmitting(false);
         setLoading(false);
+        return status;
+      }
+    }
+
+    let filteredDataPointsData = dataPointsData.filter(
+      (dataPoint) => dataPoint.id !== null
+    );
+
+    // Data point deletion
+    if (filteredDataPointsData.length &lt; selectedEditEntry.dataPoints.length) {
+      let originalIDs = selectedEditEntry.dataPoints.map((dataPoint) => {
+        return dataPoint.id;
       });
+      let newIDs = filteredDataPointsData.map((dataPoint) => {
+        return dataPoint.id;
+      });
+
+      for (let i = 0; i &lt; originalIDs.length; i++) {
+        if (newIDs.includes(originalIDs[i])) continue;
+        await auth.userAxiosInstance
+          .delete(`${auth.apiHost}/api/data-points/${originalIDs[i]}/`)
+          .catch(() => {
+            status = buildStatus(
+              false,
+              `Failed to delete data point: ${selectedEditEntry.dataPoints[i].name}`
+            );
+          });
+        if (!status.success) break;
+      }
+    }
+
+    fetchMeterModels();
+    setSubmitting(false);
+    setLoading(false);
+
+    return status;
   };
 
   /**
-   * Handles deleting a user entry.
+   * Handles deleting a meter model entry.
    *
    * @function handleDelete
-   * @param {number} id - User id
+   * @param {number} id - Meter model id
    * @param {function} setSubmitting - Formik function to handle submitting state
    * @returns {object} Object with operation status.
    * @async
    * */
-  const handleDelete = (id, { setSubmitting }) => {
+  const handleDelete = async (id, { setSubmitting }) => {
     setLoading(true);
 
     return auth.userAxiosInstance
-      .delete(`${auth.apiHost}/api/users/${id}/`)
+      .delete(`${auth.apiHost}/api/meter-models/${id}/`)
       .then(() => {
-        fetchUsers();
+        fetchMeterModels();
         return buildStatus(true);
       })
       .catch(() => {
-        return buildStatus(false, "Failed to delete user.");
+        return buildStatus(false, "Failed to delete meter model.");
       })
       .finally(() => {
         setSubmitting(false);
@@ -321,13 +450,13 @@ function ManageUsers() {
   return (
     &lt;>
       &lt;Row className="h-100">
-        &lt;Col className="d-flex flex-column px-4 pt-4">
+        &lt;Col className="d-flex-column px-4 pt-4">
           &lt;Row>
             &lt;Col
               sm={12}
               className="d-flex flex-row align-items-center pb-4 gap-4"
             >
-              &lt;h1 className="bold mb-0">Users&lt;/h1>
+              &lt;h1 className="bold">Meter Models&lt;/h1>
               {loading &amp;&amp; &lt;Spinner variant="secondary" animation="border" />}
             &lt;/Col>
           &lt;/Row>
@@ -338,15 +467,15 @@ function ManageUsers() {
                 setFilterText={setFilterText}
                 loading={loading}
                 addButton
-                addText={"Add new user"}
+                addText={"Add new meter model"}
                 handleClear={handleClear}
-                onRefresh={fetchUsers}
+                onRefresh={fetchMeterModels}
                 onAdd={handleShowAdd}
               />
             &lt;/Col>
           &lt;/Row>
           &lt;Row>
-            &lt;Col className="user-table">
+            &lt;Col className="meter-model-table">
               &lt;CustomDataTable
                 columns={columns}
                 data={filteredEntries}
@@ -358,23 +487,23 @@ function ManageUsers() {
           &lt;/Row>
         &lt;/Col>
       &lt;/Row>
-      &lt;UserEditModal
-        show={showEdit}
-        handleClose={handleCloseEdit}
-        selectedEditEntry={selectedEditEntry}
-        handleEdit={handleEdit}
-        handleDelete={handleDelete}
-      />
-      &lt;UserAddModal
+      &lt;MeterModelAddModal
         show={showAdd}
         handleClose={handleCloseAdd}
         handleSubmit={handleAdd}
+      />
+      &lt;MeterModelEditModal
+        show={showEdit}
+        handleClose={handleCloseEdit}
+        handleEdit={handleEdit}
+        handleDelete={handleDelete}
+        selectedEditEntry={selectedEditEntry}
       />
     &lt;/>
   );
 }
 
-export default ManageUsers;
+export default ManageMeterModels;
 </code></pre>
         </article>
     </section>

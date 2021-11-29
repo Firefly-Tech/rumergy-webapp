@@ -13,6 +13,7 @@ import {
 import ManagementBar from "./ManagementBar";
 import CustomDataTable from "./CustomDataTable";
 import { parseISO, format } from "date-fns";
+import { buildStatus } from "../resources/helpers";
 
 /** Access request management screen for admins. */
 function ManageAccessRequests() {
@@ -251,7 +252,7 @@ function ManageAccessRequests() {
    * an access request.
    *
    * @function handleSubmit
-   * @returns {boolean} True if successful
+   * @returns {object} Object with operation status.
    * */
   const handleSubmit = () => {
     setLoading(true);
@@ -264,10 +265,13 @@ function ManageAccessRequests() {
       .then(() => {
         fetchAccessRequests();
         setSelectedEntry({});
-        return true;
+        return buildStatus(true);
       })
       .catch(() => {
-        return false;
+        return buildStatus(
+          false,
+          `Failed to ${isAccept ? "accept" : "reject"} access request.`
+        );
       })
       .finally(() => {
         setLoading(false);
@@ -330,10 +334,12 @@ function ManageAccessRequests() {
 function ConfirmModal(props) {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const resetAll = () => {
     setSuccess(false);
     setError(false);
+    setErrorMessage("");
   };
 
   return (
@@ -368,7 +374,7 @@ function ConfirmModal(props) {
                   <Row className="mb-3">
                     <Col className="d-flex flex-row gap-2 align-items-center justify-content-center">
                       <FaExclamation />
-                      An error occured. Please try again.
+                      {errorMessage}
                     </Col>
                   </Row>
                   <Row>
@@ -409,8 +415,11 @@ function ConfirmModal(props) {
                   onClick={async (e) => {
                     e.preventDefault();
                     let status = await props.handleSubmit();
-                    if (status) setSuccess(true);
-                    else setError(true);
+                    if (status.success) setSuccess(true);
+                    else {
+                      setError(true);
+                      setErrorMessage(status.errorMessage);
+                    }
                   }}
                 >
                   {props.isAccept ? (

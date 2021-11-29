@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Source: components/ErrorModal.js</title>
+    <title>JSDoc: Source: resources/helpers.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Source: components/ErrorModal.js</h1>
+    <h1 class="page-title">Source: resources/helpers.js</h1>
 
     
 
@@ -26,40 +26,16 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>import React from "react";
-import PropTypes from "prop-types";
-import { Modal, Button } from "react-bootstrap";
-
-/** Modal used for displaying errors to the user */
-function ErrorModal(props) {
-  return (
-    &lt;Modal centered size="lg" show={props.show} onHide={props.handleClose}>
-      &lt;Modal.Header closeButton>
-        &lt;Modal.Title>
-          &lt;h4 className="bold">{props.errorName}&lt;/h4>
-        &lt;/Modal.Title>
-      &lt;/Modal.Header>
-      &lt;Modal.Body>{props.errorMessage}&lt;/Modal.Body>
-      &lt;Modal.Footer>
-        &lt;Button variant="primary" onClick={props.handleClose}>
-          Okay
-        &lt;/Button>
-      &lt;/Modal.Footer>
-    &lt;/Modal>
-  );
-}
-
-ErrorModal.propTypes = {
-  /** Determines whether modal should be shown */
-  show: PropTypes.bool,
-  handleClose: PropTypes.func,
-  /** Title of the modal */
-  errorName: PropTypes.string,
-  /** Message to be displayed */
-  errorMessage: PropTypes.string,
+            <pre class="prettyprint source linenums"><code>/**
+ * Helper function to build status responses.
+ *
+ * @function buildStatus
+ * @param {boolean} success
+ * @param {string} errorMessage
+ **/
+export const buildStatus = (success, errorMessage = "") => {
+  return { success: success, errorMessage: errorMessage };
 };
-
-export default ErrorModal;
 </code></pre>
         </article>
     </section>

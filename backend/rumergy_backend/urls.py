@@ -28,7 +28,7 @@ schema_view = get_schema_view(
         description="API to support RUMergy's operations",
     ),
     public=True,
-    permission_classes=[permissions.AllowAny],
+    permission_classes=[permissions.IsAuthenticatedOrReadOnly],
 )
 
 urlpatterns = [

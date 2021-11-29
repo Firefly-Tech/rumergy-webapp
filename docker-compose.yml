@@ -13,28 +13,32 @@ services:
     build:
       context: frontend
       dockerfile: Dockerfile
+    env_file:
+      - ./frontend/.env
     volumes:
       - react_build:/app/frontend/build
     depends_on:
       - backend
   backend:
-    restart: unless-stopped
+    restart: always
     build:
       context: backend
       dockerfile: Dockerfile
+    env_file:
+      - ./backend/.env
     depends_on:
       - db
     entrypoint: /app/backend/wsgi-entrypoint.sh
     expose:
       - 8000
   nginx:
-    restart: unless-stopped
+    restart: always
     image: nginx:stable
     ports:
-      - "80:8080"
+      - "80:80"
     volumes:
       - ./nginx/nginx-setup.conf:/etc/nginx/conf.d/default.conf:ro
-      - react_build:/var/www/react
+      - react_build:/var/www/rumergy
     depends_on:
       - backend
       - frontend

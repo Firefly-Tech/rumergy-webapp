@@ -81,7 +81,6 @@ function Dashboard() {
     setLoading(true);
     await axios
       .get(`${auth.apiHost}/api/meters`, {
-        headers: { Authorization: await auth.withAppUser() },
         params: { status: "ACT" },
       })
       .then((res) => {
@@ -239,7 +238,6 @@ function Dashboard() {
         .get(
           `${auth.apiHost}/api/meters/${meter.id}/meter_data_by_time_frame`,
           {
-            headers: { Authorization: await auth.withAppUser() },
             params: {
               start: startingDateTime,
               data_type: selectedDatatype,

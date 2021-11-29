@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from rest_framework import viewsets
 from rest_framework import permissions
 from rest_framework import status
-from rest_framework.decorators import action
+from rest_framework.decorators import action, permission_classes
 from rest_framework.response import Response
 from rumergy_backend.rumergy.serializers import AccessRequestSerializer
 from django.core.mail import send_mail
@@ -16,7 +16,6 @@ class AccessRequestViewSet(viewsets.ModelViewSet):
 
     serializer_class = AccessRequestSerializer
     queryset = AccessRequest.objects.all()
-    permission_classes = [permissions.IsAuthenticated]
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ["status"]
     # permission_classes = [permissions.AllowAny] # Only use for testing
@@ -33,6 +32,17 @@ class AccessRequestViewSet(viewsets.ModelViewSet):
             admin_emails,
             fail_silently=False,
         )
+
+    @action(detail=False, methods=["post"], permission_classes=[permissions.AllowAny])
+    def request(self, request, pk=None):
+        """Wrapper for request creation"""
+
+        serializer = AccessRequestSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer.save()
+        return Response("OK", status=status.HTTP_201_CREATED)
 
     @action(detail=True, methods=["put"])
     def accept(self, request, pk=None):

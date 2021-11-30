@@ -1,3 +1,4 @@
+from os import access
 from django.contrib.auth.models import User
 from rest_framework import viewsets
 from rest_framework import permissions
@@ -7,6 +8,7 @@ from rest_framework import status
 from rest_framework_simplejwt.tokens import AccessToken
 from rumergy_backend.rumergy.serializers import UserSerializer, AccessRequestSerializer, access_request_serializer
 from rumergy_backend.rumergy.models import AccessRequest
+from rumergy_backend.rumergy.views import AccessRequestViewSet
 from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models import Q
 
@@ -87,6 +89,7 @@ class UserViewSet(viewsets.ModelViewSet):
         if not access_request_serializer.is_valid():
             return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        access_request_serializer.save()
+        access_req_view = AccessRequestViewSet()
+        access_req_view.perform_create(access_request_serializer)
 
         return Response("OK", status=status.HTTP_201_CREATED)

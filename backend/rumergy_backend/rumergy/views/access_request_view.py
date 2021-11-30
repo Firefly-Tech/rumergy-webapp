@@ -41,7 +41,8 @@ class AccessRequestViewSet(viewsets.ModelViewSet):
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        serializer.save()
+        self.perform_create(serializer)
+
         return Response("OK", status=status.HTTP_201_CREATED)
 
     @action(detail=True, methods=["put"])

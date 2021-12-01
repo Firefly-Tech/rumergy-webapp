@@ -1,5 +1,5 @@
 from rumergy_backend.rumergy.models import AccessRequest
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from rest_framework import viewsets
 from rest_framework import permissions
 from rest_framework import status
@@ -56,6 +56,12 @@ class AccessRequestViewSet(viewsets.ModelViewSet):
         user = accessRequest.user
         user.profile.role = "ADV"
         user.profile.save()
+
+        # Update user group membership
+        user.groups.clear()
+        group = Group.objects.get(name="advanced")
+        group.user_set.add(user)
+
         accessRequest.status = "ACC"
         accessRequest.save()
 

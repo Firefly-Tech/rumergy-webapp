@@ -21,12 +21,12 @@ class UserViewSet(viewsets.ModelViewSet):
 
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.DjangoModelPermissions]
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ["username", "email"]
 
 
-    @action(detail=False, methods=["get"], permission_classes=[permissions.IsAuthenticatedOrReadOnly])
+    @action(detail=False, methods=["get"], permission_classes=[permissions.DjangoModelPermissionsOrAnonReadOnly])
     def check_existing(self, request, pk=None):
         """Check if user with given username or email exists"""
         try:
@@ -47,7 +47,7 @@ class UserViewSet(viewsets.ModelViewSet):
 
         return Response(serializer.data)
 
-    @action(detail=True, methods=["get"], permission_classes=[permissions.IsAuthenticatedOrReadOnly])
+    @action(detail=True, methods=["get"], permission_classes=[permissions.DjangoModelPermissionsOrAnonReadOnly])
     def latest_access_request(self, request, pk=None):
         """Get latest access request related to user"""
 

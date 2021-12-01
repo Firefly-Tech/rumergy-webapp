@@ -27,8 +27,8 @@ schema_view = get_schema_view(
         default_version="v1",
         description="API to support RUMergy's operations",
     ),
-    public=True,
-    permission_classes=[permissions.IsAuthenticatedOrReadOnly],
+    public=False,
+    permission_classes=[permissions.DjangoModelPermissionsOrAnonReadOnly],
 )
 
 urlpatterns = [

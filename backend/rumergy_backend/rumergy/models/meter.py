@@ -27,6 +27,7 @@ class Meter(models.Model):
     class Status(models.TextChoices):
         ACTIVE = "ACT", _("Active")
         INACTIVE = "INA", _("Inactive")
+        ERROR = "ERR", _("Error")
 
     status = models.CharField(max_length=3, choices=Status.choices, default=Status.ACTIVE)
 

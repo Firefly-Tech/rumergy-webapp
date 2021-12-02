@@ -16,7 +16,7 @@ class MeterViewSet(viewsets.ModelViewSet):
     queryset = Meter.objects.all()
     # permission_classes = [permissions.AllowAny] # Only use for testing
     filter_backends = [DjangoFilterBackend]
-    filterset_fields = ["status"]
+    filterset_fields = ["status", "ip"]
 
     @action(detail=True, methods=["get"])
     def meter_data_by_time_frame(self, request, pk=None):

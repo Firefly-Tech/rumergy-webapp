@@ -4,8 +4,9 @@ from django.template.loader import render_to_string
 from django.urls import reverse
 from django.conf import settings
 from decouple import config
-
 from django_rest_passwordreset.signals import reset_password_token_created
+from django.db.models.signals import post_save
+from django.contrib.auth.models import User, Group
 
 
 @receiver(reset_password_token_created)

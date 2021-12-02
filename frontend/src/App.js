@@ -28,7 +28,8 @@ function App() {
     return (
       ((auth.role === roles.General ||
         auth.role === roles.Advanced ||
-        auth.role === roles.Inactive) &&
+        auth.role === roles.Inactive ||
+        !auth.role) &&
         "/dashboard") ||
       "/admin/manage-meters"
     );

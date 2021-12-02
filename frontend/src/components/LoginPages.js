@@ -79,16 +79,11 @@ export default function LoginPages() {
 
     // Logic for inactive users
     if (userObject.role === roles.Inactive) {
-      let bearer = await auth.withAppUser();
-
       // Get status of latest access request
       try {
         const accessRequestStatus = await axios
           .get(
-            `${auth.apiHost}/api/users/${userObject.id}/latest_access_request`,
-            {
-              headers: { Authorization: bearer },
-            }
+            `${auth.apiHost}/api/users/${userObject.id}/latest_access_request`
           )
           .then((res) => {
             if (!res.data) return null;
@@ -144,15 +139,11 @@ export default function LoginPages() {
    * */
   const handleAccessRequestCreation = async (id, occupation, justification) => {
     await axios
-      .post(
-        `${auth.apiHost}/api/access-request/`,
-        {
-          user: id,
-          occupation: occupation,
-          justification: justification,
-        },
-        { headers: { Authorization: await auth.withAppUser() } }
-      )
+      .post(`${auth.apiHost}/api/access-request/request/`, {
+        user: id,
+        occupation: occupation,
+        justification: justification,
+      })
       .catch((error) => {
         throw error;
       });
@@ -204,18 +195,13 @@ export default function LoginPages() {
     setLoading(true);
 
     try {
-      // Create user
-      let user = await auth.signup(
+      // Create account
+      await auth.signup(
         values.username,
         values.password,
         values.email,
         values.firstName,
-        values.lastName
-      );
-
-      // Create access request
-      await handleAccessRequestCreation(
-        user.id,
+        values.lastName,
         values.occupation,
         values.justification
       );
@@ -245,55 +231,27 @@ export default function LoginPages() {
    * */
   const userExists = async (username, email) => {
     setLoading(true);
-    // Try getting auth for app user
-    let bearer;
-    try {
-      bearer = await auth.withAppUser();
-    } catch (e) {
-      setErrorName("Error");
-      setErrorMessage("An error occurred, please try again.");
-      handleShow();
-      setLoading(false);
-
-      return true;
-    }
 
     // Get user by their username
-    let userByUsername = await axios
-      .get(`${auth.apiHost}/api/users?username=${username}`, {
-        headers: {
-          Authorization: bearer,
-        },
+    let exists = await axios
+      .get(`${auth.apiHost}/api/users/check_existing`, {
+        params: { email: email, username: username },
       })
       .then((res) => {
-        return res.data;
+        return res.data === "Found";
       })
       .catch(() => {
-        return [1];
+        return true;
       });
 
-    // Get user by their email
-    let userByEmail = await axios
-      .get(`${auth.apiHost}/api/users?email=${email}`, {
-        headers: { Authorization: bearer },
-      })
-      .then((res) => {
-        return res.data;
-      })
-      .catch(() => {
-        return [1];
-      });
-
-    if (!userByUsername.length && !userByEmail.length) {
+    if (!exists) {
       setLoading(false);
       return false;
     }
 
     setErrorName("Error");
     setErrorMessage(
-      `A user with the indicated properties already exists:${
-        userByUsername.length ? " username" : ""
-      }${userByEmail.length ? " email" : ""}`
+      "A user with the indicated username or email already exists"
     );
     handleShow();
     setLoading(false);

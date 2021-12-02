@@ -15,12 +15,16 @@ PyJWT = "~=2.1.0"
 django-cors-headers = "*"
 python-dateutil = "*"
 django-rest-passwordreset = "*"
+pymodbus = "*"
+requests = "*"
 drf-yasg = "*"
+gunicorn = "*"
 
 [dev-packages]
 pynvim = "*"
 jedi = "*"
 autopep8 = "*"
+black = "*"
 
 [requires]
 python_version = "3.9"

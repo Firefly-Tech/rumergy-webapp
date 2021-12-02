@@ -6,28 +6,43 @@ import DashboardMeterItem from "./DashboardMeterItem";
 import IconButton from "./IconButton";
 import SearchBar from "./SearchBar";
 
+/** Card that lists selected meters on dashboard */
 function DashboardSelectedMeters(props) {
   const [searchActive, setSearchActive] = useState(false);
-  const [searchResults, setSearchResults] = useState([]);
-  const [searchInput, setSearchInput] = useState("");
+  const [filteredEntries, setFilteredEntries] = useState([]);
+  const [filterText, setFilterText] = useState("");
 
-  // Refresh search everytime meter list is updated
   useEffect(() => {
+    /**
+     * Filter meters if either the meter list,
+     * filter text, or search status changes.
+     *
+     * @memberof DashboardSelectedMeters
+     * */
     meterSearch();
-  }, [props.selectedMeters]);
+  }, [props.selectedMeters, filterText, searchActive]);
 
+  /**
+   * Toggles the search bar.
+   *
+   * @function toggleSearch
+   * */
   const toggleSearch = () => {
     setSearchActive(!searchActive);
-    setSearchResults([]);
+    setFilterText("");
+    setFilteredEntries([]);
   };
 
+  /**
+   * Meter filtering handler.
+   *
+   * @function meterSearch
+   * */
   const meterSearch = () => {
-    setSearchResults(
-      searchInput
-        ? props.selectedMeters.filter((meter) => {
-            return meter.name.toLowerCase().includes(searchInput.toLowerCase());
-          })
-        : []
+    setFilteredEntries(
+      props.selectedMeters.filter((meter) => {
+        return meter.name.toLowerCase().includes(filterText.toLowerCase());
+      })
     );
   };
 
@@ -39,8 +54,7 @@ function DashboardSelectedMeters(props) {
             <SearchBar
               label={"Search"}
               searchFunction={(input) => {
-                setSearchInput(input);
-                meterSearch();
+                setFilterText(input);
               }}
             />
           )) || <h4 className="bold mb-0">Selected meters</h4>}
@@ -53,29 +67,16 @@ function DashboardSelectedMeters(props) {
           </div>
         </Card.Title>
         {props.selectedMeters.length !== 0 ? (
-          searchActive ? (
-            searchResults.map((meter, index) => {
-              return (
-                <DashboardMeterItem
-                  meter={meter}
-                  key={index}
-                  clickAction={props.deselectMeter}
-                  isAdd={false}
-                />
-              );
-            })
-          ) : (
-            props.selectedMeters.map((meter, index) => {
-              return (
-                <DashboardMeterItem
-                  meter={meter}
-                  key={index}
-                  clickAction={props.deselectMeter}
-                  isAdd={false}
-                />
-              );
-            })
-          )
+          filteredEntries.map((meter, index) => {
+            return (
+              <DashboardMeterItem
+                meter={meter}
+                key={index}
+                clickAction={props.deselectMeter}
+                isAdd={false}
+              />
+            );
+          })
         ) : (
           <h5 className="text-center my-auto">No meters selected</h5>
         )}
@@ -94,8 +95,11 @@ function DashboardSelectedMeters(props) {
 }
 
 DashboardSelectedMeters.propTypes = {
+  /** List of selected meters */
   selectedMeters: PropTypes.array,
+  /** Function to deselect a meter */
   deselectMeter: PropTypes.func,
+  /** Function to clear all selected meters */
   clearSelected: PropTypes.func,
 };
 

@@ -8,6 +8,11 @@ import { FaPlus, FaExclamation, FaCheck } from "react-icons/fa";
 
 const { General, ...userRoles } = roles;
 
+/**
+ * Yup validation schema for user add form.
+ *
+ * @constant {object} userAddFormSchema
+ * */
 const userAddFormSchema = Yup.object().shape({
   firstName: Yup.string()
     .min(1, "Must be at least 1 character")
@@ -36,16 +41,24 @@ const userAddFormSchema = Yup.object().shape({
   role: Yup.string().required("Role required").oneOf(Object.values(userRoles)),
 });
 
+/** Modal for user creation in user management dashboard */
 function UserAddModal(props) {
   const [isConfirm, setIsConfirm] = useState(false);
 
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
+  /**
+   * Resets all state.
+   *
+   * @function resetAll
+   * */
   const resetAll = () => {
     setIsConfirm(false);
     setSuccess(false);
     setError(false);
+    setErrorMessage("");
   };
 
   return (
@@ -76,8 +89,11 @@ function UserAddModal(props) {
         validationSchema={userAddFormSchema}
         onSubmit={async (values, handlers) => {
           let status = await props.handleSubmit(values, handlers);
-          if (status) setSuccess(true);
-          else setError(true);
+          if (status.success) setSuccess(true);
+          else {
+            setError(true);
+            setErrorMessage(status.errorMessage);
+          }
         }}
       >
         {(formik) => (
@@ -194,7 +210,7 @@ function UserAddModal(props) {
                           <Row className="mb-2">
                             <Col className="d-flex flex-row gap-2 align-items-center">
                               <FaExclamation />
-                              An error occured. Please try again.
+                              {errorMessage}
                             </Col>
                           </Row>
                           <Row>
@@ -275,8 +291,10 @@ function UserAddModal(props) {
 }
 
 UserAddModal.propTypes = {
+  /** Determines whether modal should be shown */
   show: PropTypes.bool,
   handleClose: PropTypes.func,
+  /** Submission handler */
   handleSubmit: PropTypes.func,
 };
 

@@ -5,7 +5,13 @@ import { useHistory } from "react-router";
 import { Col, Row, Spinner, Form, InputGroup, Button } from "react-bootstrap";
 import * as Yup from "yup";
 
-// Schema in array form to support multiple steps
+/**
+ * Array of Yup schema objects for
+ * the different steps in the create
+ * account form.
+ *
+ * @constant createAccountFormSchema
+ * */
 const createAccountFormSchema = [
   Yup.object().shape({
     firstName: Yup.string()
@@ -49,19 +55,38 @@ const createAccountFormSchema = [
   }),
 ];
 
+/** Form for new account creation */
 export default function CreateAccount(props) {
   const [step, setStep] = useState(0);
   const [success, setSuccess] = useState(false);
 
   const history = useHistory();
 
+  /**
+   * Increments form step
+   *
+   * @function incrementStep
+   * */
   const incrementStep = () => {
     setStep(step + 1);
   };
+
+  /**
+   * Decrements form step
+   *
+   * @function decrementStep
+   * */
   const decrementStep = () => {
     setStep(step - 1);
   };
 
+  /**
+   * Returns current form step component.
+   *
+   * @function renderStep
+   * @param {object} formik - Formik object
+   * @returns {object} Step component
+   * */
   const renderStep = (formik) => {
     switch (step) {
       case 0:
@@ -71,6 +96,7 @@ export default function CreateAccount(props) {
     }
   };
 
+  // Redirect to access pending if successful
   if (success) {
     history.push("/login/access-pending");
   }
@@ -139,6 +165,8 @@ export default function CreateAccount(props) {
   );
 }
 
+/** First step in account creation form */
+/** First step in account creation form */
 function StepOne({ formik }) {
   return (
     <>
@@ -251,6 +279,7 @@ function StepOne({ formik }) {
   );
 }
 
+/** Second step in account creation form */
 function StepTwo({ formik, decrementStep }) {
   return (
     <>
@@ -317,10 +346,12 @@ CreateAccount.propTypes = {
 };
 
 StepOne.propTypes = {
+  /** Formik object */
   formik: PropTypes.object,
 };
 
 StepTwo.propTypes = {
+  /** Formik object */
   formik: PropTypes.object,
   decrementStep: PropTypes.func,
 };

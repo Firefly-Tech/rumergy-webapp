@@ -3,7 +3,6 @@ import PropTypes from "prop-types";
 import { useRequireAuth } from "../resources/use-require-auth";
 import { roles } from "../resources/constants";
 import { Row, Col, Spinner, Button, Modal, Card } from "react-bootstrap";
-import IconButton from "./IconButton";
 import {
   FaCheckCircle,
   FaTimesCircle,
@@ -14,8 +13,9 @@ import {
 import ManagementBar from "./ManagementBar";
 import CustomDataTable from "./CustomDataTable";
 import { parseISO, format } from "date-fns";
-import styled from "styled-components";
+import { buildStatus } from "../resources/helpers";
 
+/** Access request management screen for admins. */
 function ManageAccessRequests() {
   const [loading, setLoading] = useState(false);
   const [accessRequests, setAccessRequests] = useState([]);
@@ -29,27 +29,62 @@ function ManageAccessRequests() {
 
   // Confirm modal state
   const [showConfirm, setShowConfirm] = useState(false);
+
+  /**
+   * Handles hiding the confirm modal.
+   *
+   * @function handleCloseConfirm
+   * */
   const handleCloseConfirm = () => {
     setShowConfirm(false);
     setIsAccept(false);
     setIsReject(false);
   };
+
+  /**
+   * Handles showing the confirm modal.
+   *
+   * @function handleShowConfirm
+   * */
   const handleShowConfirm = () => setShowConfirm(true);
   const [isAccept, setIsAccept] = useState(false);
   const [isReject, setIsReject] = useState(false);
 
   //  Info modal state
   const [showInfo, setShowInfo] = useState(false);
+
+  /**
+   * Handles hiding the info modal.
+   *
+   * @function handleCloseInfo
+   * */
   const handleCloseInfo = () => setShowInfo(false);
+
+  /**
+   * Handles showing the info modal.
+   *
+   * @function handleShowConfirm
+   * */
   const handleShowInfo = () => setShowInfo(true);
 
   const auth = useRequireAuth("/login", [roles.Admin]);
 
   useEffect(async () => {
-    await fetchAccessRequests();
+    /**
+     * Fetch access request data on load.
+     *
+     * @memberof ManageAccessRequests
+     * */
+    fetchAccessRequests();
   }, []);
 
   useEffect(() => {
+    /**
+     * Updates filtered entries if the filter text or
+     * access request list changes.
+     *
+     * @memberof ManageAccessRequests
+     * */
     setLoading(true);
     setFilteredEntries(
       accessRequests.filter((accessRequest) =>
@@ -61,8 +96,15 @@ function ManageAccessRequests() {
     setLoading(false);
   }, [accessRequests, filterText]);
 
+  /**
+   * Fetch access request data.
+   * Also does fetches corresponding user details.
+   *
+   * @function fetchAccessRequests
+   * */
   const fetchAccessRequests = async () => {
     setLoading(true);
+    // Get access request data
     let accessReqData = await auth.userAxiosInstance
       .get(`${auth.apiHost}/api/access-request`, { params: { status: "ACT" } })
       .then((res) => {
@@ -73,6 +115,7 @@ function ManageAccessRequests() {
       });
     let parsedAccessReqs = [];
     if (accessReqData.length) {
+      // Get user details for each access request
       parsedAccessReqs = await Promise.all(
         accessReqData.map(async (accessReq) => {
           let user = await auth.userAxiosInstance
@@ -80,7 +123,10 @@ function ManageAccessRequests() {
             .then((res) => {
               return res.data;
             });
+
           let timestamp = format(parseISO(accessReq.timestamp), "MMM d yyyy");
+
+          // String containing all attributes for filtering
           let stringElements = [
             accessReq.id,
             user.username,
@@ -110,6 +156,11 @@ function ManageAccessRequests() {
     setLoading(false);
   };
 
+  /**
+   * Columns for data table.
+   *
+   * @constant {object} columns
+   * */
   const columns = [
     {
       name: "Action",
@@ -183,6 +234,12 @@ function ManageAccessRequests() {
     { name: "Submitted", selector: (row) => row.Timestamp, sortable: true },
   ];
 
+  /**
+   * Handles clearing the search bar.
+   * Resets table pagination too.
+   *
+   * @function handleClear
+   * */
   const handleClear = () => {
     if (filterText) {
       setResetPaginationToggle(!resetPaginationToggle);
@@ -190,6 +247,13 @@ function ManageAccessRequests() {
     }
   };
 
+  /**
+   * Handles accepting or rejecting
+   * an access request.
+   *
+   * @function handleSubmit
+   * @returns {object} Object with operation status.
+   * */
   const handleSubmit = () => {
     setLoading(true);
     return auth.userAxiosInstance
@@ -201,10 +265,13 @@ function ManageAccessRequests() {
       .then(() => {
         fetchAccessRequests();
         setSelectedEntry({});
-        return true;
+        return buildStatus(true);
       })
       .catch(() => {
-        return false;
+        return buildStatus(
+          false,
+          `Failed to ${isAccept ? "accept" : "reject"} access request.`
+        );
       })
       .finally(() => {
         setLoading(false);
@@ -267,10 +334,12 @@ function ManageAccessRequests() {
 function ConfirmModal(props) {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const resetAll = () => {
     setSuccess(false);
     setError(false);
+    setErrorMessage("");
   };
 
   return (
@@ -305,7 +374,7 @@ function ConfirmModal(props) {
                   <Row className="mb-3">
                     <Col className="d-flex flex-row gap-2 align-items-center justify-content-center">
                       <FaExclamation />
-                      An error occured. Please try again.
+                      {errorMessage}
                     </Col>
                   </Row>
                   <Row>
@@ -346,8 +415,11 @@ function ConfirmModal(props) {
                   onClick={async (e) => {
                     e.preventDefault();
                     let status = await props.handleSubmit();
-                    if (status) setSuccess(true);
-                    else setError(true);
+                    if (status.success) setSuccess(true);
+                    else {
+                      setError(true);
+                      setErrorMessage(status.errorMessage);
+                    }
                   }}
                 >
                   {props.isAccept ? (
@@ -416,16 +488,20 @@ function InfoModal(props) {
 }
 
 ConfirmModal.propTypes = {
+  /** Determines whether modal should be shown */
   show: PropTypes.bool,
   handleClose: PropTypes.func,
+  /** Submission handler */
   handleSubmit: PropTypes.func,
   isAccept: PropTypes.bool,
   isReject: PropTypes.bool,
 };
 
 InfoModal.propTypes = {
+  /** Determines whether modal should be shown */
   show: PropTypes.bool,
   handleClose: PropTypes.func,
+  /** Selected access request */
   selectedEntry: PropTypes.object,
 };
 

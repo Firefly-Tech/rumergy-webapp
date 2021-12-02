@@ -5,6 +5,11 @@ import { Form, Row, Col, InputGroup, Spinner, Button } from "react-bootstrap";
 import * as Yup from "yup";
 import { useHistory } from "react-router";
 
+/**
+ * Yup validation schema for forgot password form.
+ *
+ * @constant {object} forgotPasswordSchema
+ * */
 const forgotPasswordSchema = Yup.object().shape({
   email: Yup.string().email("Invalid email format").required("Email required"),
 });
@@ -14,6 +19,7 @@ function ForgotPassword(props) {
 
   const history = useHistory();
 
+  // Display success message on success
   if (success) {
     return (
       <>
@@ -104,6 +110,7 @@ function ForgotPassword(props) {
 
 ForgotPassword.propTypes = {
   loading: PropTypes.bool,
+  /** Handle forgot password submit */
   handleSubmit: PropTypes.func,
 };
 

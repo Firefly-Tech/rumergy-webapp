@@ -42,3 +42,21 @@ class UserViewSet(viewsets.ModelViewSet):
         serializer = AccessRequestSerializer(access_req)
 
         return Response(serializer.data, status.HTTP_200_OK)
+
+    @action(detail=False, methods=["post"])
+    def signup(self, request, pk=None):
+        """
+        Post to signup. Sets default inactive role.
+        """
+
+        try:
+            request.data["profile"]["role"] = "INA"
+        except KeyError:
+            return Response("Invalid format", status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = UserSerializer(data=request.data)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

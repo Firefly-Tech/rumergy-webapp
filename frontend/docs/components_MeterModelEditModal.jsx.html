@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: components/MeterModelEditModal.jsx</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: components/MeterModelEditModal.jsx</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import React, { useState } from "react";
+import PropTypes from "prop-types";
+import { Modal, Row, Col, Button, Form, InputGroup } from "react-bootstrap";
+import { FieldArray, Formik } from "formik";
+import * as Yup from "yup";
+import { FaSync, FaTrash, FaExclamation, FaCheck } from "react-icons/fa";
+import DataPointFieldGroup from "./DataPointFieldGroup";
+
+/**
+ * Data types for register data
+ *
+ * @constant {object} dataTypes
+ * */
+const dataTypes = {
+  Integer: "INT",
+  Float: "FLT",
+};
+
+/**
+ * Modbus register types
+ *
+ * @constant {object} registerTypes
+ * */
+const registerTypes = {
+  Coil: "COIL",
+  Discrete: "DISC",
+  Input: "INPU",
+  Holding: "HOLD",
+};
+
+/**
+ * Adding Yup method to test object property
+ * uniqueness
+ */
+Yup.addMethod(Yup.array, "unique", function (message, mapper = (a) => a) {
+  return this.test("unique", message, function (list) {
+    return list.length === new Set(list.map(mapper)).size;
+  });
+});
+
+/**
+ * Yup validation schema for meter model add form.
+ *
+ * @constant {object} meterModelAddFormSchema
+ * */
+const meterModelEditFormSchema = Yup.object().shape({
+  name: Yup.string()
+    .min(1, "Must be at least 1 character")
+    .max(60, "Must be at most 60 characters")
+    .required("Name is required"),
+  dataPoints: Yup.array()
+    .of(
+      Yup.object().shape({
+        name: Yup.string()
+          .min(1, "Must be at least 1 character")
+          .max(50, "Must be at most 50 characters")
+          .required("Name is required"),
+        unit: Yup.string()
+          .min(1, "Must be at least 1 character")
+          .max(10, "Must be at most 10 characters")
+          .required("Unit is required"),
+        startAddress: Yup.number("Must be a number")
+          .integer("Must be an integer")
+          .min(0, "Must be 0 or greater.")
+          .max(65535, "Maximum address number is 65535")
+          .required("Start address required"),
+        endAddress: Yup.number("Must be a number")
+          .integer("Must be an integer")
+          .max(65535, "Maximum address number is 65535")
+          .min(
+            Yup.ref("startAddress"),
+            "End address must be greater or equal to start address"
+          )
+          .required("End address required"),
+        dataType: Yup.string()
+          .required("Data type required")
+          .oneOf(Object.values(dataTypes)),
+        registerType: Yup.string()
+          .required("Register type required")
+          .oneOf(Object.values(registerTypes)),
+      })
+    )
+    .unique("Data point names must be unique", (dataPoint) => dataPoint.name)
+    .required("Data points required")
+    .min(
+      2,
+      "At a minimum, the consumption and demand data points must be provided"
+    ),
+});
+
+function MeterModelEditModal(props) {
+  const [isUpdate, setIsUpdate] = useState(false);
+  const [isDelete, setIsDelete] = useState(false);
+
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+
+  /**
+   * Resets all state.
+   *
+   * @function resetAll
+   * */
+  const resetAll = () => {
+    setIsUpdate(false);
+    setIsDelete(false);
+    setSuccess(false);
+    setError(false);
+    setErrorMessage("");
+  };
+
+  return (
+    &lt;Modal
+      centered
+      size="lg"
+      show={props.show}
+      onHide={() => {
+        props.handleClose();
+        resetAll();
+      }}
+      backdrop="static"
+    >
+      &lt;Modal.Header closeButton>
+        &lt;Modal.Title>
+          &lt;h4 className="bold">Edit Entry&lt;/h4>
+        &lt;/Modal.Title>
+      &lt;/Modal.Header>
+      &lt;Formik
+        initialValues={{
+          name: props.selectedEditEntry.name,
+          dataPoints: props.selectedEditEntry.dataPoints,
+        }}
+        validationSchema={meterModelEditFormSchema}
+        onSubmit={async (values, handlers) => {
+          let status;
+          if (isUpdate) {
+            status = await props.handleEdit(values, handlers);
+          } else {
+            status = await props.handleDelete(
+              props.selectedEditEntry.id,
+              handlers
+            );
+          }
+          if (status.success) setSuccess(true);
+          else {
+            setError(true);
+            setErrorMessage(status.errorMessage);
+          }
+        }}
+        enableReinitialize
+      >
+        {(formik) => (
+          &lt;>
+            &lt;Form
+              onSubmit={formik.handleSubmit}
+              noValidate
+              className="d-flex flex-column"
+            >
+              &lt;Modal.Body className="meter-model-fields overflow-auto px-3">
+                &lt;Row>
+                  &lt;Col className="">
+                    &lt;Form.Group className="mb-3">
+                      &lt;Form.Label>Meter Name&lt;/Form.Label>
+                      &lt;InputGroup hasValidation>
+                        &lt;Form.Control
+                          id="name"
+                          placeholder="Enter meter name"
+                          isInvalid={!!formik.errors.name}
+                          {...formik.getFieldProps("name")}
+                        />
+                        &lt;Form.Control.Feedback type="invalid">
+                          {formik.errors.name}
+                        &lt;/Form.Control.Feedback>
+                      &lt;/InputGroup>
+                    &lt;/Form.Group>
+                    &lt;FieldArray
+                      name="dataPoints"
+                      render={({ insert, remove, push }) => (
+                        &lt;>
+                          {formik.values.dataPoints.map((dataPoint, index) => (
+                            &lt;DataPointFieldGroup
+                              key={index}
+                              index={index}
+                              formik={formik}
+                              remove={remove}
+                              staticName={
+                                index &lt; 2 &amp;&amp;
+                                (dataPoint.name === "consumption" ||
+                                  dataPoint.name === "demand")
+                              }
+                              dataTypes={dataTypes}
+                              registerTypes={registerTypes}
+                            />
+                          ))}
+                          &lt;Button
+                            variant="primary"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              push({
+                                name: "",
+                                unit: "",
+                                startAddress: "",
+                                endAddress: "",
+                                dataType: dataTypes.Float,
+                                registerType: registerTypes.Holding,
+                              });
+                            }}
+                          >
+                            Add datapoint
+                          &lt;/Button>
+                        &lt;/>
+                      )}
+                    />
+                  &lt;/Col>
+                &lt;/Row>
+              &lt;/Modal.Body>
+              &lt;Modal.Footer className="d-flex flex-column">
+                {success || error ? (
+                  &lt;Row>
+                    &lt;Col className="d-flex flex-column align-items-center">
+                      {success ? (
+                        &lt;>
+                          &lt;FaCheck />
+                          Operation was successful
+                        &lt;/>
+                      ) : (
+                        &lt;>
+                          &lt;Row className="mb-2">
+                            &lt;Col className="d-flex flex-row gap-2 align-items-center">
+                              &lt;FaExclamation />
+                              {errorMessage}
+                            &lt;/Col>
+                          &lt;/Row>
+                          &lt;Row>
+                            &lt;Col>
+                              &lt;Button
+                                variant="primary"
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  resetAll();
+                                }}
+                              >
+                                Try again
+                              &lt;/Button>
+                            &lt;/Col>
+                          &lt;/Row>
+                        &lt;/>
+                      )}
+                    &lt;/Col>
+                  &lt;/Row>
+                ) : (
+                  &lt;>
+                    {isUpdate || isDelete ? (
+                      &lt;Row className="mb-3">
+                        &lt;Col>
+                          {`Are you sure you wish to ${
+                            isUpdate ? "update" : "delete"
+                          } this entry?`}
+                        &lt;/Col>
+                      &lt;/Row>
+                    ) : null}
+                    &lt;Row>
+                      &lt;Col className="d-flex flex-row gap-4 justify-content-center align-items-center mx-auto">
+                        {isUpdate || isDelete ? (
+                          &lt;>
+                            &lt;Button
+                              type="submit"
+                              variant={isUpdate ? "primary" : "danger"}
+                              className={`d-flex flex-row align-items-center gap-2 ${
+                                isDelete ? "text-white" : ""
+                              }`}
+                            >
+                              {isUpdate ? (
+                                &lt;>
+                                  &lt;FaSync />
+                                  Update
+                                &lt;/>
+                              ) : (
+                                &lt;>
+                                  &lt;FaTrash />
+                                  Delete
+                                &lt;/>
+                              )}
+                            &lt;/Button>
+                            &lt;Button
+                              variant="secondary"
+                              className="d-flex flex-row align-items-center gap-2 text-white"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                setIsUpdate(false);
+                                setIsDelete(false);
+                              }}
+                            >
+                              Cancel
+                            &lt;/Button>
+                          &lt;/>
+                        ) : (
+                          &lt;>
+                            &lt;Button
+                              variant="primary"
+                              className="d-flex flex-row align-items-center gap-2"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                setIsUpdate(true);
+                              }}
+                            >
+                              &lt;FaSync />
+                              Update
+                            &lt;/Button>
+                            &lt;Button
+                              variant="danger"
+                              className="d-flex flex-row align-items-center gap-2 text-white"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                setIsDelete(true);
+                              }}
+                            >
+                              &lt;FaTrash />
+                              Delete
+                            &lt;/Button>
+                          &lt;/>
+                        )}
+                      &lt;/Col>
+                    &lt;/Row>
+                  &lt;/>
+                )}
+              &lt;/Modal.Footer>
+            &lt;/Form>
+          &lt;/>
+        )}
+      &lt;/Formik>
+    &lt;/Modal>
+  );
+}
+
+MeterModelEditModal.propTypes = {
+  /** Determines whether modal should be shown */
+  show: PropTypes.bool,
+  handleClose: PropTypes.func,
+  /** User entry data */
+  selectedEditEntry: PropTypes.object,
+  /** Edit handler */
+  handleEdit: PropTypes.func,
+  /** Deletion handler */
+  handleDelete: PropTypes.func,
+};
+
+export default MeterModelEditModal;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#AccessPending">AccessPending</a></li><li><a href="global.html#App">App</a></li><li><a href="global.html#authStateChange">authStateChange</a></li><li><a href="global.html#buildStatus">buildStatus</a></li><li><a href="global.html#checkDataPointError">checkDataPointError</a></li><li><a href="global.html#checkRestrictions">checkRestrictions</a></li><li><a href="global.html#clearSelected">clearSelected</a></li><li><a href="global.html#columns">columns</a></li><li><a href="global.html#confirmPasswordReset">confirmPasswordReset</a></li><li><a href="global.html#createAccountFormSchema">createAccountFormSchema</a></li><li><a href="global.html#CustomDataTable">CustomDataTable</a></li><li><a href="global.html#customStyle">customStyle</a></li><li><a href="global.html#Dashboard">Dashboard</a></li><li><a href="global.html#DashboardMeterItem">DashboardMeterItem</a></li><li><a href="global.html#DashboardMeterSelect">DashboardMeterSelect</a></li><li><a href="global.html#DashboardSelectedMeters">DashboardSelectedMeters</a></li><li><a href="global.html#datatypeRadios">datatypeRadios</a></li><li><a href="global.html#dataTypes">dataTypes</a></li><li><a href="global.html#debounce">debounce</a></li><li><a href="global.html#debounceCallback">debounceCallback</a></li><li><a href="global.html#decimation">decimation</a></li><li><a href="global.html#decrementStep">decrementStep</a></li><li><a href="global.html#deselectMeter">deselectMeter</a></li><li><a href="global.html#deselectMeterDebounced">deselectMeterDebounced</a></li><li><a href="global.html#emptyEditMeterModelEntry">emptyEditMeterModelEntry</a></li><li><a href="global.html#emptyEditUserEntry">emptyEditUserEntry</a></li><li><a href="global.html#ErrorModal">ErrorModal</a></li><li><a href="global.html#fetchAccessRequests">fetchAccessRequests</a></li><li><a href="global.html#fetchData">fetchData</a></li><li><a href="global.html#fetchMeterModels">fetchMeterModels</a></li><li><a href="global.html#fetchUsers">fetchUsers</a></li><li><a href="global.html#forgotPasswordSchema">forgotPasswordSchema</a></li><li><a href="global.html#getDataPointError">getDataPointError</a></li><li><a href="global.html#getMatching">getMatching</a></li><li><a href="global.html#handleAccessRequestCreation">handleAccessRequestCreation</a></li><li><a href="global.html#handleAdd">handleAdd</a></li><li><a href="global.html#handleClear">handleClear</a></li><li><a href="global.html#handleClose">handleClose</a></li><li><a href="global.html#handleCloseAdd">handleCloseAdd</a></li><li><a href="global.html#handleCloseConfirm">handleCloseConfirm</a></li><li><a href="global.html#handleCloseEdit">handleCloseEdit</a></li><li><a href="global.html#handleCloseInfo">handleCloseInfo</a></li><li><a href="global.html#handleCreateAccountSubmit">handleCreateAccountSubmit</a></li><li><a href="global.html#handleDelete">handleDelete</a></li><li><a href="global.html#handleEdit">handleEdit</a></li><li><a href="global.html#handleFetch">handleFetch</a></li><li><a href="global.html#handleForgotPasswordSubmit">handleForgotPasswordSubmit</a></li><li><a href="global.html#handleLoginSubmit">handleLoginSubmit</a></li><li><a href="global.html#handlePasswordResetSubmit">handlePasswordResetSubmit</a></li><li><a href="global.html#handleRepeatAccessRequest">handleRepeatAccessRequest</a></li><li><a href="global.html#handleShow">handleShow</a></li><li><a href="global.html#handleShowAdd">handleShowAdd</a></li><li><a href="global.html#handleShowConfirm">handleShowConfirm</a></li><li><a href="global.html#handleShowEdit">handleShowEdit</a></li><li><a href="global.html#handleSignin">handleSignin</a></li><li><a href="global.html#handleSubmit">handleSubmit</a></li><li><a href="global.html#Help">Help</a></li><li><a href="global.html#helpData">helpData</a></li><li><a href="global.html#HelpModal">HelpModal</a></li><li><a href="global.html#IconButton">IconButton</a></li><li><a href="global.html#incrementStep">incrementStep</a></li><li><a href="global.html#isLoggedIn">isLoggedIn</a></li><li><a href="global.html#lineColors">lineColors</a></li><li><a href="global.html#lineColorsTransparent">lineColorsTransparent</a></li><li><a href="global.html#loginFormSchema">loginFormSchema</a></li><li><a href="global.html#ManageAccessRequests">ManageAccessRequests</a></li><li><a href="global.html#ManagementBar">ManagementBar</a></li><li><a href="global.html#ManageMeterModels">ManageMeterModels</a></li><li><a href="global.html#ManageUsers">ManageUsers</a></li><li><a href="global.html#meterModelAddFormSchema">meterModelAddFormSchema</a></li><li><a href="global.html#MeterModelAddModal">MeterModelAddModal</a></li><li><a href="global.html#meterSearch">meterSearch</a></li><li><a href="global.html#options">options</a></li><li><a href="global.html#passwordResetSchema">passwordResetSchema</a></li><li><a href="global.html#ProvideAuth">ProvideAuth</a></li><li><a href="global.html#registerTypes">registerTypes</a></li><li><a href="global.html#renderStep">renderStep</a></li><li><a href="global.html#RepeatAccessRequest">RepeatAccessRequest</a></li><li><a href="global.html#repeatAccessRequestSchema">repeatAccessRequestSchema</a></li><li><a href="global.html#resetAll">resetAll</a></li><li><a href="global.html#rootRedirect">rootRedirect</a></li><li><a href="global.html#SearchBar">SearchBar</a></li><li><a href="global.html#selectMeter">selectMeter</a></li><li><a href="global.html#selectMeterDebounced">selectMeterDebounced</a></li><li><a href="global.html#sendPasswordResetEmail">sendPasswordResetEmail</a></li><li><a href="global.html#setUnit">setUnit</a></li><li><a href="global.html#Sidebar">Sidebar</a></li><li><a href="global.html#sidebarData">sidebarData</a></li><li><a href="global.html#signin">signin</a></li><li><a href="global.html#signup">signup</a></li><li><a href="global.html#StepOne">StepOne</a></li><li><a href="global.html#StepTwo">StepTwo</a></li><li><a href="global.html#timeframeRadios">timeframeRadios</a></li><li><a href="global.html#toggleSearch">toggleSearch</a></li><li><a href="global.html#tryRefresh">tryRefresh</a></li><li><a href="global.html#useAuth">useAuth</a></li><li><a href="global.html#useProvideAuth">useProvideAuth</a></li><li><a href="global.html#userAddFormSchema">userAddFormSchema</a></li><li><a href="global.html#UserAddModal">UserAddModal</a></li><li><a href="global.html#UserEditModal">UserEditModal</a></li><li><a href="global.html#userExists">userExists</a></li><li><a href="global.html#verifyToken">verifyToken</a></li><li><a href="global.html#withAppUser">withAppUser</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Mon Nov 22 2021 20:17:27 GMT-0400 (Atlantic Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

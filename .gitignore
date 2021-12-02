@@ -28,6 +28,7 @@ yarn-error.log*
 
 data/
 client/
+fixtures/
 
 db.cnf
 .*env

@@ -67,9 +67,6 @@ function App() {
             <Route path = "/admin/meters"> 
               <ManageMeter/>
             </Route>
-            <Route path = "/admin/meter-models">
-              <ManageMeterModel/>
-            </Route>
             <Route path="/admin/manage-users">
               <ManageUsers />
             </Route>

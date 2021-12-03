@@ -8,6 +8,11 @@ from rumergy_backend.rumergy.views.data_log_view import DataLogViewSet
 from rumergy_backend.rumergy.views.data_point_view import DataPointViewSet
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
+import sys
+sys.path.append('/Users/sebmrcd/Desktop/rumergy-webapp/backend/modbus')
+from modbus.singleton import SchedulerHandler
+
+scheduler = SchedulerHandler().retrieve_scheduler()
 
 router = DefaultRouter()
 router.register(r"api/users", views.UserViewSet, basename="users")

@@ -10,6 +10,14 @@ from rest_framework.response import Response
 from rest_framework import status
 import csv
 from django.http import HttpResponse
+from datetime import datetime, timedelta
+import requests
+from apscheduler.triggers.interval import IntervalTrigger
+import sys
+sys.path.append('/Users/sebmrcd/Desktop/rumergy-webapp/backend/modbus')
+from modbus import modbus_client as Modbus
+from modbus.singleton import SchedulerHandler
+
 
 class DataLogViewSet(viewsets.ModelViewSet):
     queryset = DataLog.objects.all()
@@ -41,18 +49,48 @@ class DataLogViewSet(viewsets.ModelViewSet):
                              measure.value, measure.data_point.unit])
         return response
 
+    def perform_create(self, serializer):
+        super().perform_create(serializer)
+        meter = serializer.data['meter']
+        start_date = serializer.data['start_date']
+        end_date = serializer.data['end_date']
+        points = serializer.data['data_points']
+        sampling = serializer.data['sampling_rate']
+         
+        start_date_formated = datetime.strptime(f'{start_date}',"%Y-%m-%dT%H:%M:%SZ") 
+        start_date_formated = start_date_formated + timedelta(hours=4)
+        end_date_formated = datetime.strptime(f'{end_date}',"%Y-%m-%dT%H:%M:%SZ")
+        end_date_formated = end_date_formated + timedelta(hours=4)
+        scheduler = SchedulerHandler().retrieve_scheduler()
 
-    @action(detail=True, methods=['post'])
-    def schedule(self, request, pk=None):
-        log_id = request.data["id"]
-        log_meter_id = request.data["meter"]
-        log_user_id = request.data["user"]
-        log_data_points = request.data["data_points"]
+        job = scheduler.add_job(read_points_list, trigger='interval', jobstore='djangojobstore', next_run_time=start_date_formated, seconds=sampling,
+        args=[meter, points])  
+        print(job.id)
+        end_job = scheduler.add_job(delete_job, trigger='date', jobstore='djangojobstore', run_date=end_date_formated, args=[job.id])
 
-        #TODO verify date
-        #TODO call function that schedules the read of all data points
-        
-    #     pass
 
-    # def create(self, request):
-        
+
+def read_points_list(meter_id, points_list):
+
+    meter_record = requests.get(f'http://127.0.0.1:8000/api/meters/{meter_id}/').json()
+    meter_ip = meter_record['ip']
+    meter_port = meter_record['port']
+
+    for point in points_list:
+        data_point = requests.get(f'http://127.0.0.1:8000/api/data-points/{point}/').json()
+        start_address = data_point['start_address']
+        end_address = data_point['end_address']
+        data_type = data_point['data_type']
+        regtype = data_point['register_type']
+
+        meter = Modbus.connect_meter(meter_ip, meter_port)
+        result = Modbus.decode_message(Modbus.read_point(meter, regtype, start_address, end_address), data_type)
+        meter.close()
+        print(result)
+        #TODO Perform POST of result in data-log-measures
+
+
+
+def delete_job(job_id):
+    scheduler = SchedulerHandler().retrieve_scheduler()
+    scheduler.remove_job(job_id)

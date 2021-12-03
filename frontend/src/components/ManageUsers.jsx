@@ -8,6 +8,7 @@ import UserEditModal from "./UserEditModal";
 import UserAddModal from "./UserAddModal";
 import ManagementBar from "./ManagementBar";
 import CustomDataTable from "./CustomDataTable";
+import { buildStatus } from "../resources/helpers";
 
 /**
  * Initial value for selectedEditEntry
@@ -107,7 +108,6 @@ function ManageUsers() {
    * */
   const fetchUsers = async () => {
     setLoading(true);
-    const appUsername = process.env.REACT_APP_RUMERGY_USER;
     let data = await auth.userAxiosInstance
       .get(`${auth.apiHost}/api/users`)
       .then((res) => {
@@ -116,9 +116,6 @@ function ManageUsers() {
       .catch(() => {
         return [];
       });
-
-    // Filter out app user so it can't be modified
-    data = data.filter((user) => user.username != appUsername);
 
     if (data.length) {
       data = data.map((user) => {
@@ -195,7 +192,7 @@ function ManageUsers() {
    * @function handleAdd
    * @param {object} values - Formik object with form values
    * @param {function} setSubmitting - Formik function to handle submitting state
-   * @returns {boolean} True if successful
+   * @returns {object} Object with operation status.
    * @async
    * */
   const handleAdd = async (values, { setSubmitting }) => {
@@ -215,10 +212,10 @@ function ManageUsers() {
       .post(`${auth.apiHost}/api/users/`, data)
       .then(() => {
         fetchUsers();
-        return true;
+        return buildStatus(true);
       })
       .catch(() => {
-        return false;
+        return buildStatus(false, "Failed to create user.");
       })
       .finally(() => {
         setSubmitting(false);
@@ -233,7 +230,7 @@ function ManageUsers() {
    * @param {number} id - User id
    * @param {object} values - Formik object with form values
    * @param {function} setSubmitting - Formik function to handle submitting state
-   * @returns {boolean} True if successful
+   * @returns {object} Object with operation status.
    * @async
    * */
   const handleEdit = async (id, values, { setSubmitting }) => {
@@ -251,10 +248,10 @@ function ManageUsers() {
       .patch(`${auth.apiHost}/api/users/${id}/`, data)
       .then(() => {
         fetchUsers();
-        return true;
+        return buildStatus(true);
       })
       .catch(() => {
-        return false;
+        return buildStatus(false, "Failed to update user.");
       })
       .finally(() => {
         setSubmitting(false);
@@ -268,7 +265,7 @@ function ManageUsers() {
    * @function handleDelete
    * @param {number} id - User id
    * @param {function} setSubmitting - Formik function to handle submitting state
-   * @returns {boolean} True if successful
+   * @returns {object} Object with operation status.
    * @async
    * */
   const handleDelete = (id, { setSubmitting }) => {
@@ -278,10 +275,10 @@ function ManageUsers() {
       .delete(`${auth.apiHost}/api/users/${id}/`)
       .then(() => {
         fetchUsers();
-        return true;
+        return buildStatus(true);
       })
       .catch(() => {
-        return false;
+        return buildStatus(false, "Failed to delete user.");
       })
       .finally(() => {
         setSubmitting(false);

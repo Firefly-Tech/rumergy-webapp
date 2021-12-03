@@ -81,7 +81,6 @@ function Dashboard() {
     setLoading(true);
     await axios
       .get(`${auth.apiHost}/api/meters`, {
-        headers: { Authorization: await auth.withAppUser() },
         params: { status: "ACT" },
       })
       .then((res) => {
@@ -235,11 +234,10 @@ function Dashboard() {
     for (var i = 0; i < selectedMeters.length; i++) {
       const meter = selectedMeters[i];
 
-      let meterData = await axios
+      let tempMeterData = await axios
         .get(
           `${auth.apiHost}/api/meters/${meter.id}/meter_data_by_time_frame`,
           {
-            headers: { Authorization: await auth.withAppUser() },
             params: {
               start: startingDateTime,
               data_type: selectedDatatype,
@@ -260,18 +258,20 @@ function Dashboard() {
           handleShow();
           return null;
         });
-      if (!meterData) {
-        data = {};
+      if (!tempMeterData) {
+        data = emptyDataSet;
         break;
       }
       data.datasets.push({
         label: `${meter.name} ${datatypeLabel}`,
-        data: meterData,
+        data: tempMeterData,
         fill: false,
         backgroundColor: lineColors[i],
         borderColor: lineColorsTransparent[i],
       });
     }
+
+    if (!data.datasets.length) data = emptyDataSet;
 
     setLoading(false);
     setMeterData(data);

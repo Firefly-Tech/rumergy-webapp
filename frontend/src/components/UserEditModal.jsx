@@ -35,6 +35,7 @@ function UserEditModal(props) {
 
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   /**
    * Resets all state.
@@ -46,6 +47,7 @@ function UserEditModal(props) {
     setIsDelete(false);
     setSuccess(false);
     setError(false);
+    setErrorMessage("");
   };
 
   return (
@@ -86,8 +88,11 @@ function UserEditModal(props) {
               handlers
             );
           }
-          if (status) setSuccess(true);
-          else setError(true);
+          if (status.success) setSuccess(true);
+          else {
+            setError(true);
+            setErrorMessage(status.errorMessage);
+          }
         }}
         enableReinitialize
       >
@@ -176,7 +181,7 @@ function UserEditModal(props) {
                           <Row className="mb-2">
                             <Col className="d-flex flex-row gap-2 align-items-center">
                               <FaExclamation />
-                              An error occured. Please try again.
+                              {errorMessage}
                             </Col>
                           </Row>
                           <Row>

@@ -6,6 +6,7 @@ from rest_framework import permissions
 from rest_framework.routers import DefaultRouter
 from rumergy_backend.rumergy.views.data_log_view import DataLogViewSet
 from rumergy_backend.rumergy.views.data_point_view import DataPointViewSet
+from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 import sys
@@ -31,8 +32,8 @@ schema_view = get_schema_view(
         default_version="v1",
         description="API to support RUMergy's operations",
     ),
-    public=True,
-    permission_classes=[permissions.AllowAny],
+    public=False,
+    permission_classes=[permissions.DjangoModelPermissionsOrAnonReadOnly],
 )
 
 urlpatterns = [
@@ -60,3 +61,4 @@ urlpatterns = [
         name="schema-swagger-ui",
     ),
 ]
+urlpatterns += staticfiles_urlpatterns()

@@ -6,6 +6,8 @@ from decouple import config
 from datetime import datetime
 
 
+
+def get_token():
 '''
 get_token(): Function that generates access and refresh tokens for authentication and access to API data
 
@@ -13,20 +15,22 @@ returns:
     access_token: Has an expiration time of 5 minutes.
     refresh_token: Token used for generating a new access_token after expiration. refresh_token has expiration time of 24hrs.
 '''
-def get_token():
+
+
     token = requests.post('http://127.0.0.1:8000/api/token/', data={"username": f"{config('USERNAME')}", "password": f"{config('PASSWORD')}"}).json()
     access_token = token['access']
     refresh_token = token['refresh']
     return access_token, refresh_token
 
 
-''' 
-connect_meter():
-Params:
-    ip-
-    port-
-'''
 def connect_meter(ip, port):
+
+    ''' 
+    connect_meter():
+    Params:
+        ip-
+        port-
+    '''
 
     meter = ModbusClient(ip, port=port, retries=3)
    
@@ -47,6 +51,8 @@ def connect_meter(ip, port):
         return meter  
     
 
+
+def read_point(meter, regtype, start_address, end_address):
 '''read_point(): reads any data point given the client, addresses and register type
     Params:
         client - Represents a connectec device via ModbusTCP protocol
@@ -62,7 +68,6 @@ def connect_meter(ip, port):
             The result could be one or more registers, representing a 16-bit integer value or a 
             32-bit floating point value
 '''
-def read_point(meter, regtype, start_address, end_address):
     count = end_address - start_address + 1
     
     try:
@@ -83,6 +88,8 @@ def read_point(meter, regtype, start_address, end_address):
         print("Error reading register", e)
     
 
+
+def decode_message(result, data_type):
 '''
 decode_message(): Decodes the given result using the PayloadDecoder of the pymodbus moduel.
 Params:
@@ -93,7 +100,6 @@ Params:
 
 returns: Returns the decoded value in the specified data type format.
 '''
-def decode_message(result, data_type):
 
     decoder = BinaryPayloadDecoder.fromRegisters(result.registers, byteorder=Endian.Big, wordorder=Endian.Big)
 

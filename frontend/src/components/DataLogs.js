@@ -81,13 +81,14 @@ function DataLogs(props) {
   const fetchDataLog = async () => {
     setLoading(true);
     let data = await auth.userAxiosInstance
-      .get(`${auth.apiHost}/api/data_logs`)
+      .get(`${auth.apiHost}/api/data-logs`)
       .then((res) => {
         return res.data;
       })
       .catch(() => {
         return [];
       });
+    
 
     if (data.length) {
       data = data.map((data_logs) => {
@@ -183,7 +184,11 @@ function DataLogs(props) {
           </Row>
         </Col>
       </Row>
-      <DataLogDetailModal show={showDetails} handleClose={handleCloseDetails} />
+      <DataLogDetailModal 
+      show={showDetails} 
+      handleClose={handleCloseDetails} 
+      selectedEntry ={selectedEntry}
+      />
       <DataLogDownloadModal
         show={showDownload}
         handleClose={handleCloseDownload}

@@ -81,10 +81,6 @@ function useProvideAuth() {
     }
   );
 
-  // App user
-  // For non-logged in requests
-  const [appRefreshToken, setAppRefreshToken] = useState(null);
-
   /**
    * User signin request
    *
@@ -128,27 +124,33 @@ function useProvideAuth() {
    * @param {string} email
    * @param {string} firstName
    * @param {string} lastName
-   * @returns {object} userData
+   * @param {string} occupation
+   * @param {string} justification
+   * @returns {boolean}
    * */
-  const signup = async (username, password, email, firstName, lastName) => {
-    let bearer = await withAppUser();
-
+  const signup = async (
+    username,
+    password,
+    email,
+    firstName,
+    lastName,
+    occupation,
+    justification
+  ) => {
     return axios
-      .post(
-        `${apiHost}/api/users/signup/`,
-        {
-          username: username,
-          password: password,
-          email: email,
-          profile: {
-            first_name: firstName,
-            last_name: lastName,
-          },
+      .post(`${apiHost}/api/users/signup/`, {
+        username: username,
+        password: password,
+        email: email,
+        profile: {
+          first_name: firstName,
+          last_name: lastName,
         },
-        { headers: { Authorization: bearer } }
-      )
+        occupation: occupation,
+        justification: justification,
+      })
       .then((res) => {
-        return res.data;
+        return true;
       })
       .catch((error) => {
         throw error;
@@ -230,48 +232,6 @@ function useProvideAuth() {
   };
 
   /**
-   * Handles authentication for requests made without user login.
-   *
-   * @function withAppUser
-   * @throws Will throw an error if request fails
-   * @returns {string} Authoriztion header
-   * @async
-   * */
-  const withAppUser = async () => {
-    const appUserLogin = async () => {
-      const loginResponse = await axios
-        .post(`${apiHost}/api/token/`, {
-          username: process.env.REACT_APP_RUMERGY_USER,
-          password: process.env.REACT_APP_RUMERGY_PASS,
-        })
-        .then((res) => {
-          return res.data;
-        })
-        .catch((error) => {
-          throw error;
-        });
-      setAppRefreshToken(loginResponse.refresh);
-
-      return `Bearer ${loginResponse.access}`;
-    };
-
-    if (!appRefreshToken) {
-      return appUserLogin();
-    }
-
-    try {
-      const access = await tryRefresh(appRefreshToken);
-
-      return `Bearer ${access}`;
-    } catch (error) {
-      if (error.response.status !== 401) {
-        throw error;
-      }
-      return appUserLogin();
-    }
-  };
-
-  /**
    * Checks for change in auth state with refreshToken and passes
    * auth data (user, accessToken, role) to callback.
    *
@@ -344,7 +304,6 @@ function useProvideAuth() {
     signout,
     sendPasswordResetEmail,
     confirmPasswordReset,
-    withAppUser,
     apiHost,
     userAxiosInstance,
   };

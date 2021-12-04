@@ -9,5 +9,4 @@ class DataLogMeasuresViewSet(viewsets.ModelViewSet):
 
     serializer_class = DataLogMeasuresSerializer
     queryset = DataLogMeasures.objects.all()
-    permission_classes = [permissions.IsAuthenticated]
     # permission_classes = [permissions.AllowAny] # Only use for testing

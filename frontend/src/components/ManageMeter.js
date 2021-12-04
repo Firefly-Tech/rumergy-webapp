@@ -1,31 +1,7 @@
 import React, { useState, useEffect } from "react";
-import PropTypes from "prop-types";
-import {
-  Col,
-  Row,
-  Modal,
-  Button,
-  Card,
-  Spinner,
-  InputGroup,
-  FormControl,
-  Form,
-} from "react-bootstrap";
-import SearchBar from "./SearchBar";
+import { Col, Row, Spinner } from "react-bootstrap";
 import IconButton from "./IconButton";
-import {
-  FaRedo,
-  FaPlus,
-  FaPen,
-  FaTimes,
-  FaSync,
-  FaTrash,
-  FaExclamation,
-  FaCheck,
-} from "react-icons/fa";
-import DataTable, { createTheme } from "react-data-table-component";
-import { Formik } from "formik";
-import * as Yup from "yup";
+import { FaPen } from "react-icons/fa";
 import { useRequireAuth } from "../resources/use-require-auth";
 import { roles } from "../resources/constants";
 import ManagementBar from "./ManagementBar";
@@ -56,7 +32,7 @@ export const meterStatus = {
   Error: "ERR",
 };
 
-function ManageMeter(props) {
+function ManageMeter() {
   const [loading, setLoading] = useState(false);
   const [meters, setMeters] = useState([]);
   const [buildings, setBuildings] = useState([]);
@@ -192,8 +168,8 @@ function ManageMeter(props) {
 
           return {
             meterString: meterStringElements.join("").split(" ").join(""),
-            meter_model: meterModel.name,
-            building: building.name,
+            meter_model: { id: meterModel.id, name: meterModel.name },
+            building: { id: building.id, name: building.name },
             id: meter.id,
             name: meter.name,
             ip: meter.ip,
@@ -229,10 +205,10 @@ function ManageMeter(props) {
     },
     { name: "ID", selector: (row) => row.id, sortable: true },
     { name: "Name", selector: (row) => row.name, sortable: true },
-    { name: "Model", selector: (row) => row.meter_model, sortable: true },
+    { name: "Model", selector: (row) => row.meter_model.name, sortable: true },
     { name: "IP", selector: (row) => row.ip, sortable: true },
     { name: "Port", selector: (row) => row.port, sortable: true },
-    { name: "Building", selector: (row) => row.building, sortable: true },
+    { name: "Building", selector: (row) => row.building.name, sortable: true },
     { name: "Substation", selector: (row) => row.substation, sortable: true },
     {
       name: "Coordinates",
@@ -291,7 +267,7 @@ function ManageMeter(props) {
         return buildStatus(true);
       })
       .catch(() => {
-        return buildStatus(false, "Failed to create meter.");
+        return buildStatus(false, "Failed to create meter");
       })
       .finally(() => {
         setSubmitting(false);
@@ -301,22 +277,35 @@ function ManageMeter(props) {
 
   const handleEdit = async (id, values, { setSubmitting }) => {
     setLoading(true);
+    const checkEmpty = (value) => {
+      return !!value ? value : "None";
+    };
+
     let data = {
       name: values.name,
-      model: values.model,
+      meter_model: values.meter_model,
       ip: values.ip,
       port: values.port,
       building: values.building,
+      status: values.status,
+      substation: checkEmpty(values.substation),
+      longitude: values.longitude === "" ? 0 : parseFloat(values.longitude),
+      latitude: values.latitude === "" ? 0 : parseFloat(values.latitude),
+      comments: checkEmpty(values.comments),
+      panel_id: checkEmpty(values.panel_id),
+      serial_number: checkEmpty(values.serial_number),
     };
 
     return auth.userAxiosInstance
       .patch(`${auth.apiHost}/api/meters/${id}/`, data) //ask about this
       .then(() => {
         fetchMeters();
-        return true;
+        fetchMeterModels();
+        fetchBuildings();
+        return buildStatus(true);
       })
       .catch(() => {
-        return false;
+        return buildStatus(false, "Failed to update meter");
       })
       .finally(() => {
         setSubmitting(false);
@@ -331,10 +320,12 @@ function ManageMeter(props) {
       .delete(`${auth.apiHost}/api/meters/${id}/`)
       .then(() => {
         fetchMeters();
-        return true;
+        fetchMeterModels();
+        fetchBuildings();
+        return buildStatus(true);
       })
       .catch(() => {
-        return false;
+        return buildStatus(false, "Failed to delete meter");
       })
       .finally(() => {
         setSubmitting(false);
@@ -388,6 +379,9 @@ function ManageMeter(props) {
         selectedEditEntry={selectedEditEntry}
         handleEdit={handleEdit}
         handleDelete={handleDelete}
+        meterModels={meterModels}
+        buildings={buildings}
+        loading={loading}
       />
       <MeterAddModal
         show={showAdd}

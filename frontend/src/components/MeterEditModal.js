@@ -3,10 +3,8 @@ import PropTypes from "prop-types";
 import { Modal, Row, Col, Button, Form, InputGroup } from "react-bootstrap";
 import { Formik } from "formik";
 import * as Yup from "yup";
-//import { roles } from "../resources/constants";
 import { FaSync, FaTrash, FaExclamation, FaCheck } from "react-icons/fa";
-
-// const {General, ...userRoles} = roles;
+import { meterStatus } from "./ManageMeter";
 
 const meterEditFormSchema = Yup.object().shape({
   name: Yup.string()
@@ -14,24 +12,51 @@ const meterEditFormSchema = Yup.object().shape({
     .max(50, "Must be at most 50 characters")
     .required("Name is required")
     .matches(/\b([A-ZÀ-ÿ][-,a-z. ']+[ ]*)+/, "Invalid format"),
-
-  model: Yup.string().required("Choosing a model is required"),
-
+  meter_model: Yup.number().integer().required("Choosing a model is required"),
   ip: Yup.string()
     .required("IP is required")
     .matches(
-      /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/,
+      /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/,
       "Invalid format"
     ),
-
-  port: Yup.string()
+  port: Yup.number()
+    .typeError("Must be a number")
+    .integer("Must be an integer")
     .required("Port is required")
-    .matches(
-      /^([0-9]{1,4}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])$/,
-      "Invalid format"
-    ),
-
-  building: Yup.string().required("Choosing a building is required"),
+    .min(0, "Must be positive")
+    .max(65535, "Max port number is 65535")
+    .default(502),
+  building: Yup.number().integer().required("Building is required"),
+  status: Yup.string().required("Status required"),
+  // Optional fields
+  substation: Yup.string()
+    .max(60, "Must be at most 60 characters")
+    .default("None")
+    .optional(),
+  longitude: Yup.number()
+    .typeError("Must be a number")
+    .min(-180, "Minimum is -180")
+    .max(180, "Maximum is 180")
+    .default(0)
+    .optional(),
+  latitude: Yup.number()
+    .typeError("Must be a number")
+    .min(-90, "Minimum is -90")
+    .max(90, "Maximum is 90")
+    .default(0)
+    .optional(),
+  comments: Yup.string()
+    .max(200, "Must be 200 characters at most")
+    .default("None")
+    .optional(),
+  panel_id: Yup.string()
+    .max(60, "Must be 60 characters at most")
+    .default("None")
+    .optional(),
+  serial_number: Yup.string()
+    .max(100, "Must be 100 characters at most")
+    .default("None")
+    .optional(),
 });
 
 function MeterEditModal(props) {
@@ -40,12 +65,14 @@ function MeterEditModal(props) {
 
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const resetAll = () => {
     setIsUpdate(false);
     setIsDelete(false);
     setSuccess(false);
     setError(false);
+    setErrorMessage("");
   };
 
   return (
@@ -67,10 +94,17 @@ function MeterEditModal(props) {
       <Formik
         initialValues={{
           name: props.selectedEditEntry.name,
-          model: props.selectedEditEntry.model,
+          meter_model: props.selectedEditEntry.meter_model.id,
           ip: props.selectedEditEntry.ip,
           port: props.selectedEditEntry.port,
-          building: props.selectedEditEntry.building,
+          building: props.selectedEditEntry.building.id,
+          substation: props.selectedEditEntry.substation,
+          longitude: props.selectedEditEntry.longitude,
+          latitude: props.selectedEditEntry.latitude,
+          comments: props.selectedEditEntry.comments,
+          panel_id: props.selectedEditEntry.panel_id,
+          serial_number: props.selectedEditEntry.serial_number,
+          status: props.selectedEditEntry.status,
         }}
         validationSchema={meterEditFormSchema}
         onSubmit={async (values, handlers) => {
@@ -87,8 +121,11 @@ function MeterEditModal(props) {
               handlers
             );
           }
-          if (status) setSuccess(true);
-          else setError(true);
+          if (status.success) setSuccess(true);
+          else {
+            setError(true);
+            setErrorMessage(status.errorMessage);
+          }
         }}
         enableReinitialize
       >
@@ -97,11 +134,11 @@ function MeterEditModal(props) {
             <Form
               onSubmit={formik.handleSubmit}
               noValidate
-              className="d-felx flex-column"
+              className="d-flex flex-column"
             >
               <Modal.Body>
                 <Form.Group className="mb-3">
-                  <Form.Label> Name </Form.Label>
+                  <Form.Label>Name</Form.Label>
                   <InputGroup hasValidation>
                     <Form.Control
                       id="name"
@@ -118,20 +155,24 @@ function MeterEditModal(props) {
                   <Form.Label>Meter Model</Form.Label>
                   <InputGroup hasValidation>
                     <Form.Select
-                      id="model"
-                      placeholder="Enter meter model"
-                      isInvalid={!!formik.errors.model}
-                      {...formik.getFieldProps("model")}
+                      id="meter_model"
+                      placeholder="Select meter model"
+                      isInvalid={!!formik.errors.meter_model}
+                      {...formik.getFieldProps("meter_model")}
                     >
-                      <option>Choose a Model</option>
-                      <option value="1">Model 1</option>
-                      <option value="2">Model 2</option>
-                      <option value="3">Model 3</option>
+                      {props.meterModels.map((model, index) => (
+                        <option value={model.id} key={index}>
+                          {model.name}
+                        </option>
+                      ))}
                     </Form.Select>
+                    <Form.Control.Feedback type="invalid">
+                      {formik.errors.meter_model}
+                    </Form.Control.Feedback>
                   </InputGroup>
                 </Form.Group>
                 <Form.Group className="mb-3">
-                  <Form.Label>IP</Form.Label>
+                  <Form.Label>IP Address</Form.Label>
                   <InputGroup hasValidation>
                     <Form.Control
                       id="ip"
@@ -159,19 +200,128 @@ function MeterEditModal(props) {
                   </InputGroup>
                 </Form.Group>
                 <Form.Group className="mb-3">
-                  <Form.Label> Building</Form.Label>
+                  <Form.Label>Building</Form.Label>
                   <InputGroup hasValidation>
-                  <Form.Select
+                    <Form.Select
                       id="building"
                       placeholder="Enter building"
                       isInvalid={!!formik.errors.building}
                       {...formik.getFieldProps("building")}
                     >
-                        <option>Choose a Building</option>
-                        <option value="1">Chardon</option>
-                        <option value="2">Biology</option>
-                        <option value="3">Stefani</option>
+                      {props.buildings.map((building, index) => (
+                        <option value={building.id} key={index}>
+                          {building.name}
+                        </option>
+                      ))}
                     </Form.Select>
+                    <Form.Control.Feedback type="invalid">
+                      {formik.errors.building}
+                    </Form.Control.Feedback>
+                  </InputGroup>
+                </Form.Group>
+                <Form.Group className="mb-3">
+                  <Form.Label>Status</Form.Label>
+                  <InputGroup hasValidation>
+                    <Form.Select
+                      id="status"
+                      placeholder="Enter status"
+                      isInvalid={!!formik.errors.status}
+                      {...formik.getFieldProps("status")}
+                    >
+                      {Object.keys(meterStatus).map((key, index) => (
+                        <option value={meterStatus[key]} key={index}>
+                          {key}
+                        </option>
+                      ))}
+                    </Form.Select>
+                    <Form.Control.Feedback type="invalid">
+                      {formik.errors.status}
+                    </Form.Control.Feedback>
+                  </InputGroup>
+                </Form.Group>
+                <Form.Group className="mb-3">
+                  <Form.Label>Substation</Form.Label>
+                  <InputGroup hasValidation>
+                    <Form.Control
+                      id="substation"
+                      placeholder="[Optional] Enter substation"
+                      isInvalid={!!formik.errors.substation}
+                      {...formik.getFieldProps("substation")}
+                    />
+                    <Form.Control.Feedback type="invalid">
+                      {formik.errors.substation}
+                    </Form.Control.Feedback>
+                  </InputGroup>
+                </Form.Group>
+                <Form.Group className="mb-3">
+                  <Form.Label>Latitude</Form.Label>
+                  <InputGroup hasValidation>
+                    <Form.Control
+                      id="latitude"
+                      placeholder="[Optional] Enter latitude"
+                      isInvalid={!!formik.errors.latitude}
+                      {...formik.getFieldProps("latitude")}
+                    />
+                    <Form.Control.Feedback type="invalid">
+                      {formik.errors.latitude}
+                    </Form.Control.Feedback>
+                  </InputGroup>
+                </Form.Group>
+                <Form.Group className="mb-3">
+                  <Form.Label>Longitude</Form.Label>
+                  <InputGroup hasValidation>
+                    <Form.Control
+                      id="longitude"
+                      placeholder="[Optional] Enter longitude"
+                      isInvalid={!!formik.errors.longitude}
+                      {...formik.getFieldProps("longitude")}
+                    />
+                    <Form.Control.Feedback type="invalid">
+                      {formik.errors.longitude}
+                    </Form.Control.Feedback>
+                  </InputGroup>
+                </Form.Group>
+                <Form.Group className="mb-3">
+                  <Form.Label>Comments</Form.Label>
+                  <InputGroup hasValidation>
+                    <Form.Control
+                      id="comments"
+                      as="textarea"
+                      placeholder="[Optional] Enter comments"
+                      isInvalid={!!formik.errors.comments}
+                      {...formik.getFieldProps("comments")}
+                    />
+                    <Form.Control.Feedback type="invalid">
+                      {formik.errors.comments}
+                    </Form.Control.Feedback>
+                  </InputGroup>
+                </Form.Group>
+                <Form.Group className="mb-3">
+                  <Form.Label>Panel ID</Form.Label>
+                  <InputGroup hasValidation>
+                    <Form.Control
+                      id="panel_id"
+                      placeholder="[Optional] Enter panel id"
+                      isInvalid={!!formik.errors.panel_id}
+                      {...formik.getFieldProps("panel_id")}
+                    />
+                    <Form.Control.Feedback type="invalid">
+                      {formik.errors.panel_id}
+                    </Form.Control.Feedback>
+                  </InputGroup>
+                </Form.Group>
+                <Form.Group className="mb-3">
+                  <Form.Label>Serial Number</Form.Label>
+                  <InputGroup hasValidation>
+                    <Form.Control
+                      id="serial_number"
+                      placeholder="[Optional] Enter serial number"
+                      isInvalid={!!formik.errors.serial_number}
+                      {...formik.getFieldProps("serial_number")}
+                    />
+                    <Form.Control.Feedback type="invalid">
+                      {formik.errors.serial_number}
+                    </Form.Control.Feedback>
                   </InputGroup>
                 </Form.Group>
               </Modal.Body>
@@ -189,7 +339,7 @@ function MeterEditModal(props) {
                           <Row className="mb-2">
                             <Col className="d-flex flex-row gap-2 align-items-center">
                               <FaExclamation />
-                              An error occured. Please try again.
+                              {errorMessage}
                             </Col>
                           </Row>
                           <Row>
@@ -300,6 +450,9 @@ MeterEditModal.propTypes = {
   selectedEditEntry: PropTypes.object,
   handleEdit: PropTypes.func,
   handleDelete: PropTypes.func,
+  meterModels: PropTypes.array,
+  buildings: PropTypes.array,
+  loading: PropTypes.bool,
 };
 
 export default MeterEditModal;

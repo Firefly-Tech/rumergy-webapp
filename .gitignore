@@ -26,8 +26,10 @@ yarn-error.log*
 .vscode/
 .eslintrc.json
 
-
+data/
+client/
+fixtures/
 
 db.cnf
-.env
+.*env
 __pycache__/

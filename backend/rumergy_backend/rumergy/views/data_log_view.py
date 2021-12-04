@@ -14,7 +14,6 @@ from django.http import HttpResponse
 class DataLogViewSet(viewsets.ModelViewSet):
     queryset = DataLog.objects.all()
     serializer_class = DataLogSerializer
-    permission_classes = [permissions.IsAuthenticated]
     # permission_classes = [permissions.AllowAny] # Only use for testing
 
     @action(detail=True, methods=["get"])

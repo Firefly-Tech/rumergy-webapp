@@ -108,7 +108,6 @@ function ManageUsers() {
    * */
   const fetchUsers = async () => {
     setLoading(true);
-    const appUsername = process.env.REACT_APP_RUMERGY_USER;
     let data = await auth.userAxiosInstance
       .get(`${auth.apiHost}/api/users`)
       .then((res) => {
@@ -117,9 +116,6 @@ function ManageUsers() {
       .catch(() => {
         return [];
       });
-
-    // Filter out app user so it can't be modified
-    data = data.filter((user) => user.username != appUsername);
 
     if (data.length) {
       data = data.map((user) => {

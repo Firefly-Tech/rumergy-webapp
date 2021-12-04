@@ -69,7 +69,7 @@ function ManageAccessRequests() {
 
   const auth = useRequireAuth("/login", [roles.Admin]);
 
-  useEffect(async () => {
+  useEffect(() => {
     /**
      * Fetch access request data on load.
      *

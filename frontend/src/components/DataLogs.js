@@ -29,6 +29,7 @@ import DataLogDetailModal from "./DataLogDetailModal";
 import DataLogDownloadModal from "./DataLogDownloadModal";
 import { useRequireAuth } from "../resources/use-require-auth";
 import { roles } from "../resources/constants";
+import { parseISO, format } from "date-fns";
 
 function DataLogs(props) {
   const [loading, setLoading] = useState(false);
@@ -81,26 +82,50 @@ function DataLogs(props) {
   const fetchDataLog = async () => {
     setLoading(true);
     let data = await auth.userAxiosInstance
-      .get(`${auth.apiHost}/api/data-logs`)
+      .get(`${auth.apiHost}/api/users/${auth.user.id}`)
       .then((res) => {
-        return res.data;
+        return res.data.data_logs;
       })
       .catch(() => {
         return [];
       });
-    
+      
 
     if (data.length) {
-      data = data.map((data_logs) => {
+      
+      data = await Promise.all( data.map( async(data_logs) => {
+        let meterData = await auth.userAxiosInstance
+        .get(`${auth.apiHost}/api/meters/${data_logs.meter}`)
+        .then((res) => {
+          return res.data;
+        })
+        let buildingData = await auth.userAxiosInstance
+        .get(`${auth.apiHost}/api/buildings/${data_logs.building}`)
+        .then((res) => {
+          return res.data;
+        })
+        let startdate = format(parseISO(data_logs.startdate), "MMM d yyyy");
+        let enddate = format(parseISO(data_logs.enddate), "MMM d yyyy");
+
+        let dPoints = data_logs.data_points.map(async (dPointId)=>{
+          return await auth.userAxiosInstance
+          .get(`${auth.apiHost}/api/data-points/${dPointId}`)
+          .then((res) =>{
+            return res.data;
+          })
+        })
+
+
         let dataLogStringElements = [
-          data_logs.id,
-          data_logs.name,
-          data_logs.ip,
-          data_logs.port,
           data_logs.building,
+          data_logs.meter,
+          data_logs.start_date,
+          data_logs.sampling_rate,
+          data_logs.enddate,
+          data_logs.datapoints,
         ];
         return { userString: dataLogStringElements.join(""), ...dataLog };
-      });
+      }));
     }
     setdataLog(data);
     setLoading(false);

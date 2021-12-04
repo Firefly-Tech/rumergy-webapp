@@ -71,28 +71,30 @@ function Dashboard() {
 
   const auth = useAuth();
 
-  useEffect(async () => {
+  useEffect(() => {
     /**
      * Fetches meter list
      *
      * @param {object} auth - Authentication hook
      * @memberof Dashboard
      * */
+    async function fetchMeters() {
+      await axios
+        .get(`${auth.apiHost}/api/meters`, {
+          params: { status: "ACT" },
+        })
+        .then((res) => {
+          setMeterList(res.data);
+        })
+        .catch(() => {
+          setMeterList([]);
+          setErrorName("Fetch Error");
+          setErrorMessage("Failed to fetch active meter list.");
+          handleShow();
+        });
+    }
     setLoading(true);
-    await axios
-      .get(`${auth.apiHost}/api/meters`, {
-        headers: { Authorization: await auth.withAppUser() },
-        params: { status: "ACT" },
-      })
-      .then((res) => {
-        setMeterList(res.data);
-      })
-      .catch(() => {
-        setMeterList([]);
-        setErrorName("Fetch Error");
-        setErrorMessage("Failed to fetch active meter list.");
-        handleShow();
-      });
+    fetchMeters();
     setLoading(false);
     setInitialLoad(false);
   }, [auth]);
@@ -239,7 +241,6 @@ function Dashboard() {
         .get(
           `${auth.apiHost}/api/meters/${meter.id}/meter_data_by_time_frame`,
           {
-            headers: { Authorization: await auth.withAppUser() },
             params: {
               start: startingDateTime,
               data_type: selectedDatatype,

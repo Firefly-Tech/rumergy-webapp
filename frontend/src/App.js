@@ -13,6 +13,7 @@ import ManageMeter from "./components/ManageMeter";
 import ManageUsers from "./components/ManageUsers";
 import ManageAccessRequests from "./components/ManageAccessRequests";
 import ManageMeterModels from "./components/ManageMeterModels";
+import ManageBuildings from "./components/ManageBuildings";
 
 const includeSidebar = ["/dashboard*", "/admin*", "/advanced*", "/about*"];
 
@@ -31,7 +32,8 @@ function App() {
     return (
       ((auth.role === roles.General ||
         auth.role === roles.Advanced ||
-        auth.role === roles.Inactive) &&
+        auth.role === roles.Inactive ||
+        !auth.role) &&
         "/dashboard") ||
       "/admin/meters"
     );
@@ -82,6 +84,9 @@ function App() {
             </Route>
             <Route path="/admin/manage-meter-models">
               <ManageMeterModels />
+            </Route>
+            <Route path="/admin/manage-buildings">
+              <ManageBuildings />
             </Route>
             <Route path="/" exact>
               <Redirect to={rootRedirect()} />

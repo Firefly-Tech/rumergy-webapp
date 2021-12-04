@@ -14,6 +14,7 @@ import {
   FaUsers,
   FaEnvelopeOpen,
   FaBars,
+  FaBuilding,
 } from "react-icons/fa";
 import { NavLink, useLocation, useHistory } from "react-router-dom";
 import Help from "./Help";
@@ -75,6 +76,12 @@ const sidebarData = [
     link: "/admin/manage-access-requests",
     userRestrictions: [roles.Admin],
     icon: <FaEnvelopeOpen className="fs-5" />,
+  },
+  {
+    menuName: "Buildings",
+    link: "/admin/manage-buildings",
+    userRestrictions: [roles.Admin],
+    icon: <FaBuilding className="fs-5" />,
   },
   {
     menuName: "Meter Models",

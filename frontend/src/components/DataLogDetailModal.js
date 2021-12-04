@@ -37,21 +37,58 @@ function DataLogDetailModal(props) {
           <h4 className="bold">Data Log Details</h4>
         </Modal.Title>
       </Modal.Header>
-      <Modal.Body as= {Row} className = "overflow-auto">
-        <Col className = "d-flex fle-column">
-          {/* {Object.keys(props.selectedEntry).map((key, index) => (
-            <Card className = "manage-card mb-3" key = {index}>
-              <Card.Body as={Row}>
-                <Col className="d-flex flex-row gap-3 align-items-start">
-                  <span className="text-break bold">{key}</span>
-                  <span className="text-break">{props.selectedEntry[key]}</span>
-                </Col>
-              </Card.Body>
-            </Card>
-          ))} */}
+      <Modal.Body as={Row} className="overflow-auto">
+        <Col className="d-flex flex-column">
+          <Card className="manage-card mb-3">
+            <Card.Body as={Row}>
+              <Col className="d-flex flex-row gap-3 align-items-start">
+                <span className="text-break bold">Meter</span>
+                <span className="text-break">{props.selectedEntry.meter}</span>
+              </Col>
+            </Card.Body>
+          </Card>
+          <Card className="manage-card mb-3">
+            <Card.Body as={Row}>
+              <Col className="d-flex flex-row gap-3 align-items-start">
+                <span className="text-break bold">Data Points</span>
+                <span className="text-break">
+                  {props.selectedEntry.dataPointNames}
+                </span>
+              </Col>
+            </Card.Body>
+          </Card>
+          <Card className="manage-card mb-3">
+            <Card.Body as={Row}>
+              <Col className="d-flex flex-row gap-3 align-items-start">
+                <span className="text-break bold">Start Date</span>
+                <span className="text-break">
+                  {props.selectedEntry.startDate}
+                </span>
+              </Col>
+            </Card.Body>
+          </Card>
+          <Card className="manage-card mb-3">
+            <Card.Body as={Row}>
+              <Col className="d-flex flex-row gap-3 align-items-start">
+                <span className="text-break bold">End Date</span>
+                <span className="text-break">
+                  {props.selectedEntry.endDate}
+                </span>
+              </Col>
+            </Card.Body>
+          </Card>
+          <Card className="manage-card mb-3">
+            <Card.Body as={Row}>
+              <Col className="d-flex flex-row gap-3 align-items-start">
+                <span className="text-break bold">Sampling Rate</span>
+                <span className="text-break">
+                  {`${props.selectedEntry.samplingRate / 60} minutes`}
+                </span>
+              </Col>
+            </Card.Body>
+          </Card>
         </Col>
       </Modal.Body>
-      
     </Modal>
   );
 }

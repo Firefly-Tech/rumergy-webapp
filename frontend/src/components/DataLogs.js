@@ -1,46 +1,34 @@
 import { React, useState, useEffect } from "react";
-import PropTypes from "prop-types";
-import {
-  Col,
-  Row,
-  Card,
-  Table,
-  Spinner,
-  Button,
-  InputGroup,
-  FormControl,
-  Modal,
-} from "react-bootstrap";
-import SearchBar from "./SearchBar";
-import DataTable, { createTheme } from "react-data-table-component";
+import { Col, Row, Spinner, Button } from "react-bootstrap";
 import IconButton from "./IconButton";
-import {
-  FaPen,
-  FaRedo,
-  FaPlus,
-  FaTimes,
-  FaCloudDownloadAlt,
-} from "react-icons/fa";
-import { Formik } from "formik";
-import * as Yup from "yup";
+import { FaCloudDownloadAlt } from "react-icons/fa";
 import ManagementBar from "./ManagementBar";
 import CustomDataTable from "./CustomDataTable";
 import DataLogDetailModal from "./DataLogDetailModal";
 import DataLogDownloadModal from "./DataLogDownloadModal";
 import { useRequireAuth } from "../resources/use-require-auth";
 import { roles } from "../resources/constants";
-import { parseISO, format } from "date-fns";
+import { parseISO, format, isAfter } from "date-fns";
+
+const emptyDataLogEntry = {
+  id: "",
+  meter: "",
+  dataPointNames: "",
+  startDate: "",
+  endDate: "",
+  samplingRate: "",
+};
 
 function DataLogs(props) {
   const [loading, setLoading] = useState(false);
-  const [dataLog, setdataLog] = useState([]);
+  const [dataLog, setDataLog] = useState([]);
 
   // Filter state
   const [filterText, setFilterText] = useState("");
   const [resetPaginationToggle, setResetPaginationToggle] = useState(false);
   const [filteredEntries, setFilteredEntries] = useState([]);
 
-  const [selectedEntry, setSelectedEntry] = useState({});
+  const [selectedEntry, setSelectedEntry] = useState(emptyDataLogEntry);
 
   // Detail States
   const [showDetails, setShowDetails] = useState(false);
@@ -52,28 +40,19 @@ function DataLogs(props) {
   const handleCloseDownload = () => setShowDownload(false);
   const handleShowDownload = () => setShowDownload(true);
 
-  const auth = useRequireAuth("/advanced/data-logs", [roles.Advanced]);
-
-  //Test Data
-  const testData = [
-    {
-      date: "February",
-      status: "Complete",
-    },
-  ];
+  const auth = useRequireAuth("/login", [roles.Advanced]);
 
   useEffect(() => {
-    fetchDataLog();
+    if (auth.user) fetchDataLog();
   }, []);
 
   useEffect(() => {
     setLoading(true);
     setFilteredEntries(
-      dataLog.filter(
-        (data_logs) =>
-          data_logs.meterString
-            .toLowerCase()
-            .includes(filterText.split(" ").join("").toLowerCase()) //Check this
+      dataLog.filter((data_logs) =>
+        data_logs.dataLogString
+          .toLowerCase()
+          .includes(filterText.split(" ").join("").toLowerCase())
       )
     );
     setLoading(false);
@@ -82,52 +61,67 @@ function DataLogs(props) {
   const fetchDataLog = async () => {
     setLoading(true);
     let data = await auth.userAxiosInstance
-      .get(`${auth.apiHost}/api/users/${auth.user.id}`)
+      .get(`${auth.apiHost}/api/data-logs`, { params: { user: auth.user.id } })
       .then((res) => {
-        return res.data.data_logs;
+        return res.data;
       })
       .catch(() => {
         return [];
       });
-      
 
+    let dataLogs = [];
     if (data.length) {
-      
-      data = await Promise.all( data.map( async(data_logs) => {
-        let meterData = await auth.userAxiosInstance
-        .get(`${auth.apiHost}/api/meters/${data_logs.meter}`)
-        .then((res) => {
-          return res.data;
-        })
-        let buildingData = await auth.userAxiosInstance
-        .get(`${auth.apiHost}/api/buildings/${data_logs.building}`)
-        .then((res) => {
-          return res.data;
-        })
-        let startdate = format(parseISO(data_logs.startdate), "MMM d yyyy");
-        let enddate = format(parseISO(data_logs.enddate), "MMM d yyyy");
+      dataLogs = await Promise.all(
+        data.map(async (dataLog) => {
+          // Get meter data
+          let meterName = await auth.userAxiosInstance
+            .get(`${auth.apiHost}/api/meters/${dataLog.meter}`)
+            .then((res) => {
+              return res.data.name;
+            });
 
-        let dPoints = data_logs.data_points.map(async (dPointId)=>{
-          return await auth.userAxiosInstance
-          .get(`${auth.apiHost}/api/data-points/${dPointId}`)
-          .then((res) =>{
-            return res.data;
-          })
+          // Get data points data
+          let dataPointNames = await Promise.all(
+            dataLog.data_points.map(async (dPointId) => {
+              return await auth.userAxiosInstance
+                .get(`${auth.apiHost}/api/data-points/${dPointId}`)
+                .then((res) => {
+                  return res.data.name;
+                });
+            })
+          );
+
+          let startDate = format(
+            parseISO(dataLog.start_date),
+            "dd-MMM-yyyy H:mm:ss"
+          );
+          let endDate = format(
+            parseISO(dataLog.end_date),
+            "dd-MMM-yyyy H:mm:ss"
+          );
+
+          let dataLogStringElements = [
+            meterName,
+            dataPointNames.join("").split(" ").join(""),
+            startDate,
+            endDate,
+            dataLog.sampling_rate,
+          ];
+
+          return {
+            id: dataLog.id,
+            dataLogString: dataLogStringElements.join("").split(" ").join(""),
+            meter: meterName,
+            dataPointNames: dataPointNames.join(", "),
+            startDate: startDate,
+            endDate: endDate,
+            samplingRate: dataLog.sampling_rate,
+            completed: isAfter(Date.now(), parseISO(dataLog.end_date)),
+          };
         })
-
-
-        let dataLogStringElements = [
-          data_logs.building,
-          data_logs.meter,
-          data_logs.start_date,
-          data_logs.sampling_rate,
-          data_logs.enddate,
-          data_logs.datapoints,
-        ];
-        return { userString: dataLogStringElements.join(""), ...dataLog };
-      }));
+      );
     }
-    setdataLog(data);
+    setDataLog(dataLogs);
     setLoading(false);
   };
 
@@ -148,24 +142,46 @@ function DataLogs(props) {
       button: true,
       allowOverflow: true,
     },
-    { name: "Date", selector: (row) => row.date, sortable: true },
-    { name: "Status", selector: (row) => row.status, sortable: true },
+    { name: "Start Date", selector: (row) => row.startDate, sortable: true },
+    { name: "End Date", selector: (row) => row.endDate, sortable: true },
+    { name: "Meter", selector: (row) => row.meter, sortable: true },
     {
-      name: "",
       cell: (row) => (
         <IconButton
           icon={<FaCloudDownloadAlt className="fs-5" />}
           clickAction={() => {
             setSelectedEntry(row);
             handleShowDownload();
-            //TODO add backend download//
           }}
         />
       ),
       button: true,
-      allowiverflow: true,
     },
   ];
+
+  const downloadDataLog = (id) => {
+    setLoading(true);
+    return auth.userAxiosInstance
+      .get(`${auth.apiHost}/api/data-logs/${id}/download`, {
+        responseType: "blob",
+      })
+      .then((response) => {
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", "file.csv"); //or any other extension
+        document.body.appendChild(link);
+        link.click();
+
+        return true;
+      })
+      .catch(() => {
+        return false;
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  };
 
   const handleClear = () => {
     if (filterText) {
@@ -177,10 +193,13 @@ function DataLogs(props) {
   return (
     <>
       <Row className="h-100">
-        <Col className="d-flex-column px-4 pt-4">
+        <Col className="d-flex flex-column px-4 pt-4">
           <Row>
-            <Col sm={12} className="pb-4">
-              <h1 className="bold">Data Logs</h1>
+            <Col
+              sm={12}
+              className="d-flex flex-row align-items-center pb-4 gap-4"
+            >
+              <h1 className="bold mb-0">Data Logs</h1>
               {loading && <Spinner variant="secondary" animation="border" />}
             </Col>
           </Row>
@@ -203,26 +222,24 @@ function DataLogs(props) {
                 progressPending={loading}
                 pagination
                 highlightOnHover
-                data={testData}
               />
             </Col>
           </Row>
         </Col>
       </Row>
-      <DataLogDetailModal 
-      show={showDetails} 
-      handleClose={handleCloseDetails} 
-      selectedEntry ={selectedEntry}
+      <DataLogDetailModal
+        show={showDetails}
+        handleClose={handleCloseDetails}
+        selectedEntry={selectedEntry}
       />
       <DataLogDownloadModal
         show={showDownload}
         handleClose={handleCloseDownload}
         selectedEntry={selectedEntry}
+        download={downloadDataLog}
       />
     </>
   );
 }
-
-DataLogs.propTypes = {};
 
 export default DataLogs;

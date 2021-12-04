@@ -10,10 +10,13 @@ from rest_framework.response import Response
 from rest_framework import status
 import csv
 from django.http import HttpResponse
+from django_filters.rest_framework import DjangoFilterBackend
 
 class DataLogViewSet(viewsets.ModelViewSet):
     queryset = DataLog.objects.all()
     serializer_class = DataLogSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ["user"]
     # permission_classes = [permissions.AllowAny] # Only use for testing
 
     @action(detail=True, methods=["get"])

@@ -39,41 +39,39 @@ function App() {
   };
 
   return (
-      <Container fluid className="overflow-hidden">
-        <Row className="vh-100 overflow-hidden">
-          <Route path={includeSidebar}>
-            <Col
-              sm={3}
-              xl={2}
-              className="d-flex flex-column sticky-top px-0 pr-sm-2"
-            >
-              <Sidebar />
-            </Col>
-          </Route>
-          <Col className="pt-sm-0">
-            <Switch>
-              <Route path="/dashboard">
-                {(auth.role === roles.Admin && (
-                  <Redirect to="/admin/manage-meters" />
-                )) || <Dashboard />}
-              </Route>
-              <Route path="/login">
-                <LoginPages />
-              </Route>
-              <Route path = "/advanced/data-logging-scheduler">
+    <Container fluid className="overflow-hidden">
+      <Row className="vh-100 overflow-hidden">
+        <Route path={includeSidebar}>
+          <Col
+            sm={3}
+            xl={2}
+            className="d-flex flex-column sticky-top px-0 pr-sm-2"
+          >
+            <Sidebar />
+          </Col>
+        </Route>
+        <Col className="pt-sm-0">
+          <Switch>
+            <Route path="/dashboard">
               {(auth.role === roles.Admin && (
-                    <Redirect to="/admin/manage-meters" />
-                  )) || <DataLoggingScheduler />}
+                <Redirect to="/admin/manage-meters" />
+              )) || <Dashboard />}
+            </Route>
+            <Route path="/login">
+              <LoginPages />
+            </Route>
+            <Route path="/advanced/data-logging-scheduler">
+              {(auth.role === roles.Admin && (
+                <Redirect to="/admin/manage-meters" />
+              )) || <DataLoggingScheduler />}
               {/* <DataLoggingScheduler/> */}
             </Route>
-            <Route path = "/advanced/data-logs">
-              {(auth.role === roles.Admin && (
-                  <Redirect to="/admin/manage-meters" />
-                )) || <DataLogs />}
+            <Route path="/advanced/data-logs">
               {/* <DataLogs/>  */}
+              <DataLogs />
             </Route>
-            <Route path = "/admin/manage-meters">
-              <ManageMeter/>
+            <Route path="/admin/manage-meters">
+              <ManageMeter />
             </Route>
             <Route path="/admin/manage-users">
               <ManageUsers />

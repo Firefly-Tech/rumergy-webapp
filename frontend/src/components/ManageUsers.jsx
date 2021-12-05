@@ -117,6 +117,8 @@ function ManageUsers() {
         return [];
       });
 
+    data = data.filter((user) => user.id !== auth.user.id);
+
     if (data.length) {
       data = data.map((user) => {
         // Build string with user attributes

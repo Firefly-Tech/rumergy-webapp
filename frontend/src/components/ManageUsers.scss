@@ -1,5 +1,7 @@
 $modal-content-bg: $body-bg;
 .user-table {
+  height: 60vh;
+  overflow: auto;
   .icon-button {
     color: black;
     font-size: 1.1em;
@@ -21,4 +23,3 @@ $modal-content-bg: $body-bg;
     transition: $hover-transition;
   }
 }
-

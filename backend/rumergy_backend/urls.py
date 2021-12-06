@@ -10,8 +10,7 @@ from rumergy_backend.rumergy.views.live_reading_view import live_read
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
-import sys
-sys.path.append('/Users/sebmrcd/Desktop/rumergy-webapp/backend/modbus')
+
 from modbus.singleton import SchedulerHandler
 
 scheduler = SchedulerHandler().retrieve_scheduler()

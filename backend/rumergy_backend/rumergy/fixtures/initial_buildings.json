@@ -1,0 +1,170 @@
+[
+  {
+    "model": "rumergy.building",
+    "fields": {
+      "name": "Sanchez Hildalgo"
+    }
+  },
+  {
+    "model": "rumergy.building",
+    "fields": {
+      "name": "Biologia"
+    }
+  },
+  {
+    "model": "rumergy.building",
+    "fields": {
+      "name": "Fisica"
+    }
+  },
+  {
+    "model": "rumergy.building",
+    "fields": {
+      "name": "Administracion de Empresas"
+    }
+  },
+  {
+    "model": "rumergy.building",
+    "fields": {
+      "name": "Antiguo Instituto"
+    }
+  },
+  {
+    "model": "rumergy.building",
+    "fields": {
+      "name": "Ingenieria Agricola"
+    }
+  },
+  {
+    "model": "rumergy.building",
+    "fields": {
+      "name": "Anexo Pinero"
+    }
+  },
+  {
+    "model": "rumergy.building",
+    "fields": {
+      "name": "Artes Plasticas"
+    }
+  },
+  {
+    "model": "rumergy.building",
+    "fields": {
+      "name": "Finca Alzamora"
+    }
+  },
+  {
+    "model": "rumergy.building",
+    "fields": {
+      "name": "Celis"
+    }
+  },
+  {
+    "model": "rumergy.building",
+    "fields": {
+      "name": "Campo Atletico"
+    }
+  },
+  {
+    "model": "rumergy.building",
+    "fields": {
+      "name": "Centro de Investigacion y Desarrollo"
+    }
+  },
+  {
+    "model": "rumergy.building",
+    "fields": {
+      "name": "Ingenieria Civil"
+    }
+  },
+  {
+    "model": "rumergy.building",
+    "fields": {
+      "name": "Coliseo Mangual"
+    }
+  },
+  {
+    "model": "rumergy.building",
+    "fields": {
+      "name": "Cancha Softball"
+    }
+  },
+  {
+    "model": "rumergy.building",
+    "fields": {
+      "name": "Cancha de Tenis"
+    }
+  },
+  {
+    "model": "rumergy.building",
+    "fields": {
+      "name": "Enfermeria"
+    }
+  },
+  {
+    "model": "rumergy.building",
+    "fields": {
+      "name": "Gimnasio"
+    }
+  },
+  {
+    "model": "rumergy.building",
+    "fields": {
+      "name": "Ingenieria Industrial"
+    }
+  },
+  {
+    "model": "rumergy.building",
+    "fields": {
+      "name": "Biblioteca"
+    }
+  },
+  {
+    "model": "rumergy.building",
+    "fields": {
+      "name": "Lucchetti"
+    }
+  },
+  {
+    "model": "rumergy.building",
+    "fields": {
+      "name": "Monzon"
+    }
+  },
+  {
+    "model": "rumergy.building",
+    "fields": {
+      "name": "Pinero"
+    }
+  },
+  {
+    "model": "rumergy.building",
+    "fields": {
+      "name": "Piscina"
+    }
+  },
+  {
+    "model": "rumergy.building",
+    "fields": {
+      "name": "Quimica"
+    }
+  },
+  {
+    "model": "rumergy.building",
+    "fields": {
+      "name": "Terrats"
+    }
+  },
+  {
+    "model": "rumergy.building",
+    "fields": {
+      "name": "Centro de Estudiantes"
+    }
+  },
+  {
+    "model": "rumergy.building",
+    "fields": {
+      "name": "Sanchez Hall"
+    }
+  }
+]

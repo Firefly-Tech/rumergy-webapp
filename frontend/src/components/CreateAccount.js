@@ -93,6 +93,8 @@ export default function CreateAccount(props) {
         return <StepOne formik={formik} />;
       case 1:
         return <StepTwo formik={formik} decrementStep={decrementStep} />;
+      default:
+        return <StepOne formik={formik} />;
     }
   };
 

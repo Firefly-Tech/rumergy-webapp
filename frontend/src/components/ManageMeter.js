@@ -168,8 +168,8 @@ function ManageMeter() {
 
           return {
             meterString: meterStringElements.join("").split(" ").join(""),
-            meter_model: { id: meterModel.id, name: meterModel.name },
-            building: { id: building.id, name: building.name },
+            meter_model: meterModel.name,
+            building: building.name,
             id: meter.id,
             name: meter.name,
             ip: meter.ip,
@@ -205,10 +205,10 @@ function ManageMeter() {
     },
     { name: "ID", selector: (row) => row.id, sortable: true },
     { name: "Name", selector: (row) => row.name, sortable: true },
-    { name: "Model", selector: (row) => row.meter_model.name, sortable: true },
+    { name: "Model", selector: (row) => row.meter_model, sortable: true },
     { name: "IP", selector: (row) => row.ip, sortable: true },
     { name: "Port", selector: (row) => row.port, sortable: true },
-    { name: "Building", selector: (row) => row.building.name, sortable: true },
+    { name: "Building", selector: (row) => row.building, sortable: true },
     { name: "Substation", selector: (row) => row.substation, sortable: true },
     {
       name: "Coordinates",
@@ -267,7 +267,7 @@ function ManageMeter() {
         return buildStatus(true);
       })
       .catch(() => {
-        return buildStatus(false, "Failed to create meter");
+        return buildStatus(false, "Failed to create meter.");
       })
       .finally(() => {
         setSubmitting(false);

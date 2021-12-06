@@ -13,6 +13,7 @@ import ManageMeter from "./components/ManageMeter";
 import ManageUsers from "./components/ManageUsers";
 import ManageAccessRequests from "./components/ManageAccessRequests";
 import ManageMeterModels from "./components/ManageMeterModels";
+import ManageBuildings from "./components/ManageBuildings";
 
 const includeSidebar = ["/dashboard*", "/admin*", "/advanced*", "/about*"];
 
@@ -39,27 +40,27 @@ function App() {
   };
 
   return (
-    <Container fluid className="overflow-hidden">
-      <Row className="vh-100 overflow-hidden">
-        <Route path={includeSidebar}>
-          <Col
-            sm={3}
-            xl={2}
-            className="d-flex flex-column sticky-top px-0 pr-sm-2"
-          >
-            <Sidebar />
-          </Col>
-        </Route>
-        <Col className="pt-sm-0">
-          <Switch>
-            <Route path="/dashboard">
-              {(auth.role === roles.Admin && (
-                <Redirect to="/admin/manage-meters" />
-              )) || <Dashboard />}
-            </Route>
-            <Route path="/login">
-              <LoginPages />
-            </Route>
+      <Container fluid className="overflow-hidden">
+        <Row className="vh-100 overflow-hidden">
+          <Route path={includeSidebar}>
+            <Col
+              sm={3}
+              xl={2}
+              className="d-flex flex-column sticky-top px-0 pr-sm-2"
+            >
+              <Sidebar />
+            </Col>
+          </Route>
+          <Col className="pt-sm-0">
+            <Switch>
+              <Route path="/dashboard">
+                {(auth.role === roles.Admin && (
+                  <Redirect to="/admin/manage-meters" />
+                )) || <Dashboard />}
+              </Route>
+              <Route path="/login">
+                <LoginPages />
+              </Route>
             <Route path="/advanced/data-logging-scheduler">
               {(auth.role === roles.Admin && (
                 <Redirect to="/admin/manage-meters" />
@@ -70,8 +71,8 @@ function App() {
               {/* <DataLogs/>  */}
               <DataLogs />
             </Route>
-            <Route path="/admin/manage-meters">
-              <ManageMeter />
+            <Route path = "/admin/manage-meters">
+              <ManageMeter/>
             </Route>
             <Route path="/admin/manage-users">
               <ManageUsers />
@@ -81,6 +82,9 @@ function App() {
             </Route>
             <Route path="/admin/manage-meter-models">
               <ManageMeterModels />
+            </Route>
+            <Route path="/admin/manage-buildings">
+              <ManageBuildings />
             </Route>
             <Route path="/" exact>
               <Redirect to={rootRedirect()} />

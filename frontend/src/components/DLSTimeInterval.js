@@ -13,22 +13,19 @@ function DLSTimeInterval(props) {
         <h4 className="bold mb-0">Time Interval</h4>
       </Card.Title>
       <Card.Body className="building-content">
-        <Form>
-          <Form.Group>
+       
             <Form.Check
-              type={"radio"}
-              name="real-time"
-              value={3}
-              id="real-time"
-              label={`Real Time`}
+               type="radio"
+               label="Real Time"
+               name="formHorizontalRadios"
+               id="formHorizontalRadios1"
             />
             <Form.Check
-              type={"radio"}
-              value="custom"
-              name="custom"
-              id="custom"
-              label={`Custom`}
-              onClick={() => chooseInterval()}
+               type="radio"
+               label="Custom"
+               name="formHorizontalRadios"
+               id="formHorizontalRadios2"
+              //onClick={() => chooseInterval()}
             />
             <Form.Control
               //style = "width: 30px"
@@ -36,8 +33,7 @@ function DLSTimeInterval(props) {
               size="sm"
               type={"number"}
             />
-          </Form.Group>
-        </Form>
+         
       </Card.Body>
     </Card>
   );

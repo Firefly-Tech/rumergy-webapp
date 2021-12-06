@@ -10,6 +10,7 @@ import {
   FaUsers,
   FaEnvelopeOpen,
   FaBars,
+  FaWifi,
 } from "react-icons/fa";
 import { NavLink, useLocation, useHistory } from "react-router-dom";
 import Help from "./Help";
@@ -53,6 +54,12 @@ const sidebarData = [
     link: "/admin/manage-meter-models",
     userRestrictions: [roles.Admin],
     icon: <FaBars className="fs-5" />,
+  },
+  {
+    menuName: "Real Time Monitor",
+    link: "/advanced/real-time-monitor",
+    userRestrictions: [roles.Advanced],
+    icon: <FaWifi className="fs-5" />,
   },
 ];
 

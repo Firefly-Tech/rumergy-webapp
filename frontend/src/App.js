@@ -10,6 +10,7 @@ import { useAuth } from "./resources/use-auth";
 import ManageUsers from "./components/ManageUsers";
 import ManageAccessRequests from "./components/ManageAccessRequests";
 import ManageMeterModels from "./components/ManageMeterModels";
+import RealTimeMonitor from "./components/RealTimeMonitor";
 
 const includeSidebar = ["/dashboard*", "/admin*", "/advanced*", "/about*"];
 
@@ -66,9 +67,13 @@ function App() {
             <Route path="/admin/manage-meter-models">
               <ManageMeterModels />
             </Route>
+            <Route path="/advanced/real-time-monitor">
+              <RealTimeMonitor />
+            </Route>
             <Route path="/" exact>
               <Redirect to={rootRedirect()} />
             </Route>
+            
             {/* TODO: Add 404 page */}
             <Route path="*">
               <h3>Page not found</h3>

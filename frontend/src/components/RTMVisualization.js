@@ -71,6 +71,27 @@ function RTMVisualization(props) {
   };
 
   // var name1 = "Select a meter";
+  /**
+   * Meters dropdown menu
+   *
+   * @constant {object} meters
+   * */
+  const meters = props => 
+    <select>{
+      props.meterList.map( (x,y) => 
+        <option key={y}>{x}</option> )
+    }</select>;
+
+   /**
+   * DataPoints dropdown menu
+   *
+   * @constant {object} dataPoints
+   * */
+    const dataPoints = props => 
+    <select>{
+      props.selectedDataPoint.name.map( (x,y) => 
+        <option key={y}>{x}</option> )
+    }</select>;
 
   return (
     <Card as={Row} className="RTM-data-visualization-card mb-sm-4 h-100">
@@ -85,7 +106,7 @@ function RTMVisualization(props) {
             <div className="align">
               <Form.Select aria-label="Default select example">
                 onChange={e => {
-                  console.log("e.target.value", e.target.value);
+                  console.log("e.target.key", e.target.key);
                 }}
                <option>Select a meter</option>
                <option value="1">1</option>

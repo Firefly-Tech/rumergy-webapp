@@ -151,10 +151,7 @@ function RealTimeMonitor() {
       <Row className="h-100">
         <Col className="d-flex flex-column px-4 pt-4">
           <Row>
-          <Col
-              sm={12}
-              className="d-flex flex-row align-items-center pb-4 gap-4"
-            >
+          <Col sm={12} className="d-flex flex-row align-items-center pb-4 gap-4">
               <h1 className="bold mb-0">Real Time View</h1>
               {loading && <Spinner variant="secondary" animation="border" />}
             </Col>

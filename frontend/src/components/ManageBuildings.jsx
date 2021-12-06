@@ -4,8 +4,8 @@ import { roles } from "../resources/constants";
 import { Row, Col, Spinner } from "react-bootstrap";
 import IconButton from "./IconButton";
 import { FaPen } from "react-icons/fa";
-import UserEditModal from "./UserEditModal";
-import UserAddModal from "./UserAddModal";
+import BuildingEditModal from "./BuildingEditModal";
+import BuildingAddModal from "./BuildingAddModal";
 import ManagementBar from "./ManagementBar";
 import CustomDataTable from "./CustomDataTable";
 import { buildStatus } from "../resources/helpers";
@@ -13,22 +13,17 @@ import { buildStatus } from "../resources/helpers";
 /**
  * Initial value for selectedEditEntry
  *
- * @constant {object} emptyEditUserEntry
+ * @constant {object} emptyEditBuildingEntry
  * */
-const emptyEditUserEntry = {
+const emptyEditBuildingEntry = {
   id: null,
-  profile: {
-    first_name: "",
-    last_name: "",
-    role: "",
-  },
-  email: "",
+  name: "",
 };
 
-/** User management screen for admins. */
-function ManageUsers() {
+/** Building management screen for admins. */
+function ManageBuildings() {
   const [loading, setLoading] = useState(false);
-  const [users, setUsers] = useState([]);
+  const [buildings, setBuildings] = useState([]);
 
   // Filter state
   const [filterText, setFilterText] = useState("");
@@ -36,8 +31,9 @@ function ManageUsers() {
   const [filteredEntries, setFilteredEntries] = useState([]);
 
   // Edit modal state
-  const [selectedEditEntry, setSelectedEditEntry] =
-    useState(emptyEditUserEntry);
+  const [selectedEditEntry, setSelectedEditEntry] = useState(
+    emptyEditBuildingEntry
+  );
   const [showEdit, setShowEdit] = useState(false);
 
   /**
@@ -75,41 +71,41 @@ function ManageUsers() {
 
   useEffect(() => {
     /**
-     * Fetch user data on load.
+     * Fetch buliding data on load.
      *
-     * @memberof ManageUsers
+     * @memberof ManageBuildings
      * */
-    fetchUsers();
+    fetchBuildings();
   }, []);
 
   useEffect(() => {
     /**
      * Updates filtered entries if the filter text or
-     * users list changes.
+     * building list changes.
      *
-     * @memberof ManageUsers
+     * @memberof ManageBuildings
      * */
     setLoading(true);
     setFilteredEntries(
-      users.filter((user) =>
-        user.userString
+      buildings.filter((building) =>
+        building.buildingString
           .toLowerCase()
           .includes(filterText.split(" ").join("").toLowerCase())
       )
     );
     setLoading(false);
-  }, [users, filterText]);
+  }, [buildings, filterText]);
 
   /**
-   * Handles fetching user data.
+   * Handles fetching building data.
    *
-   * @function fetchUsers
+   * @function fetchBuildings
    * @async
    * */
-  const fetchUsers = async () => {
+  const fetchBuildings = async () => {
     setLoading(true);
     let data = await auth.userAxiosInstance
-      .get(`${auth.apiHost}/api/users`)
+      .get(`${auth.apiHost}/api/buildings`)
       .then((res) => {
         return res.data;
       })
@@ -117,25 +113,16 @@ function ManageUsers() {
         return [];
       });
 
-    data = data.filter((user) => user.id !== auth.user.id);
-
     if (data.length) {
-      data = data.map((user) => {
-        // Build string with user attributes
+      data = data.map((building) => {
+        // Build string with building attributes
         // for filtering.
-        let userStringElements = [
-          user.id,
-          user.username,
-          user.email,
-          user.profile.first_name,
-          user.profile.last_name,
-          user.profile.role,
-        ];
+        let buildingStringElements = [building.id, building.name];
 
-        return { userString: userStringElements.join(""), ...user };
+        return { buildingString: buildingStringElements.join(""), ...building };
       });
     }
-    setUsers(data);
+    setBuildings(data);
     setLoading(false);
   };
 
@@ -160,19 +147,7 @@ function ManageUsers() {
       allowOverflow: true,
     },
     { name: "ID", selector: (row) => row.id, sortable: true },
-    { name: "Username", selector: (row) => row.username, sortable: true },
-    { name: "Email", selector: (row) => row.email, sortable: true },
-    {
-      name: "First Name",
-      selector: (row) => row.profile.first_name,
-      sortable: true,
-    },
-    {
-      name: "Last Name",
-      selector: (row) => row.profile.last_name,
-      sortable: true,
-    },
-    { name: "Role", selector: (row) => row.profile.role, sortable: true },
+    { name: "Name", selector: (row) => row.name, sortable: true },
   ];
 
   /**
@@ -189,7 +164,7 @@ function ManageUsers() {
   };
 
   /**
-   * Handles adding a new user.
+   * Handles adding a new building.
    *
    * @function handleAdd
    * @param {object} values - Formik object with form values
@@ -200,24 +175,17 @@ function ManageUsers() {
   const handleAdd = async (values, { setSubmitting }) => {
     setLoading(true);
     let data = {
-      username: values.username,
-      email: values.email,
-      password: values.password,
-      profile: {
-        first_name: values.firstName,
-        last_name: values.lastName,
-        role: values.role,
-      },
+      name: values.name,
     };
 
     return auth.userAxiosInstance
-      .post(`${auth.apiHost}/api/users/`, data)
+      .post(`${auth.apiHost}/api/buildings/`, data)
       .then(() => {
-        fetchUsers();
+        fetchBuildings();
         return buildStatus(true);
       })
       .catch(() => {
-        return buildStatus(false, "Failed to create user.");
+        return buildStatus(false, "Failed to create building.");
       })
       .finally(() => {
         setSubmitting(false);
@@ -226,10 +194,10 @@ function ManageUsers() {
   };
 
   /**
-   * Handles editing a user entry.
+   * Handles editing a building entry.
    *
    * @function handleEdit
-   * @param {number} id - User id
+   * @param {number} id - Building id
    * @param {object} values - Formik object with form values
    * @param {function} setSubmitting - Formik function to handle submitting state
    * @returns {object} Object with operation status.
@@ -238,22 +206,17 @@ function ManageUsers() {
   const handleEdit = async (id, values, { setSubmitting }) => {
     setLoading(true);
     let data = {
-      profile: {
-        first_name: values.firstName,
-        last_name: values.lastName,
-        role: values.role,
-      },
-      email: values.email,
+      name: values.name,
     };
 
     return auth.userAxiosInstance
-      .patch(`${auth.apiHost}/api/users/${id}/`, data)
+      .patch(`${auth.apiHost}/api/buildings/${id}/`, data)
       .then(() => {
-        fetchUsers();
+        fetchBuildings();
         return buildStatus(true);
       })
       .catch(() => {
-        return buildStatus(false, "Failed to update user.");
+        return buildStatus(false, "Failed to update building.");
       })
       .finally(() => {
         setSubmitting(false);
@@ -262,10 +225,10 @@ function ManageUsers() {
   };
 
   /**
-   * Handles deleting a user entry.
+   * Handles deleting a building entry.
    *
    * @function handleDelete
-   * @param {number} id - User id
+   * @param {number} id - Building id
    * @param {function} setSubmitting - Formik function to handle submitting state
    * @returns {object} Object with operation status.
    * @async
@@ -274,13 +237,13 @@ function ManageUsers() {
     setLoading(true);
 
     return auth.userAxiosInstance
-      .delete(`${auth.apiHost}/api/users/${id}/`)
+      .delete(`${auth.apiHost}/api/buildings/${id}/`)
       .then(() => {
-        fetchUsers();
+        fetchBuildings();
         return buildStatus(true);
       })
       .catch(() => {
-        return buildStatus(false, "Failed to delete user.");
+        return buildStatus(false, "Failed to delete building.");
       })
       .finally(() => {
         setSubmitting(false);
@@ -297,7 +260,7 @@ function ManageUsers() {
               sm={12}
               className="d-flex flex-row align-items-center pb-4 gap-4"
             >
-              <h1 className="bold mb-0">Users</h1>
+              <h1 className="bold mb-0">Buildings</h1>
               {loading && <Spinner variant="secondary" animation="border" />}
             </Col>
           </Row>
@@ -308,9 +271,9 @@ function ManageUsers() {
                 setFilterText={setFilterText}
                 loading={loading}
                 addButton
-                addText={"Add new user"}
+                addText={"Add new building"}
                 handleClear={handleClear}
-                onRefresh={fetchUsers}
+                onRefresh={fetchBuildings}
                 onAdd={handleShowAdd}
               />
             </Col>
@@ -328,14 +291,14 @@ function ManageUsers() {
           </Row>
         </Col>
       </Row>
-      <UserEditModal
+      <BuildingEditModal
         show={showEdit}
         handleClose={handleCloseEdit}
         selectedEditEntry={selectedEditEntry}
         handleEdit={handleEdit}
         handleDelete={handleDelete}
       />
-      <UserAddModal
+      <BuildingAddModal
         show={showAdd}
         handleClose={handleCloseAdd}
         handleSubmit={handleAdd}
@@ -344,4 +307,4 @@ function ManageUsers() {
   );
 }
 
-export default ManageUsers;
+export default ManageBuildings;

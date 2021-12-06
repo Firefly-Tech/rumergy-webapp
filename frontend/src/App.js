@@ -14,6 +14,7 @@ import ManageUsers from "./components/ManageUsers";
 import ManageAccessRequests from "./components/ManageAccessRequests";
 import ManageMeterModels from "./components/ManageMeterModels";
 import ManageBuildings from "./components/ManageBuildings";
+import About from "./components/About";
 
 const includeSidebar = ["/dashboard*", "/admin*", "/advanced*", "/about*"];
 
@@ -85,6 +86,9 @@ function App() {
             </Route>
             <Route path="/admin/manage-buildings">
               <ManageBuildings />
+            </Route>
+            <Route path="/about">
+              <About />
             </Route>
             <Route path="/" exact>
               <Redirect to={rootRedirect()} />

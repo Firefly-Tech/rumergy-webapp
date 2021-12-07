@@ -168,8 +168,8 @@ function ManageMeter() {
 
           return {
             meterString: meterStringElements.join("").split(" ").join(""),
-            meter_model: meterModel.name,
-            building: building.name,
+            meter_model: {name : meterModel.name, id: meterModel.id},
+            building: {name: building.name, id: building.id},
             id: meter.id,
             name: meter.name,
             ip: meter.ip,
@@ -205,10 +205,10 @@ function ManageMeter() {
     },
     { name: "ID", selector: (row) => row.id, sortable: true },
     { name: "Name", selector: (row) => row.name, sortable: true },
-    { name: "Model", selector: (row) => row.meter_model, sortable: true },
+    { name: "Model", selector: (row) => row.meter_model.name, sortable: true },
     { name: "IP", selector: (row) => row.ip, sortable: true },
     { name: "Port", selector: (row) => row.port, sortable: true },
-    { name: "Building", selector: (row) => row.building, sortable: true },
+    { name: "Building", selector: (row) => row.building.name, sortable: true },
     { name: "Substation", selector: (row) => row.substation, sortable: true },
     {
       name: "Coordinates",

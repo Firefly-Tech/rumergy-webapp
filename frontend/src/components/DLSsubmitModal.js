@@ -17,13 +17,16 @@ function DLSsubmitModal(props) {
         </Modal.Title>
       </Modal.Header>
       <Modal.Footer className="align-self-center">
-                                {/* Comfirm the DataLog */}
-        <Button className="d-flex align-items-center" onClick={props.onHide}> 
-          {<FaCheck />} Confirm 
+        {/* Confirm the DataLog */}
+        <Button
+          className="d-flex flex-row align-items-center gap-2"
+          type="submit"
+        >
+          {<FaCheck />} Confirm
         </Button>
 
         <Button
-          className="d-flex align-items-center"
+          className="d-flex flex-row align-items-center gap-2"
           variant="secondary"
           onClick={props.onHide}
         >
@@ -34,5 +37,10 @@ function DLSsubmitModal(props) {
   );
 }
 
-export default DLSsubmitModal;
+DLSsubmitModal.propType = {
+  show: PropTypes.bool,
+  onHide: PropTypes.func,
+  handleSubmit: PropTypes.func,
+};
 
+export default DLSsubmitModal;

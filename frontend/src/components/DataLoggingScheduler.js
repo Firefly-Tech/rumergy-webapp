@@ -1,373 +1,402 @@
-import { React, useState, useEffect } from "react";
+import { React, useState, useRef, useEffect } from "react";
 import PropTypes from "prop-types";
-import { Col, Row, Modal, Button, Form, Card, InputGroup, } from "react-bootstrap";
-import DLSBuildingSelect from "./DLSBuidingSelect";
-import DLSMeterSelect from "./DLSMeterSelect";
-import DLSDataPoints from "./DLSDataPoints";
-import DLSTimeInterval from "./DLSTimeInterval";
-import DLSDateStart from "./DLSDateStart";
-import DLSDateEnd from "./DLSDateEnd";
+import {
+  Col,
+  Row,
+  Button,
+  Form,
+  Card,
+  InputGroup,
+  Spinner,
+} from "react-bootstrap";
 import DLSsubmitModal from "./DLSsubmitModal";
-import { FaCheck } from "react-icons/fa";
 import { useRequireAuth } from "../resources/use-require-auth";
 import { roles } from "../resources/constants";
-import { Formik } from "formik";
+import { Formik, FieldArray } from "formik";
+import { add, addSeconds } from "date-fns";
 import * as Yup from "yup";
-import DateTimePicker from 'react-datetime-picker';
+import DateTimePicker from "react-datetime-picker";
 
+/**
+ *
+ *
+ * @constant REAL_TIME_INTERVAL
+ * */
+const REAL_TIME_INTERVAL = 3;
 
 const dataLogSubmitSchema = Yup.object().shape({
-
-  building: Yup.number().integer().required("Choosing a Building is required"),
-
   meter: Yup.number().integer().required("Choosing a Meter is required"),
-
-  timeInterval: 
-    Yup.number().integer()
+  timeInterval: Yup.number()
+    .integer("Must be an integer")
     .required("Choosing a Time Interval is required"),
-
-  startDate:
-    Yup.string()
+  startDate: Yup.date()
+    .typeError("Must provide a date")
+    .min(new Date(Date.now()), "Date cannot be in the past")
+    .max(
+      add(new Date(Date.now()), { days: 30 }),
+      "Start date can be at most a week from now"
+    )
     .required("Choosing a Start Date is required"),
+  endDate: Yup.date().when("timeInterval", {
+    is: REAL_TIME_INTERVAL,
+    then: Yup.date()
+      .typeError("Must provide a date")
+      .when(
+        ["startDate", "timeInterval"],
+        (startDate, timeInterval, schema) => {
+          if (!startDate) return;
+          let min = addSeconds(startDate, timeInterval);
+          let max = add(startDate, { minutes: 5 });
 
-  endDate:
-    Yup.string()
-    .required("Choosing a End Date is required"),
+          return schema
+            .min(
+              min,
+              "End date must be after start date and must allow for at least one interval"
+            )
+            .max(max, "For real time, max schedule length is 5 minutes");
+        }
+      )
+      .required("End date is required"),
+    otherwise: Yup.date()
+      .typeError("Must provide a date")
+      .when(
+        ["startDate", "timeInterval"],
+        (startDate, timeInterval, schema) => {
+          if (!startDate) return;
+          let min = addSeconds(startDate, timeInterval);
+          let max = add(startDate, { days: 30 });
 
-
-  dataPoints: 
-    Yup.number().integer()
-    .required("Choosing atleast one Data Point is required"),
+          return schema
+            .min(
+              min,
+              "End date must be after start date and must allow for at least one interval"
+            )
+            .max(max, "Schedules cannot be more than 30 days long");
+        }
+      )
+      .required("End date is required"),
+  }),
+  dataPoints: Yup.array()
+    .of(Yup.number().integer().min(1))
+    .max(50)
+    .required("Must select at least one data point"),
 });
 
-
-function DataLoggingScheduler(props) {
-  const auth = useRequireAuth("/advanced/data-logging-scheduler", [
-    roles.Advanced,
-  ]);
-
-  //Modal State
-  const [modalShow, setModalShow] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [buildings, setBuildings] = useState([]);
-
+function DLSFormikWrapper() {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [meters, setMeters] = useState([]);
 
-  const [value, onChange] = useState(new Date());
-  const [value2, onChange2] = useState(new Date());
+  const auth = useRequireAuth("/login", [roles.Advanced]);
 
-  // useEffect(() => {
-  //   fetchAllData();
-  // }, []);
+  useEffect(() => {
+    fetchMeters();
+  }, []);
 
-  // const fetchAllData = () => {
-  //   setLoading(true);
-  //   // fetchMeters();
-  //   fetchBuildings();
-  //   setLoading(false);
-  // };
+  const fetchMeters = async () => {
+    setLoading(true);
+    let data = await auth.userAxiosInstance
+      .get(`${auth.apiHost}/api/meters`, {
+        params: { ordering: "building__name" },
+      })
+      .then((res) => {
+        return res.data;
+      })
+      .catch(() => {
+        return [];
+      });
 
-  // const fetchBuildings = async () => {
-  //   let data = await auth.userAxiosInstance
-  //     .get(`${auth.apiHost}/api/buildings`)
-  //     .then((res) => {
-  //       return res.data;
-  //     });
-  //   setBuildings(
-  //     data.map((building) => ({ name: building.name, id: building.id }))
-  //   );
-  // };
+    if (data.length) {
+      data = await Promise.all(
+        data.map(async (meter) => {
+          let building = await auth.userAxiosInstance
+            .get(`${auth.apiHost}/api/buildings/${meter.building}`)
+            .then((res) => {
+              return res.data;
+            });
 
-  // const fetchMeters = async () => {
-  //   setLoading(true);
-  //   let data = await auth.userAxiosInstance
-  //     .get(`${auth.apiHost}/api/meters`)
-  //     .then((res) => {
-  //       return res.data;
-  //     })
-  //     .catch(() => {
-  //       return [];
-  //     });
-  //   if (data.length){
-  //     data = await Promise.all(
-  //       data.map(async (meter)=>{
-  //         // let building = await auth.userAxiosInstance
-  //         //   .get(`${auth.apiHost}/api/buildings/${meter.building}`)
-  //         //   .then((res) => {
-  //         //     return res.data;
-  //         //   });
+          return {
+            id: meter.id,
+            name: `${meter.name} (${building.name})`,
+            meterModel: meter.meter_model,
+          };
+        })
+      );
+    }
 
-  //         let dataPointNames = await Promise.all(
-  //           meter.data_points.map(async (dPointId) => {
-  //             return await auth.userAxiosInstance
-  //               .get(`${auth.apiHost}/api/data-points/${dPointId}`)
-  //               .then((res) => {
-  //                 return res.data.name;
-  //               });
-  //           })
-  //         );
-          
-  //         //Not necessary? because no search
-  //         let meterStringElements = [
-  //           meter.name,
-  //           //building.name,
-  //           dataPointNames.join("").split(" ").join(""),
-  //         ];
+    setMeters(data);
+    setLoading(false);
+  };
 
-  //         return{
-  //           //building: {id: building.id, name: building.name},
-  //           name: meter.name,
-  //           dataPointNames: dataPointNames,
-  //         };
-  //       })
-  //     );
-  //   }
-  //   //set?
-  //   setLoading(false);
-  // };
+  const handleSubmit = async (values, { setSubmitting }) => {
+    setLoading(true);
+    console.log("Submit");
+  };
 
-  // const Submit = async (values, {setSubmitting}) => {
-  //   setLoading(true);
+  return (
+    <Formik
+      initialValues={{
+        meter: meters.length ? meters[0].id : 1,
+        timeInterval: REAL_TIME_INTERVAL,
+        startDate: new Date(Date.now()),
+        endDate: new Date(Date.now()),
+        dataPoints: [],
+      }}
+      validationSchema={dataLogSubmitSchema}
+      onSubmit={async (values, handlers) => {
+        let status = await handleSubmit(values, handlers);
+        if (status.success) setSuccess(true);
+        else {
+          setError(true);
+          setErrorMessage(status.errorMessage);
+        }
+      }}
+    >
+      {(formik) => (
+        <DataLoggingScheduler
+          auth={auth}
+          formik={formik}
+          success={success}
+          error={error}
+          loading={loading}
+          setSuccess={setSuccess}
+          setError={setError}
+          setLoading={setLoading}
+          meters={meters}
+        />
+      )}
+    </Formik>
+  );
+}
 
-  //   const checkEmpty = (value) => {
-  //     return !!value ? value : "None";
-  //   };
+function DataLoggingScheduler(props) {
+  //Modal State
+  const [modalShow, setModalShow] = useState(false);
+  const [dataPoints, setDataPoints] = useState([]);
 
-  //   let data = {
-  //     building: values.building,
-  //     meter: values.meter,
-  //     sampling_rate: values.sampling_rate,
-  //     start_date: values.start_date,
-  //     end_date: values.end_date,
-  //     data_points: values.data_points,
-  //   };
-    
-  //   return auth.userAxiosInstance
-  //     .post(`${auth.apiHost}/api/data-logs`, data)
-  //     .then(() => {
-  //       fetchBuildings();
-  //       fetchMeters();
+  useEffect(() => {
+    if (!props.loading && props.meters.length) {
+      fetchDataPoints();
+    }
+  }, [props.formik.values.meter]);
 
-  //     })
-      
-  // }
+  const fetchDataPoints = async () => {
+    props.setLoading(true);
+    let meterModel = props.meters.filter(
+      (meter) => meter.id === parseInt(props.formik.values.meter)
+    )[0].meterModel;
+
+    let data = await props.auth.userAxiosInstance
+      .get(`${props.auth.apiHost}/api/data-points`, {
+        params: { model: meterModel },
+      })
+      .then((res) => {
+        return res.data;
+      })
+      .catch((err) => {
+        return [];
+      });
+    setDataPoints(
+      data.map((dataPoint) => ({
+        id: dataPoint.id,
+        name: dataPoint.name,
+        selected: false,
+      }))
+    );
+    props.setLoading(false);
+  };
 
   return (
     <Row className="h-100">
       <Col className="d-flex-column px-4 pt-4">
         {/*HEADER*/}
         <Row>
-          <Col sm={12} className="pb-4">
-            <h1 className="bold">Data Logging Scheduler</h1>
+          <Col
+            sm={12}
+            className="d-flex flex-row align-items-center pb-4 gap-4"
+          >
+            <h1 className="bold mb-0">Data Logging Scheduler</h1>
+            {props.loading && (
+              <Spinner variant="secondary" animation="border" />
+            )}
           </Col>
         </Row>
         {/* BODY */}
-        <Formik
-          initialValues = {{
-            building: "",
-            meter: "",
-            timeInterval: "",
-            startDate: "",
-            endDate: "",
-            dataPoints: "",
-          }}
-          validationSchema = {dataLogSubmitSchema}
-          onSubmit = {async (values, handlers) => {
-            let status = await props.handleSubmit(values, handlers);
-            if (status.success) setSuccess(true);
-            else {
-              setError(true);
-              setErrorMessage(status.errorMessage);
-            }
-          }}
+        <Form
+          onSubmit={props.formik.handleSubmit}
+          noValidate
+          className="d-flex flex column"
         >
-          {(formik) => (
-            <>
-              <Form
-                onSubmit = {formik.handleSubmit}
-                noValidate
-                className = "d-flex flex column"
-              >
-                <Row className="flex-grow-1 ">
-                  <Col xs={10} className=" d-flex flex-column">
-                    <div className="my-auto">
-                      {/* <DLSBuildingSelect */}
-                      <Card className="DLS-card mb-sm-3 flex-row flex-fill">
-                        <Card.Title className="d-flex flex-row align-self-center px-3 pt-2">
-                          <h4 className="bold mb-0">Building</h4>
-                        </Card.Title>
-                        <Card.Body className="building-content">
-                          <InputGroup hasValidation>
-                            <Form.Select 
-                            //aria-label="Default select"
-                            id="building"
-                            placeholder="Enter building"
-                            isInvalid={!!formik.errors.building}
-                            {...formik.getFieldProps("building")}
-                            >
-                              {/* <option>Choose Building</option>
-                              <option value="1">Chardon</option>
-                              <option value="2">Biology</option>
-                              <option value="3">Stefani</option> */}
-                              {buildings.map((building, index) => (
-                                <option value={building.id} key={index}>
-                                  {building.name}
-                                </option>
-                              ))}
-                            </Form.Select>
-                            <Form.Control.Feedback type="invalid">
-                              {formik.errors.building}
-                            </Form.Control.Feedback>
-                          </InputGroup>
-                        </Card.Body>
-                      </Card>
-                      {/* <DLSMeterSelect /> */}
-                      <Card className="DLS-card mb-sm-3 flex-row">
-                        <Card.Title className="d-flex flex-row align-self-center px-3 pt-2">
-                          <h4 className="bold mb-0">Meter</h4>
-                        </Card.Title>
-                        <Card.Body className="building-content">
-                          <InputGroup hasValidation>
-                            <Form.Select
-                              id="meter"
-                              aria-label="Default select"
-                              isInvalid={!!formik.errors.meter}
-                              {...formik.getFieldProps("meter")}
-                              disabled={false}
-                            >
-                              {/* <option>Choose Meter</option>
-                              <option value="1">Model 1</option>
-                              <option value="2">Model 2</option>
-                              <option value="3">Model 3</option> */}
-                              {/* {.map((meter, index) => (
-                                <option value={meter.id} key={index}>
-                                  {meter.name}
-                                </option>
-                              ))} */}
-                            </Form.Select>
-                            <Form.Control.Feedback type="invalid">
-                              {formik.errors.meter}
-                            </Form.Control.Feedback>
-                          </InputGroup>
-                        </Card.Body>
-                      </Card>
-
-                      {/* <DLSTimeInterval /> */}
-                      <Card className="DLS-card mb-sm-3 flex-fill">
-                        <Card.Title className="d-flex flex-row align-self-start px-3 pt-2">
-                          <h4 className="bold mb-0">Time Interval</h4>
-                        </Card.Title>
-                        <Card.Body className="building-content">
-                          <Form.Group
-                          id = "timeInterval"
-                          isInvalid={!!formik.errors.timeInterval}
-                          {...formik.getFieldProps("timeInterval")}
-                          >
-                              <Form.Check
-                                type="radio"
-                                label="Real Time"
-                                name="formHorizontalRadios"
-                                id="formHorizontalRadios1"
-                              />
-                              <Form.Check
-                                type="radio"
-                                label="Custom"
-                                name="formHorizontalRadios"
-                                id="formHorizontalRadios2"
-                                //onClick={() => chooseInterval()}
-                              />
-                              <Form.Control
-                                //style = "width: 30px"
-                                className="d-flex "
-                                size="sm"
-                                type={"number"}
-                              />
-                          </Form.Group>
-                        </Card.Body>
-                      </Card>
-
-                      {/* <DLSDateStart /> */}
-                      <Card className = "DLS-card mb-sm-3 flex-fill">
-                          <Card.Title className = "d-flex flex-row align-self-start px-3 pt-2">
-                              <h4 className = "bold mb-0">Date Start</h4>
-                          </Card.Title>
-                          <Card.Body>
-                              <DateTimePicker
-                              className = ""
-                              onChange={onChange}
-                              value={value}
-                              />
-                          </Card.Body>
-                      </Card>
-
-                      {/* <DLSDateEnd /> */}
-                      <Card className = "DLS-card mb-sm-3 flex-fill">
-                          <Card.Title className = "d-flex flex-row align-self-start px-3 pt-2">
-                              <h4 className = "bold mb-0">Date End</h4>
-                          </Card.Title>
-                          <Card.Body>
-                              <DateTimePicker
-                              onChange={onChange2}
-                              value={value2}
-                              />
-                          </Card.Body>
-
-                      </Card>
-
-                    </div>
-                  </Col>
-                  <Col
-                    sm={"auto"}
-                    className="d-flex flex-column justify-content-evenly"
-                  >
-                    {/* <DLSDataPoints /> */}
-                    <Card className = "DLS-card mb-sm-3 flex-fill">
-                        <Card.Title className = "d-flex flex-row align-self-start px-3 pt-2">
-                            <h4 className = "bold mb-0">Data Points</h4>
-                        </Card.Title>
-                        <Card.Body className = "building-content"> 
-                            <Form.Group 
-                              className="px-3" 
-                              id="formGridCheckbox"
-                              isInvalid={!!formik.errors.dataPoints}
-                              {...formik.getFieldProps("dataPoints")}
-                              >
-                                <Form.Check type="checkbox" label="Consumption" />
-                                <Form.Check type="checkbox" label="Demand" />
-                            </Form.Group>
-                        </Card.Body>
-                    </Card>
-
-                    <>
-                      <Button
-                        variant="primary"
-                        onClick={() => setModalShow(true)}
+          <Row className="flex-grow-1 ">
+            <Col xs={10} className=" d-flex flex-column">
+              <div className="my-auto">
+                {/* <DLSMeterSelect /> */}
+                <Card className="DLS-card mb-sm-3 flex-row">
+                  <Card.Title className="d-flex flex-row align-self-center px-3 pt-2">
+                    <h4 className="bold mb-0">Meter</h4>
+                  </Card.Title>
+                  <Card.Body className="building-content">
+                    <InputGroup hasValidation>
+                      <Form.Select
+                        id="meter"
+                        placeholder="Select meter"
+                        isInvalid={!!props.formik.errors.meter}
+                        {...props.formik.getFieldProps("meter")}
+                        disabled={!props.meters.length || props.loading}
                       >
-                        Submit
-                      </Button>
+                        {props.meters.map((meter, index) => (
+                          <option value={meter.id} key={index}>
+                            {meter.name}
+                          </option>
+                        ))}
+                      </Form.Select>
+                      <Form.Control.Feedback type="invalid">
+                        {props.formik.errors.meter}
+                      </Form.Control.Feedback>
+                    </InputGroup>
+                  </Card.Body>
+                </Card>
 
-                      <DLSsubmitModal
-                        show={modalShow}
-                        onHide={() => setModalShow(false)}
+                {/* <DLSTimeInterval /> */}
+                <Card className="DLS-card mb-sm-3 flex-fill">
+                  <Card.Title className="d-flex flex-row align-self-start px-3 pt-2">
+                    <h4 className="bold mb-0">Time Interval</h4>
+                  </Card.Title>
+                  <Card.Body className="building-content">
+                    <Form.Group
+                      id="timeInterval"
+                      isInvalid={!!props.formik.errors.timeInterval}
+                      {...props.formik.getFieldProps("timeInterval")}
+                    >
+                      <Form.Check
+                        type="radio"
+                        label="Real Time"
+                        name="formHorizontalRadios"
+                        id="formHorizontalRadios1"
                       />
-                    </>
-                  </Col>
-                </Row>
-              </Form>
-            </>
-          )}
-        </Formik>
+                      <Form.Check
+                        type="radio"
+                        label="Custom"
+                        name="formHorizontalRadios"
+                        id="formHorizontalRadios2"
+                        //onClick={() => chooseInterval()}
+                      />
+                      <Form.Control
+                        //style = "width: 30px"
+                        className="d-flex "
+                        size="sm"
+                        type={"number"}
+                      />
+                    </Form.Group>
+                  </Card.Body>
+                </Card>
+
+                {/* <DLSDateStart /> */}
+                <Card className="DLS-card mb-sm-3 flex-fill">
+                  <Card.Title className="d-flex flex-row align-self-start px-3 pt-2">
+                    <h4 className="bold mb-0">Date Start</h4>
+                  </Card.Title>
+                  <Card.Body>
+                    <DateTimePicker
+                      className="date-picking-thing"
+                      name="startDate"
+                      onChange={(val) => {
+                        props.formik.setFieldValue("startDate", val);
+                      }}
+                      value={props.formik.values.startDate}
+                      minDate={new Date(Date.now())}
+                    />
+                    <span className="text-danger px-3">
+                      {props.formik.errors.startDate}
+                    </span>
+                  </Card.Body>
+                </Card>
+                {/* <DLSDateEnd /> */}
+                <Card className="DLS-card mb-sm-3 flex-fill">
+                  <Card.Title className="d-flex flex-row align-self-start px-3 pt-2">
+                    <h4 className="bold mb-0">Date End</h4>
+                  </Card.Title>
+                  <Card.Body>
+                    <DateTimePicker
+                      className="date-picking-thing"
+                      name="endDate"
+                      onChange={(val) => {
+                        props.formik.setFieldValue("endDate", val);
+                      }}
+                      value={props.formik.values.endDate}
+                      minDate={props.formik.values.startDate}
+                    />
+                    <span className="text-danger px-3">
+                      {props.formik.errors.endDate}
+                    </span>
+                  </Card.Body>
+                </Card>
+              </div>
+            </Col>
+            <Col
+              sm={"auto"}
+              className="d-flex flex-column justify-content-evenly"
+            >
+              {/* <DLSDataPoints /> */}
+              <Card className="DLS-card mb-sm-3 flex-fill">
+                <Card.Title className="d-flex flex-row align-self-start px-3 pt-2">
+                  <h4 className="bold mb-0">Data Points</h4>
+                </Card.Title>
+                <Card.Body className="building-content">
+                  {console.log(dataPoints)}
+                  <FieldArray
+                    name="dataPoints"
+                    render={({ insert, remove, push }) => (
+                      <Form.Group>
+                        {dataPoints.map((dataPoint, index) => (
+                          <Form.Check
+                            key={index}
+                            label={dataPoint.name}
+                            checked={dataPoints[index].selected}
+                            onChange={() => {
+                              dataPoints[index].selected =
+                                !dataPoints[index].selected;
+
+                              // TODO: Create component to store datapoint index, checked status, etc.
+                              if (dataPoints[index].selected) push();
+                            }}
+                          />
+                        ))}
+                      </Form.Group>
+                    )}
+                  />
+                </Card.Body>
+              </Card>
+
+              <>
+                <Button variant="primary" onClick={() => setModalShow(true)}>
+                  Submit
+                </Button>
+                <DLSsubmitModal
+                  show={modalShow}
+                  onHide={() => setModalShow(false)}
+                />
+              </>
+            </Col>
+          </Row>
+        </Form>
       </Col>
     </Row>
   );
 }
 
 DataLoggingScheduler.propTypes = {
-  handleSubmit: PropTypes.func,
-  buildings: PropTypes.array,
-  
+  auth: PropTypes.object,
+  formik: PropTypes.object,
+  success: PropTypes.bool,
+  error: PropTypes.bool,
+  loading: PropTypes.bool,
+  setSuccess: PropTypes.func,
+  setError: PropTypes.func,
+  setLoading: PropTypes.bool,
+  meters: PropTypes.array,
 };
 
-export default DataLoggingScheduler;
+export default DLSFormikWrapper;

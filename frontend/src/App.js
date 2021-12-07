@@ -7,7 +7,7 @@ import { roles } from "./resources/constants";
 import Dashboard from "./components/Dashboard";
 import LoginPages from "./components/LoginPages";
 import { useAuth } from "./resources/use-auth";
-import DataLoggingScheduler from "./components/DataLoggingScheduler";
+import DLSFormikWrapper from "./components/DataLoggingScheduler";
 import DataLogs from "./components/DataLogs";
 import ManageMeter from "./components/ManageMeter";
 import ManageUsers from "./components/ManageUsers";
@@ -40,39 +40,39 @@ function App() {
   };
 
   return (
-      <Container fluid className="overflow-hidden">
-        <Row className="vh-100 overflow-hidden">
-          <Route path={includeSidebar}>
-            <Col
-              sm={3}
-              xl={2}
-              className="d-flex flex-column sticky-top px-0 pr-sm-2"
-            >
-              <Sidebar />
-            </Col>
-          </Route>
-          <Col className="pt-sm-0">
-            <Switch>
-              <Route path="/dashboard">
-                {(auth.role === roles.Admin && (
-                  <Redirect to="/admin/manage-meters" />
-                )) || <Dashboard />}
-              </Route>
-              <Route path="/login">
-                <LoginPages />
-              </Route>
+    <Container fluid className="overflow-hidden">
+      <Row className="vh-100 overflow-hidden">
+        <Route path={includeSidebar}>
+          <Col
+            sm={3}
+            xl={2}
+            className="d-flex flex-column sticky-top px-0 pr-sm-2"
+          >
+            <Sidebar />
+          </Col>
+        </Route>
+        <Col className="pt-sm-0">
+          <Switch>
+            <Route path="/dashboard">
+              {(auth.role === roles.Admin && (
+                <Redirect to="/admin/manage-meters" />
+              )) || <Dashboard />}
+            </Route>
+            <Route path="/login">
+              <LoginPages />
+            </Route>
             <Route path="/advanced/data-logging-scheduler">
               {(auth.role === roles.Admin && (
                 <Redirect to="/admin/manage-meters" />
-              )) || <DataLoggingScheduler />}
+              )) || <DLSFormikWrapper />}
               {/* <DataLoggingScheduler/> */}
             </Route>
             <Route path="/advanced/data-logs">
               {/* <DataLogs/>  */}
               <DataLogs />
             </Route>
-            <Route path = "/admin/manage-meters">
-              <ManageMeter/>
+            <Route path="/admin/manage-meters">
+              <ManageMeter />
             </Route>
             <Route path="/admin/manage-users">
               <ManageUsers />

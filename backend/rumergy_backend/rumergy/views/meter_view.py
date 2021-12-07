@@ -7,6 +7,7 @@ from rumergy_backend.rumergy.serializers import MeterSerializer, MeterDataSerial
 from rumergy_backend.rumergy.models import Meter, MeterData
 from dateutil import parser
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import OrderingFilter
 
 
 class MeterViewSet(viewsets.ModelViewSet):
@@ -15,8 +16,9 @@ class MeterViewSet(viewsets.ModelViewSet):
     serializer_class = MeterSerializer
     queryset = Meter.objects.all()
     # permission_classes = [permissions.AllowAny] # Only use for testing
-    filter_backends = [DjangoFilterBackend]
+    filter_backends = [DjangoFilterBackend, OrderingFilter]
     filterset_fields = ["status", "ip", "building"]
+    ordering_fields = ["building__name"]
 
     @action(detail=True, methods=["get"])
     def meter_data_by_time_frame(self, request, pk=None):

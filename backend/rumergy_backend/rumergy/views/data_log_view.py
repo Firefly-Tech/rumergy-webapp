@@ -24,8 +24,8 @@ from modbus.singleton import SchedulerHandler
 class DataLogViewSet(viewsets.ModelViewSet):
     queryset = DataLog.objects.all()
     serializer_class = DataLogSerializer
-    # permission_classes = [permissions.IsAuthenticated]
-    permission_classes = [permissions.AllowAny] # Only use for testing
+    permission_classes = [permissions.IsAuthenticated]
+    # permission_classes = [permissions.AllowAny] # Only use for testing
 
     @action(detail=True, methods=["get"])
     def download(self, request, pk=None):

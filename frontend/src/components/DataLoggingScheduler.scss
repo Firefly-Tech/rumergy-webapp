@@ -1,21 +1,16 @@
 $card-border-color: transparent;
 $card-bg: $soft-green;
 
-.DLS-card {
-    border-radius: 1rem;
-
-
-    .building-content{
-    height: 0px;
-    max-height: max-content;
-
-
-
-    }
-  }
-
-.time-interval-control{
-width: 30px;
-
+input.larger {
+  width: 1rem;
+  height: 1rem;
 }
 
+.date-picking-thing {
+  background-color: white;
+}
+
+.data-points-container {
+  height: 20vh;
+  overflow: auto;
+}

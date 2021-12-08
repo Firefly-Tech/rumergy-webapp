@@ -7,9 +7,13 @@ import { roles } from "./resources/constants";
 import Dashboard from "./components/Dashboard";
 import LoginPages from "./components/LoginPages";
 import { useAuth } from "./resources/use-auth";
+import DLSFormikWrapper from "./components/DataLoggingScheduler";
+import DataLogs from "./components/DataLogs";
+import ManageMeter from "./components/ManageMeter";
 import ManageUsers from "./components/ManageUsers";
 import ManageAccessRequests from "./components/ManageAccessRequests";
 import ManageMeterModels from "./components/ManageMeterModels";
+import ManageBuildings from "./components/ManageBuildings";
 
 const includeSidebar = ["/dashboard*", "/admin*", "/advanced*", "/about*"];
 
@@ -28,7 +32,8 @@ function App() {
     return (
       ((auth.role === roles.General ||
         auth.role === roles.Advanced ||
-        auth.role === roles.Inactive) &&
+        auth.role === roles.Inactive ||
+        !auth.role) &&
         "/dashboard") ||
       "/admin/manage-meters"
     );
@@ -56,6 +61,19 @@ function App() {
             <Route path="/login">
               <LoginPages />
             </Route>
+            <Route path="/advanced/data-logging-scheduler">
+              {(auth.role === roles.Admin && (
+                <Redirect to="/admin/manage-meters" />
+              )) || <DLSFormikWrapper />}
+              {/* <DataLoggingScheduler/> */}
+            </Route>
+            <Route path="/advanced/data-logs">
+              {/* <DataLogs/>  */}
+              <DataLogs />
+            </Route>
+            <Route path="/admin/manage-meters">
+              <ManageMeter />
+            </Route>
             <Route path="/admin/manage-users">
               <ManageUsers />
             </Route>
@@ -64,6 +82,9 @@ function App() {
             </Route>
             <Route path="/admin/manage-meter-models">
               <ManageMeterModels />
+            </Route>
+            <Route path="/admin/manage-buildings">
+              <ManageBuildings />
             </Route>
             <Route path="/" exact>
               <Redirect to={rootRedirect()} />

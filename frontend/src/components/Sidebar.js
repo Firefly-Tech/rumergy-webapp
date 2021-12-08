@@ -7,9 +7,14 @@ import {
   FaInfoCircle,
   FaSignInAlt,
   FaSignOutAlt,
+  FaClipboardList,
+  FaClipboardCheck,
+  FaSatelliteDish,
+  FaList,
   FaUsers,
   FaEnvelopeOpen,
   FaBars,
+  FaBuilding,
 } from "react-icons/fa";
 import { NavLink, useLocation, useHistory } from "react-router-dom";
 import Help from "./Help";
@@ -37,6 +42,30 @@ const sidebarData = [
     icon: <FaInfoCircle className="fs-5" />,
   },
   {
+    menuName: "Data Logging Scheduler",
+    link: "/advanced/data-logging-scheduler",
+    userRestrictions: [roles.Advanced],
+    icon: <FaClipboardList className="fs-5" />,
+  },
+  {
+    menuName: "Data Logs",
+    link: "/advanced/data-logs",
+    userRestrictions: [roles.Advanced],
+    icon: <FaClipboardCheck className="fs-5" />,
+  },
+  {
+    menuName: "Real Time Monitor",
+    link: "/advanced/real-time-monitor",
+    userRestrictions: [roles.Advanced],
+    icon: <FaSatelliteDish className="fs-5" />,
+  },
+  {
+    menuName: "Meters",
+    link: "/admin/manage-meters",
+    userRestrictions: [roles.Admin],
+    icon: <FaList className="fs-5" />,
+  },
+  {
     menuName: "Users",
     link: "/admin/manage-users",
     userRestrictions: [roles.Admin],
@@ -47,6 +76,12 @@ const sidebarData = [
     link: "/admin/manage-access-requests",
     userRestrictions: [roles.Admin],
     icon: <FaEnvelopeOpen className="fs-5" />,
+  },
+  {
+    menuName: "Buildings",
+    link: "/admin/manage-buildings",
+    userRestrictions: [roles.Admin],
+    icon: <FaBuilding className="fs-5" />,
   },
   {
     menuName: "Meter Models",

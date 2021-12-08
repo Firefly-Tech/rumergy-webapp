@@ -71,28 +71,47 @@ function Dashboard() {
 
   const auth = useAuth();
 
-  useEffect(async () => {
+  useEffect(() => {
     /**
      * Fetches meter list
      *
      * @param {object} auth - Authentication hook
      * @memberof Dashboard
      * */
-    setLoading(true);
-    await axios
-      .get(`${auth.apiHost}/api/meters`, {
-        headers: { Authorization: await auth.withAppUser() },
-        params: { status: "ACT" },
-      })
-      .then((res) => {
-        setMeterList(res.data);
-      })
-      .catch(() => {
-        setMeterList([]);
+    async function fetchMeters() {
+      let data = await axios
+        .get(`${auth.apiHost}/api/meters`, {
+          params: { status: "ACT", ordering: "building__name" },
+        })
+        .then((res) => {
+          return res.data;
+        })
+        .catch(() => {
+          return [];
+        });
+
+      if (data.length) {
+        data = await Promise.all(
+          data.map(async (meter) => {
+            let building = await axios
+              .get(`${auth.apiHost}/api/buildings/${meter.building}`)
+              .then((res) => {
+                return res.data;
+              });
+
+            return { id: meter.id, name: `${meter.name} (${building.name})` };
+          })
+        );
+      } else {
         setErrorName("Fetch Error");
         setErrorMessage("Failed to fetch active meter list.");
         handleShow();
-      });
+      }
+
+      setMeterList(data);
+    }
+    setLoading(true);
+    fetchMeters();
     setLoading(false);
     setInitialLoad(false);
   }, [auth]);
@@ -239,7 +258,6 @@ function Dashboard() {
         .get(
           `${auth.apiHost}/api/meters/${meter.id}/meter_data_by_time_frame`,
           {
-            headers: { Authorization: await auth.withAppUser() },
             params: {
               start: startingDateTime,
               data_type: selectedDatatype,

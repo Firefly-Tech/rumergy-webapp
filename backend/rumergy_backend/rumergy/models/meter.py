@@ -16,17 +16,18 @@ class Meter(models.Model):
         constraints = [
             models.UniqueConstraint(fields=['ip', 'port'], name="unique meter IP")
         ]
-        
+
     substation = models.CharField(max_length=60)
     longitude = models.FloatField()
     latitude = models.FloatField()
     comments = models.CharField(max_length=200, default="No comment provided")
     panel_id = models.CharField(max_length=60)
-    serial_number = models.CharField(max_length=100, unique=True)
+    serial_number = models.CharField(max_length=100)
 
     class Status(models.TextChoices):
         ACTIVE = "ACT", _("Active")
         INACTIVE = "INA", _("Inactive")
+        ERROR = "ERR", _("Error")
 
     status = models.CharField(max_length=3, choices=Status.choices, default=Status.ACTIVE)
 

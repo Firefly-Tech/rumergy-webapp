@@ -6,8 +6,14 @@ from rest_framework import permissions
 from rest_framework.routers import DefaultRouter
 from rumergy_backend.rumergy.views.data_log_view import DataLogViewSet
 from rumergy_backend.rumergy.views.data_point_view import DataPointViewSet
+from rumergy_backend.rumergy.views.live_reading_view import live_read
+from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
+
+from modbus.singleton import SchedulerHandler
+
+scheduler = SchedulerHandler().retrieve_scheduler()
 
 router = DefaultRouter()
 router.register(r"api/users", views.UserViewSet, basename="users")
@@ -26,8 +32,8 @@ schema_view = get_schema_view(
         default_version="v1",
         description="API to support RUMergy's operations",
     ),
-    public=True,
-    permission_classes=[permissions.AllowAny],
+    public=False,
+    permission_classes=[permissions.DjangoModelPermissionsOrAnonReadOnly],
 )
 
 urlpatterns = [
@@ -54,4 +60,6 @@ urlpatterns = [
         schema_view.with_ui("swagger", cache_timeout=0),
         name="schema-swagger-ui",
     ),
+    path("api/live-read", views.live_reading_view.live_read),
 ]
+urlpatterns += staticfiles_urlpatterns()

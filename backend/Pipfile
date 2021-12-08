@@ -19,6 +19,9 @@ pymodbus = "*"
 requests = "*"
 drf-yasg = "*"
 gunicorn = "*"
+rpyc = "*"
+apscheduler = "*"
+sqlalchemy = "*"
 
 [dev-packages]
 pynvim = "*"

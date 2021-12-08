@@ -1,4 +1,4 @@
-import { React, useState, useRef, useEffect } from "react";
+import { React, useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import {
   Col,
@@ -13,7 +13,7 @@ import DLSsubmitModal from "./DLSsubmitModal";
 import { useRequireAuth } from "../resources/use-require-auth";
 import { roles } from "../resources/constants";
 import { Formik, FieldArray } from "formik";
-import { add, addSeconds, formatISO } from "date-fns";
+import { add, addSeconds } from "date-fns";
 import * as Yup from "yup";
 import DateTimePicker from "react-datetime-picker";
 import { buildStatus } from "../resources/helpers";

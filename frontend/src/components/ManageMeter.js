@@ -10,6 +10,11 @@ import MeterAddModal from "./MeterAddModal";
 import MeterEditModal from "./MeterEditModal";
 import { buildStatus } from "../resources/helpers";
 
+/**
+ * Initial value for selectedEditEntry
+ *
+ * @constant {object} emptyEditMeterEntry
+ * */
 const emptyEditMeterEntry = {
   id: "",
   name: "",
@@ -32,6 +37,7 @@ export const meterStatus = {
   Error: "ERR",
 };
 
+/** Meter management screen for admins. */
 function ManageMeter() {
   const [loading, setLoading] = useState(false);
   const [meters, setMeters] = useState([]);
@@ -58,17 +64,28 @@ function ManageMeter() {
   const auth = useRequireAuth("/login", [roles.Admin]);
 
   useEffect(() => {
+    /**
+     * Fetch all data on load.
+     *
+     * @memberof ManageMeter
+     * */
     fetchAllData();
   }, []);
 
   useEffect(() => {
+    /**
+     * Updates filtered entries if the filter text or
+     * meter list changes.
+     *
+     * @memberof ManageMeter
+     * */
     setLoading(true);
     setFilteredEntries(
       meters.filter(
         (meter) =>
           meter.meterString
             .toLowerCase()
-            .includes(filterText.split(" ").join("").toLowerCase()) //Check this
+            .includes(filterText.split(" ").join("").toLowerCase()) 
       )
     );
     setLoading(false);
@@ -151,6 +168,8 @@ function ManageMeter() {
             });
 
           let meterStringElements = [
+            // Build string with meter attributes
+            // for filtering.
             meter.id,
             meter.name,
             meterModel.name,
@@ -188,6 +207,11 @@ function ManageMeter() {
     setMeters(data);
   };
 
+  /**
+   * Columns for data table.
+   *
+   * @constant {object} columns
+   * */
   const columns = [
     {
       name: "Action",
@@ -229,6 +253,12 @@ function ManageMeter() {
     { name: "Status", selector: (row) => row.status, sortable: true },
   ];
 
+  /**
+   * Handles clearing the search bar.
+   * Resets table pagination too.
+   *
+   * @function handleClear
+   * */
   const handleClear = () => {
     if (filterText) {
       setResetPaginationToggle(!resetPaginationToggle);
@@ -236,6 +266,15 @@ function ManageMeter() {
     }
   };
 
+  /**
+   * Handles adding a new meter.
+   *
+   * @function handleAdd
+   * @param {object} values - Formik object with form values
+   * @param {function} setSubmitting - Formik function to handle submitting state
+   * @returns {object} Object with operation status.
+   * @async
+   * */
   const handleAdd = async (values, { setSubmitting }) => {
     setLoading(true);
 
@@ -275,6 +314,16 @@ function ManageMeter() {
       });
   };
 
+  /**
+   * Handles editing a meter entry.
+   *
+   * @function handleEdit
+   * @param {number} id - meter id
+   * @param {object} values - Formik object with form values
+   * @param {function} setSubmitting - Formik function to handle submitting state
+   * @returns {object} Object with operation status.
+   * @async
+   * */
   const handleEdit = async (id, values, { setSubmitting }) => {
     setLoading(true);
     const checkEmpty = (value) => {
@@ -297,7 +346,7 @@ function ManageMeter() {
     };
 
     return auth.userAxiosInstance
-      .patch(`${auth.apiHost}/api/meters/${id}/`, data) //ask about this
+      .patch(`${auth.apiHost}/api/meters/${id}/`, data) 
       .then(() => {
         fetchMeters();
         fetchMeterModels();
@@ -313,6 +362,15 @@ function ManageMeter() {
       });
   };
 
+  /**
+   * Handles deleting a meter entry.
+   *
+   * @function handleDelete
+   * @param {number} id - meter id
+   * @param {function} setSubmitting - Formik function to handle submitting state
+   * @returns {object} Object with operation status.
+   * @async
+   * */
   const handleDelete = async (id, { setSubmitting }) => {
     setLoading(true);
 

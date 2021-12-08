@@ -6,6 +6,11 @@ import * as Yup from "yup";
 import { FaSync, FaTrash, FaExclamation, FaCheck } from "react-icons/fa";
 import { meterStatus } from "./ManageMeter";
 
+/**
+ * Yup validation schema for meter edit form.
+ *
+ * @constant {object} meterEditFormSchema
+ * */
 const meterEditFormSchema = Yup.object().shape({
   name: Yup.string()
     .min(1, "Must be at least 1 character")
@@ -59,6 +64,7 @@ const meterEditFormSchema = Yup.object().shape({
     .optional(),
 });
 
+/** Modal for meter edits in meter management dashboard */
 function MeterEditModal(props) {
   const [isUpdate, setIsUpdate] = useState(false);
   const [isDelete, setIsDelete] = useState(false);
@@ -67,6 +73,11 @@ function MeterEditModal(props) {
   const [error, setError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
+  /**
+   * Resets all state.
+   *
+   * @function resetAll
+   * */
   const resetAll = () => {
     setIsUpdate(false);
     setIsDelete(false);
@@ -445,10 +456,14 @@ function MeterEditModal(props) {
 }
 
 MeterEditModal.propTypes = {
+  /** Determines whether modal should be shown */
   show: PropTypes.bool,
   handleClose: PropTypes.func,
+  /** Meter entry data */
   selectedEditEntry: PropTypes.object,
+  /** Edit handler */
   handleEdit: PropTypes.func,
+  /** Deletion handler */
   handleDelete: PropTypes.func,
   meterModels: PropTypes.array,
   buildings: PropTypes.array,

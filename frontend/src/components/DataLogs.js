@@ -10,6 +10,11 @@ import { useRequireAuth } from "../resources/use-require-auth";
 import { roles } from "../resources/constants";
 import { parseISO, format, isAfter } from "date-fns";
 
+/**
+ * Initial value for selectedEditEntry
+ *
+ * @constant {object} emptyDataLogEntry
+ * */
 const emptyDataLogEntry = {
   id: "",
   meter: "",
@@ -19,6 +24,7 @@ const emptyDataLogEntry = {
   samplingRate: "",
 };
 
+/** Data log management screen for advanced users. */
 function DataLogs(props) {
   const [loading, setLoading] = useState(false);
   const [dataLog, setDataLog] = useState([]);
@@ -42,11 +48,23 @@ function DataLogs(props) {
 
   const auth = useRequireAuth("/login", [roles.Advanced]);
 
+
   useEffect(() => {
+    /**
+     * Fetch data log data on load.
+     *
+     * @memberof DataLogs
+     * */
     if (auth.user) fetchDataLog();
   }, []);
 
   useEffect(() => {
+    /**
+     * Updates filtered entries if the filter text or
+     * data logs list changes.
+     *
+     * @memberof DataLogs
+     * */
     setLoading(true);
     setFilteredEntries(
       dataLog.filter((data_logs) =>
@@ -58,6 +76,12 @@ function DataLogs(props) {
     setLoading(false);
   }, [dataLog, filterText]);
 
+  /**
+   * Handles fetching data logs data.
+   *
+   * @function fetchDataLog
+   * @async
+   * */
   const fetchDataLog = async () => {
     setLoading(true);
     let data = await auth.userAxiosInstance
@@ -101,6 +125,8 @@ function DataLogs(props) {
           );
 
           let dataLogStringElements = [
+          // Build string with data log attributes
+          // for filtering.
             meterName,
             dataPointNames.join("").split(" ").join(""),
             startDate,
@@ -125,6 +151,11 @@ function DataLogs(props) {
     setLoading(false);
   };
 
+  /**
+   * Columns for data table.
+   *
+   * @constant {object} columns
+   * */
   const columns = [
     {
       name: "Details",
@@ -159,6 +190,11 @@ function DataLogs(props) {
     },
   ];
 
+  /**
+   * Handles the creations of the file with the data for download.
+   *
+   * @function downloadDataLog
+   * */
   const downloadDataLog = (id) => {
     setLoading(true);
     return auth.userAxiosInstance
@@ -183,6 +219,12 @@ function DataLogs(props) {
       });
   };
 
+  /**
+   * Handles clearing the search bar.
+   * Resets table pagination too.
+   *
+   * @function handleClear
+   * */
   const handleClear = () => {
     if (filterText) {
       setResetPaginationToggle(!resetPaginationToggle);

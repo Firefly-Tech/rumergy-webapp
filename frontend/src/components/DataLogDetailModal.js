@@ -10,13 +10,18 @@ import {
   Card,
   Table,
 } from "react-bootstrap";
-import { FaSync, FaTrash, FaExclamation, FaCheck } from "react-icons/fa";
 
+/** Data Log  Details screen for advanced users. */
 function DataLogDetailModal(props) {
   const [isDelete, setIsDelete] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState(false);
 
+  /**
+   * Resets detele.
+   *
+   * @function resetDelete
+   * */
   const resetDelete = () => {
     setIsDelete(false);
   };
@@ -94,8 +99,10 @@ function DataLogDetailModal(props) {
 }
 
 DataLogDetailModal.propTypes = {
+  /** Determines whether modal should be shown */
   show: PropTypes.bool,
   handleCloseDetails: PropTypes.func,
+  /** Data Log entry data */
   selectedEntry: PropTypes.object,
 };
 

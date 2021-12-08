@@ -25,8 +25,18 @@ import { buildStatus } from "../resources/helpers";
  * */
 const REAL_TIME_INTERVAL = 3;
 
+/**
+ * Tranformation of a day to seconds
+ * 
+ * @constant ONE_DAY_IN_SEC
+ **/
 const ONE_DAY_IN_SEC = 24 * 60 * 60;
 
+/**
+ * Yup validation schema for data log form.
+ *
+ * @constant {object} dataLogSubmitSchema
+ * */
 const dataLogSubmitSchema = Yup.object().shape({
   meter: Yup.number().integer().required("Choosing a Meter is required"),
   timeInterval: Yup.number()
@@ -89,7 +99,13 @@ const dataLogSubmitSchema = Yup.object().shape({
     .required("Data point is required"),
 });
 
+/**
+ *  Wrapper for all formik logic
+ * 
+ * @function DLSFormikWrapper 
+ **/
 function DLSFormikWrapper() {
+  //States
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -99,9 +115,21 @@ function DLSFormikWrapper() {
   const auth = useRequireAuth("/login", [roles.Advanced]);
 
   useEffect(() => {
+    /**
+     * Fetch meter data on load.
+     *
+     * @memberof DataLoggingScheduler
+     * */
     fetchMeters();
   }, []);
 
+
+  /**
+ *  Fetches Meter data
+ * 
+ * @function fetchMeters 
+ * @async
+ **/
   const fetchMeters = async () => {
     setLoading(true);
     let data = await auth.userAxiosInstance
@@ -137,6 +165,11 @@ function DLSFormikWrapper() {
     setLoading(false);
   };
 
+  /**
+ *  Handles data submit
+ * 
+ * @function handleSubmit 
+ **/
   const handleSubmit = (values, { setSubmitting }) => {
     setLoading(true);
     let data = {
@@ -221,13 +254,20 @@ function DLSFormikWrapper() {
   );
 }
 
+/** Data Logging Scheduler for advanced users. */
 function DataLoggingScheduler(props) {
   //Modal State
   const [modalShow, setModalShow] = useState(false);
   const [dataPoints, setDataPoints] = useState([]);
   const [showCustomInterval, setShowCustomInterval] = useState(false);
 
+
   useEffect(() => {
+    /**
+     * Updates data points when a meter is selected
+     *
+     * @memberof DataLoggingScheduler
+     * */
     if (!props.loading && props.meters.length && props.formik.values.meter) {
       fetchDataPoints();
       props.formik.setFieldValue("dataPoints", []);
@@ -237,6 +277,12 @@ function DataLoggingScheduler(props) {
     }
   }, [props.formik.values.meter]);
 
+  /**
+ *  Fetches data point data
+ * 
+ * @function fetchDataPoints 
+ * @async
+ **/
   const fetchDataPoints = async () => {
     props.setLoading(true);
     let meterModel = props.meters.filter(
@@ -265,6 +311,7 @@ function DataLoggingScheduler(props) {
 
   return (
     <>
+    {/* Body */}
       <Col sm={9} className="d-flex flex-column">
         <Card className="DLS-card mb-sm-3 flex-row flex-fill">
           <Card.Title className="d-flex flex-row align-self-center px-3 pt-2">

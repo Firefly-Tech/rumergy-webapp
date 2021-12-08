@@ -14,6 +14,11 @@ import * as Yup from "yup";
 import { meterStatus } from "./ManageMeter";
 import { FaPlus, FaExclamation, FaCheck } from "react-icons/fa";
 
+/**
+ * Yup validation schema for meter add form.
+ *
+ * @constant {object} meterAddFormSchema
+ * */
 const meterAddFormSchema = Yup.object().shape({
   name: Yup.string()
     .min(1, "Must be at least 1 character")
@@ -67,6 +72,7 @@ const meterAddFormSchema = Yup.object().shape({
     .optional(),
 });
 
+/** Modal for meter creation in meter management dashboard */
 function MeterAddModal(props) {
   const [isConfirm, setIsConfirm] = useState(false);
 
@@ -418,8 +424,10 @@ function MeterAddModal(props) {
 }
 
 MeterAddModal.propTypes = {
+  /** Determines whether modal should be shown */
   show: PropTypes.bool,
   handleClose: PropTypes.func,
+  /** Submission handler */
   handleSubmit: PropTypes.func,
   meterModels: PropTypes.array,
   buildings: PropTypes.array,

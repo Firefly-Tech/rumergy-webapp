@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import { Col, Row, Modal, Button } from "react-bootstrap";
 import { FaCheck, FaWindowClose, FaRegWindowClose } from "react-icons/fa";
 
+/** Data Logging Scheduler submit modal. */
 function DLSsubmitModal(props) {
   return (
     <Modal

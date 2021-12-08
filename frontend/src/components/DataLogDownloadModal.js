@@ -1,15 +1,15 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
-import { Modal, Row, Col, Button, Form, InputGroup } from "react-bootstrap";
+import { Modal, Row, Col, Button, } from "react-bootstrap";
 import {
-  FaSync,
-  FaTrash,
   FaExclamation,
   FaCheck,
   FaCloudDownloadAlt,
 } from "react-icons/fa";
 
+/** Download modal comfirmation screen for admins. */
 function DataLogDownloadModal(props) {
+  //States
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState(false);
 
@@ -101,9 +101,13 @@ function DataLogDownloadModal(props) {
 }
 
 DataLogDownloadModal.propTypes = {
+  /** Determines whether modal should be shown */
   show: PropTypes.bool,
+  /** Data log entry data */
   selectedEntry: PropTypes.object,
+  /** Close details handler */
   handleCloseDetails: PropTypes.func,
+  /** Download Data Log data */
   download: PropTypes.func,
 };
 

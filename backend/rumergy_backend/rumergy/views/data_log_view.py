@@ -9,6 +9,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import status
 from django.http import HttpResponse
+from django_filters.rest_framework import DjangoFilterBackend
 
 from datetime import datetime, timedelta, timezone
 import requests
@@ -24,7 +25,8 @@ from modbus.singleton import SchedulerHandler
 class DataLogViewSet(viewsets.ModelViewSet):
     queryset = DataLog.objects.all()
     serializer_class = DataLogSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ["user"]
     # permission_classes = [permissions.AllowAny] # Only use for testing
 
     @action(detail=True, methods=["get"])

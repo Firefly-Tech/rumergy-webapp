@@ -79,19 +79,36 @@ function Dashboard() {
      * @memberof Dashboard
      * */
     async function fetchMeters() {
-      await axios
+      let data = await axios
         .get(`${auth.apiHost}/api/meters`, {
-          params: { status: "ACT" },
+          params: { status: "ACT", ordering: "building__name" },
         })
         .then((res) => {
-          setMeterList(res.data);
+          return res.data;
         })
         .catch(() => {
-          setMeterList([]);
-          setErrorName("Fetch Error");
-          setErrorMessage("Failed to fetch active meter list.");
-          handleShow();
+          return [];
         });
+
+      if (data.length) {
+        data = await Promise.all(
+          data.map(async (meter) => {
+            let building = await axios
+              .get(`${auth.apiHost}/api/buildings/${meter.building}`)
+              .then((res) => {
+                return res.data;
+              });
+
+            return { id: meter.id, name: `${meter.name} (${building.name})` };
+          })
+        );
+      } else {
+        setErrorName("Fetch Error");
+        setErrorMessage("Failed to fetch active meter list.");
+        handleShow();
+      }
+
+      setMeterList(data);
     }
     setLoading(true);
     fetchMeters();

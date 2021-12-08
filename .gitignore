@@ -31,4 +31,5 @@ client/
 
 db.cnf
 .*env
+rumergy.log
 __pycache__/

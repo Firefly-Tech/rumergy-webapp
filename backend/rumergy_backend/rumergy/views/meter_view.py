@@ -4,10 +4,11 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import status
 from rumergy_backend.rumergy.serializers import MeterSerializer, MeterDataSerializer
-from rumergy_backend.rumergy.models import Meter, MeterData
+from rumergy_backend.rumergy.models import Meter, MeterData, DataPoint
 from dateutil import parser
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import OrderingFilter
+import modbus.modbus_client as Modbus
 
 
 class MeterViewSet(viewsets.ModelViewSet):
@@ -40,3 +41,35 @@ class MeterViewSet(viewsets.ModelViewSet):
         serializer = MeterDataSerializer(data, many=True)
 
         return Response(serializer.data, status.HTTP_200_OK)
+
+    @action(
+        detail=True, methods=["get"], permission_classes=[permissions.IsAuthenticated]
+    )
+    def live_reading(self, request, pk=None):
+        """Get reading from specified meter and datapoint"""
+
+        data_point_id = request.query_params["datapoint"]
+
+        meter_obj = Meter.objects.get(pk=pk)
+        ip = meter_obj.ip
+        port = meter_obj.port
+
+        data_point = DataPoint.objects.get(pk=data_point_id)
+        start_address = data_point.start_address
+        end_address = data_point.end_address
+        regtype = data_point.register_type
+        data_type = data_point.data_type
+
+        meter = Modbus.connect_meter(ip, port)
+        result = Modbus.decode_message(
+            Modbus.read_point(meter, regtype, start_address, end_address), data_type
+        )
+
+        return Response(
+            {
+                "meter": f"{pk}",
+                "data_point": f"{data_point_id}",
+                "value": f"{result}",
+            },
+            status.HTTP_200_OK,
+        )

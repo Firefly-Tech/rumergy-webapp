@@ -8,15 +8,13 @@ from datetime import datetime
 
 
 def get_token():
-'''
-get_token(): Function that generates access and refresh tokens for authentication and access to API data
+    '''
+    get_token(): Function that generates access and refresh tokens for authentication and access to API data
 
-returns:
-    access_token: Has an expiration time of 5 minutes.
-    refresh_token: Token used for generating a new access_token after expiration. refresh_token has expiration time of 24hrs.
-'''
-
-
+    returns:
+        access_token: Has an expiration time of 5 minutes.
+        refresh_token: Token used for generating a new access_token after expiration. refresh_token has expiration time of 24hrs.
+    '''
     token = requests.post('http://127.0.0.1:8000/api/token/', data={"username": f"{config('USERNAME')}", "password": f"{config('PASSWORD')}"}).json()
     access_token = token['access']
     refresh_token = token['refresh']
@@ -53,21 +51,21 @@ def connect_meter(ip, port):
 
 
 def read_point(meter, regtype, start_address, end_address):
-'''read_point(): reads any data point given the client, addresses and register type
-    Params:
-        client - Represents a connectec device via ModbusTCP protocol
+    '''read_point(): reads any data point given the client, addresses and register type
+        Params:
+            client - Represents a connectec device via ModbusTCP protocol
 
-        regtype - The type of the register according to the Modbus specificastion. Could be a coil, 
-                    holding register, input register or discrete input register
+            regtype - The type of the register according to the Modbus specificastion. Could be a coil, 
+                        holding register, input register or discrete input register
 
-        start_address - The start address of the data point to read as represented in the Modbus Point Map
+            start_address - The start address of the data point to read as represented in the Modbus Point Map
 
-        end_address - The end address of the data point to read as represented in the Modbus Point Map.
+            end_address - The end address of the data point to read as represented in the Modbus Point Map.
 
-    returns - Returns the result of the reading obtained from the registers of the given meter.
-            The result could be one or more registers, representing a 16-bit integer value or a 
-            32-bit floating point value
-'''
+        returns - Returns the result of the reading obtained from the registers of the given meter.
+                The result could be one or more registers, representing a 16-bit integer value or a 
+                32-bit floating point value
+    '''
     count = end_address - start_address + 1
     
     try:
@@ -88,16 +86,16 @@ def read_point(meter, regtype, start_address, end_address):
 
 
 def decode_message(result, data_type):
-'''
-decode_message(): Decodes the given result using the PayloadDecoder of the pymodbus moduel.
-Params:
-    result - Represents the value obtained from reading a modbus register from a device.
+    '''
+    decode_message(): Decodes the given result using the PayloadDecoder of the pymodbus moduel.
+    Params:
+        result - Represents the value obtained from reading a modbus register from a device.
 
-    data_type - Represents the expected data type of the given result. Could be a 16-bit integer or a 32- bit
-                floating point value.
+        data_type - Represents the expected data type of the given result. Could be a 16-bit integer or a 32- bit
+                    floating point value.
 
-returns: Returns the decoded value in the specified data type format.
-'''
+    returns: Returns the decoded value in the specified data type format.
+    '''
 
     decoder = BinaryPayloadDecoder.fromRegisters(result.registers, byteorder=Endian.Big, wordorder=Endian.Big)
 
@@ -105,4 +103,3 @@ returns: Returns the decoded value in the specified data type format.
         return decoder.decode_16bit_int()
     else:
         return decoder.decode_32bit_float()
-

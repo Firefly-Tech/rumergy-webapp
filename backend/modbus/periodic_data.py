@@ -2,20 +2,17 @@ import modbus_client as client
 import requests
 
 
-''' This function should have access to the list of meters.
+def periodic_data():
+
+    ''' This function should have access to the list of meters.
     For each meter, it should attempt connection and read two data points each 15 minutes:
     energy consumption (kWh) and energy demand (kW)
-'''        
-''' 
-periodic_data():
-'''
-def periodic_data():
+    '''        
     
     access_token, refresh_token = client.get_token()
     
     '''Get meter list '''
     meters = requests.get('http://127.0.0.1:8000/api/meters/?status=ACT', headers={"Authorization": f"Bearer {access_token}"}).json()
-    # meters = requests.get('http://127.0.0.1:8000/api/meters/', headers={"Authorization": f"Bearer {access_token}"}).json()
 
     for meter in meters:
         

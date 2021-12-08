@@ -60,11 +60,8 @@ class DataLogViewSet(viewsets.ModelViewSet):
         points = serializer.data['data_points']
         sampling = serializer.data['sampling_rate']
          
-        # start_date_formated = datetime.strptime(f'{start_date}',"%Y-%m-%dT%H:%M:%SZ")
         start_date_formated = isoparse(start_date)
         start_date_formated = start_date_formated + timedelta(hours=4)
-        # end_date_formated = datetime.strptime(f'{end_date}',"%Y-%m-%dT%H:%M:%SZ")
-        # end_date_formated = end_date_formated + timedelta(hours=4)
         end_date_formated = isoparse(end_date)
         end_date_formated = end_date_formated + timedelta(hours=4)
         scheduler = SchedulerHandler().retrieve_scheduler()
@@ -77,7 +74,7 @@ class DataLogViewSet(viewsets.ModelViewSet):
 
 
 def read_points_list(log_id, meter_id, points_list):
-    # headers={"Authorization": f"Bearer {access_token}"}
+
     access_token, refresh_token = Modbus.get_token()
 
     meter_record = requests.get(f'http://127.0.0.1:8000/api/meters/{meter_id}/', headers={"Authorization": f"Bearer {access_token}"}).json()
@@ -94,7 +91,7 @@ def read_points_list(log_id, meter_id, points_list):
         meter = Modbus.connect_meter(meter_ip, meter_port)
         result = Modbus.decode_message(Modbus.read_point(meter, regtype, start_address, end_address), data_type)
         meter.close()
-        print(result)
+        # print(result)
         timestamp = datetime.now(timezone.utc)
         log_dict = {"data_log": f"{log_id}", "data_point": f"{point}", "value": f"{result}", "timestamp": f"{timestamp}"}
         post = requests.post('http://127.0.0.1:8000/api/data-log-measures/', headers={"Authorization": f"Bearer {access_token}"}, json=log_dict)

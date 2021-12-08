@@ -37,14 +37,14 @@ def connect_meter(ip, port):
         print(f"Fail to connect to meter with ip address: {ip}")  
            # Set meter status to ERROR  
         
-        # try:
-        #     access_token, refresh_token = get_token()
-        #     err_meter = requests.get(f'http://127.0.0.1:8000/api/meters/?ip={ip}', headers={"Authorization": f"Bearer {access_token}"}).json()
-        #     # Assumes unique IP per meter
-        #     err_id = err_meter[0]['id']
-        #     error_status = requests.patch(f'http://127.0.0.1:8000/api/meters/{err_id}/', headers={"Authorization": f"Bearer {access_token}"}, data={"status": "ERR"}).json()
-        # except Exception as e:
-        #     print("Error updating meter status", e)
+        try:
+            access_token, refresh_token = get_token()
+            err_meter = requests.get(f'http://127.0.0.1:8000/api/meters/?ip={ip}', headers={"Authorization": f"Bearer {access_token}"}).json()
+            # Assumes unique IP per meter
+            err_id = err_meter[0]['id']
+            error_status = requests.patch(f'http://127.0.0.1:8000/api/meters/{err_id}/', headers={"Authorization": f"Bearer {access_token}"}, data={"status": "ERR"}).json()
+        except Exception as e:
+            print("Error updating meter status", e)
     else:
         return meter  
     

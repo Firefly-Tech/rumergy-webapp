@@ -24,7 +24,7 @@ echo "Creating user groups..."
 
 # Setup cron job
 
-cd modbus
+cd /app/backend/modbus
 echo "Setting up cron job..."
 ./cron_setup.sh || cron_failed = 1
 
@@ -33,6 +33,6 @@ then
  echo "Cron setup failed"
 fi
 
-cd ..
+cd /app/backend
 echo "Starting supervisord..."
 supervisord -c "./supervisord.conf"

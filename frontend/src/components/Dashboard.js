@@ -4,7 +4,7 @@ import DashboardMeterSelect from "./DashboardMeterSelect";
 import DashboardSelectedMeters from "./DashboardSelectedMeters";
 import DashboardVisualization from "./DashboardVisualization";
 import ErrorModal from "./ErrorModal";
-import { sub, formatISO, getTime, parseISO } from "date-fns";
+import { sub, getTime, parseISO } from "date-fns";
 import { useAuth } from "../resources/use-auth";
 import axios from "axios";
 
@@ -243,9 +243,9 @@ function Dashboard() {
     const datatypeLabel =
       selectedDatatype === "consumption" ? "Consumption" : "Demand";
 
-    var startingDateTime = formatISO(
-      sub(new Date(Date.now()), { days: selectedTimeframe })
-    );
+    var startingDateTime = sub(new Date(Date.now()), {
+      days: selectedTimeframe,
+    });
 
     let data = {
       datasets: [],
@@ -259,7 +259,7 @@ function Dashboard() {
           `${auth.apiHost}/api/meters/${meter.id}/meter_data_by_time_frame`,
           {
             params: {
-              start: startingDateTime,
+              start: startingDateTime.toISOString(),
               data_type: selectedDatatype,
             },
           }

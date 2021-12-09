@@ -22,7 +22,7 @@ class DataLogViewSet(viewsets.ModelViewSet):
     serializer_class = DataLogSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ["user"]
-    permission_classes = [permissions.AllowAny] # Only use for testing
+    # permission_classes = [permissions.AllowAny] # Only use for testing
 
     @action(detail=True, methods=["get"])
     def download(self, request, pk=None):

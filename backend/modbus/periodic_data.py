@@ -2,27 +2,24 @@ import modbus_client as client
 import requests
 
 
-''' This function should have access to the list of meters.
+def periodic_data():
+
+    ''' This function should have access to the list of meters.
     For each meter, it should attempt connection and read two data points each 15 minutes:
     energy consumption (kWh) and energy demand (kW)
-'''        
-''' 
-periodic_data():
-'''
-def periodic_data():
-    
+    '''
+
     access_token, refresh_token = client.get_token()
-    
+
     '''Get meter list '''
     meters = requests.get('http://127.0.0.1:8000/api/meters/?status=ACT', headers={"Authorization": f"Bearer {access_token}"}).json()
-    # meters = requests.get('http://127.0.0.1:8000/api/meters/', headers={"Authorization": f"Bearer {access_token}"}).json()
 
     for meter in meters:
-        
+
         model_id = meter['meter_model']
-        
+
         model_record = requests.get(f'http://127.0.0.1:8000/api/meter-models/{model_id}', headers={"Authorization": f"Bearer {access_token}"}).json()
-        
+
         for point_pk in model_record['data_points']:
             point_record = requests.get(f'http://127.0.0.1:8000/api/data-points/{point_pk}', headers={"Authorization": f"Bearer {access_token}"}).json()
 
@@ -31,10 +28,10 @@ def periodic_data():
                 end_address = point_record['end_address']
                 regtype = point_record['register_type']
                 data_type = point_record['data_type']
-                
+
                 try:
                     c = client.connect_meter(meter['ip'], meter['port'])
-                    reading = client.decode_message(client.read_point(c, regtype, start_address, end_address), data_type)  
+                    reading = client.decode_message(client.read_point(c, regtype, start_address, end_address), data_type)
                     post_dict = {
                         "data_point": f"{point_pk}",
                         "meter": f"{meter['id']}",
@@ -43,7 +40,7 @@ def periodic_data():
                         "max": f"{reading}"
                     }
                     response = requests.post('http://127.0.0.1:8000/api/meter-data/', headers={"Authorization": f"Bearer {access_token}"}, json=post_dict)
-                    
+
                     ''' raise_for_status() raises http errors'''
                     response.raise_for_status()
                     print(response.status_code)

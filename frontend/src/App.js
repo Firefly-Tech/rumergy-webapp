@@ -7,6 +7,9 @@ import { roles } from "./resources/constants";
 import Dashboard from "./components/Dashboard";
 import LoginPages from "./components/LoginPages";
 import { useAuth } from "./resources/use-auth";
+import DLSFormikWrapper from "./components/DataLoggingScheduler";
+import DataLogs from "./components/DataLogs";
+import ManageMeter from "./components/ManageMeter";
 import ManageUsers from "./components/ManageUsers";
 import ManageAccessRequests from "./components/ManageAccessRequests";
 import ManageMeterModels from "./components/ManageMeterModels";
@@ -58,6 +61,19 @@ function App() {
             </Route>
             <Route path="/login">
               <LoginPages />
+            </Route>
+            <Route path="/advanced/data-logging-scheduler">
+              {(auth.role === roles.Admin && (
+                <Redirect to="/admin/manage-meters" />
+              )) || <DLSFormikWrapper />}
+              {/* <DataLoggingScheduler/> */}
+            </Route>
+            <Route path="/advanced/data-logs">
+              {/* <DataLogs/>  */}
+              <DataLogs />
+            </Route>
+            <Route path="/admin/manage-meters">
+              <ManageMeter />
             </Route>
             <Route path="/admin/manage-users">
               <ManageUsers />

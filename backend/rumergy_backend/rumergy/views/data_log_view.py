@@ -10,7 +10,7 @@ from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 import rpyc
-
+from rest_framework import permissions
 from rumergy_backend.rumergy.models.data_log import DataLog
 from rumergy_backend.rumergy.models.data_log_measures import DataLogMeasures
 from rumergy_backend.rumergy.models.meter import Meter
@@ -22,7 +22,7 @@ class DataLogViewSet(viewsets.ModelViewSet):
     serializer_class = DataLogSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ["user"]
-    # permission_classes = [permissions.AllowAny] # Only use for testing
+    permission_classes = [permissions.AllowAny] # Only use for testing
 
     @action(detail=True, methods=["get"])
     def download(self, request, pk=None):

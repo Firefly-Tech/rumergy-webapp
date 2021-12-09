@@ -44,7 +44,7 @@ def read_points_list(log_id, meter_id, points_list):
         read_result = Modbus.read_point(meter, regtype, start_address, end_address)
         meter.close()
         try:
-
+            
             result = Modbus.decode_message(read_result, data_type)
             log_dict = {
                 "data_log": f"{log_id}",
@@ -72,6 +72,11 @@ def read_points_list(log_id, meter_id, points_list):
                 headers={"Authorization": f"Bearer {access_token}"},
                 json=log_dict,
             )
+            
+            logging.error(f"Error reading from data point with id {point}")
+
+        
+    logging.info(f"Done reading from meter with id {meter_id}")
 
 
 

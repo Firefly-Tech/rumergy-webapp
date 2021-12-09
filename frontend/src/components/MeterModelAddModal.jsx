@@ -167,7 +167,7 @@ function MeterModelAddModal(props) {
                 <Row>
                   <Col className="">
                     <Form.Group className="mb-3">
-                      <Form.Label>Meter Name</Form.Label>
+                      <Form.Label>Model Name</Form.Label>
                       <InputGroup hasValidation>
                         <Form.Control
                           id="name"

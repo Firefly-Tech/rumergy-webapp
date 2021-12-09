@@ -1,6 +1,7 @@
 #!/bin/sh
 
 cd /app/backend
+mkdir logs
 
 until ./manage.py migrate
 do
@@ -15,6 +16,8 @@ gunicorn rumergy_backend.wsgi --bind 0.0.0.0:8000 --workers 4 --threads 4 --acce
 cd modbus
 
 python server.py &
+
+./cron_setup.sh
 
 #####################################################################################
 # Options to DEBUG Django server

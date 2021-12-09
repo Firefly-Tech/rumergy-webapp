@@ -10,8 +10,11 @@ done
 
 ./manage.py loaddata initial_buildings.json
 
-gunicorn rumergy_backend.wsgi --bind 0.0.0.0:8000 --workers 4 --threads 4 --access-logfile ./rumergy.log --daemon
+gunicorn rumergy_backend.wsgi --bind 0.0.0.0:8000 --workers 4 --threads 4 --access-logfile ./logs/gunicorn.log --daemon
 
+cd modbus
+
+python server.py &
 
 #####################################################################################
 # Options to DEBUG Django server

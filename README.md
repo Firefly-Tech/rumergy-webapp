@@ -46,6 +46,8 @@ EMAIL_HOST=smtp.gmail.com
 EMAIL_HOST_USER=user@gmail.com
 EMAIL_HOST_PASSWORD=password
 
+APP_URL=url # URL to frontend app, used for sending links in emails
+
 # Required app credentials for modbus module
 RPYC_USER=user
 RPYC_PASS=password

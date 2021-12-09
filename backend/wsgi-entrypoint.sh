@@ -10,15 +10,29 @@ do
     sleep 2
 done
 
+echo "Migrations completed"
+
 # Load fixtures
+
+echo "Loading fixtures..."
 ./manage.py loaddata initial_buildings.json
+echo "Fixtures loaded"
 
-gunicorn rumergy_backend.wsgi --bind 0.0.0.0:8000 --workers 4 --threads 4 --access-logfile ./logs/gunicorn.log --daemon
-
-cd modbus
-
-# Start rpyc server
-python server.py &
+# Create groups
+echo "Creating user groups..."
+./manage.py create_groups
 
 # Setup cron job
-./cron_setup.sh
+
+cd modbus
+echo "Setting up cron job..."
+./cron_setup.sh || cron_failed = 1
+
+if [ ${cron_failed:-0} -eq 1 ]
+then
+ echo "Cron setup failed"
+fi
+
+cd ..
+echo "Starting supervisord..."
+supervisord -c "./supervisord.conf"

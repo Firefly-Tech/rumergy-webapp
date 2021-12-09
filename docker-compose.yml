@@ -37,6 +37,10 @@ services:
       EMAIL_HOST: ${EMAIL_HOST}
       EMAIL_HOST_USER: ${EMAIL_HOST_USER}
       EMAIL_HOST_PASSWORD: ${EMAIL_HOST_PASSWORD}
+      RPYC_USER: ${RPYC_USER}
+      RPYC_PASS: ${RPYC_PASS}
+      SCHED_SERVER_HOST: ${SCHED_SERVER_HOST}
+      SCHED_SERVER_PORT: ${SCHED_SERVER_PORT}
     depends_on:
       - db
     entrypoint: /app/backend/wsgi-entrypoint.sh

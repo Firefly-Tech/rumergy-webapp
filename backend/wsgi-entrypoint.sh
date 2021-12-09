@@ -1,26 +1,38 @@
 #!/bin/sh
 
 cd /app/backend
+mkdir logs
 
+# Run migrations when db ready
 until ./manage.py migrate
 do
     echo "Waiting for db to be ready..."
     sleep 2
 done
 
+echo "Migrations completed"
+
+# Load fixtures
+
+echo "Loading fixtures..."
 ./manage.py loaddata initial_buildings.json
+echo "Fixtures loaded"
 
-gunicorn rumergy_backend.wsgi --bind 0.0.0.0:8000 --workers 4 --threads 4
+# Create groups
+echo "Creating user groups..."
+./manage.py create_groups
 
-#####################################################################################
-# Options to DEBUG Django server
-# Optional commands to replace abouve gunicorn command
+# Setup cron job
 
-# Option 1:
-# run gunicorn with debug log level
-# gunicorn server.wsgi --bind 0.0.0.0:8000 --workers 1 --threads 1 --log-level debug
+cd modbus
+echo "Setting up cron job..."
+./cron_setup.sh || cron_failed = 1
 
-# Option 2:
-# run development server
-# DEBUG=True ./manage.py runserver 0.0.0.0:8000
+if [ ${cron_failed:-0} -eq 1 ]
+then
+ echo "Cron setup failed"
+fi
 
+cd ..
+echo "Starting supervisord..."
+supervisord -c "./supervisord.conf"

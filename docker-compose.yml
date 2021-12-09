@@ -18,6 +18,7 @@ services:
       dockerfile: Dockerfile
       args:
         - REACT_APP_API_HOST=${REACT_APP_API_HOST}
+        - MODBUS_USER=${RPYC_USER}
     volumes:
       - react_build:/app/frontend/build
     depends_on:
@@ -37,8 +38,15 @@ services:
       EMAIL_HOST: ${EMAIL_HOST}
       EMAIL_HOST_USER: ${EMAIL_HOST_USER}
       EMAIL_HOST_PASSWORD: ${EMAIL_HOST_PASSWORD}
+      RPYC_USER: ${RPYC_USER}
+      RPYC_PASS: ${RPYC_PASS}
+      SCHED_SERVER_HOST: ${SCHED_SERVER_HOST}
+      SCHED_SERVER_PORT: ${SCHED_SERVER_PORT}
+      APP_URL: ${APP_URL}
     depends_on:
       - db
+    volumes:
+      - ./logs:/var/log
     entrypoint: /app/backend/wsgi-entrypoint.sh
     expose:
       - 8000

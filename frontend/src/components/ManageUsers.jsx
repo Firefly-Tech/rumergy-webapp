@@ -117,7 +117,12 @@ function ManageUsers() {
         return [];
       });
 
-    data = data.filter((user) => user.id !== auth.user.id);
+    let modbusUser = process.env.REACT_APP_MODBUS_USER;
+
+    // Filter out current user and modbus user (they should not be deleted by current admin)
+    data = data.filter(
+      (user) => user.id !== auth.user.id && user.username !== modbusUser
+    );
 
     if (data.length) {
       data = data.map((user) => {

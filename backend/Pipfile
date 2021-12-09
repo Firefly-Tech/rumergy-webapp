@@ -19,12 +19,16 @@ pymodbus = "*"
 requests = "*"
 drf-yasg = "*"
 gunicorn = "*"
+rpyc = "*"
+apscheduler = "*"
+sqlalchemy = "*"
+supervisor = "*"
+black = "*"
 
 [dev-packages]
 pynvim = "*"
 jedi = "*"
 autopep8 = "*"
-black = "*"
 
 [requires]
 python_version = "3.9"

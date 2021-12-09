@@ -31,4 +31,5 @@ client/
 
 db.cnf
 .*env
+logs/
 __pycache__/

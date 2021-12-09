@@ -23,7 +23,7 @@ def periodic_data():
         for point_pk in model_record['data_points']:
             point_record = requests.get(f'http://127.0.0.1:8000/api/data-points/{point_pk}', headers={"Authorization": f"Bearer {access_token}"}).json()
 
-            if point_record['name'] == 'Energy Consumption' or point_record['name'] == 'Energy Demand':
+            if point_record['name'] == 'consumption' or point_record['name'] == 'demand':
                 start_address = point_record['start_address']
                 end_address = point_record['end_address']
                 regtype = point_record['register_type']

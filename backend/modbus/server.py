@@ -12,7 +12,7 @@ import logging
 logging.basicConfig(
     filename="../logs/scheduler_server.log",
     encoding="utf-8",
-    level=logging.DEBUG,
+    level=logging.INFO,
     format="[%(levelname)-8s: %(asctime)s] %(message)s",
     datefmt="%m/%d/%Y %I:%M:%S %p",
 )
@@ -42,21 +42,37 @@ def read_points_list(log_id, meter_id, points_list):
 
         meter = Modbus.connect_meter(meter_ip, meter_port)
         read_result = Modbus.read_point(meter, regtype, start_address, end_address)
-        result = Modbus.decode_message(read_result, data_type)
         meter.close()
+        try:
 
-        log_dict = {
-            "data_log": f"{log_id}",
-            "data_point": f"{point}",
-            "value": f"{result}",
-            "status": "OK",
-        }
+            result = Modbus.decode_message(read_result, data_type)
+            log_dict = {
+                "data_log": f"{log_id}",
+                "data_point": f"{point}",
+                "value": f"{result}",
+                "status": "OK",
+            }
 
-        requests.post(
-            "http://localhost:8000/api/data-log-measures/",
-            headers={"Authorization": f"Bearer {access_token}"},
-            json=log_dict,
-        )
+            requests.post(
+                "http://localhost:8000/api/data-log-measures/",
+                headers={"Authorization": f"Bearer {access_token}"},
+                json=log_dict,
+            )
+
+        except:
+            log_dict = {
+                "data_log": f"{log_id}",
+                "data_point": f"{point}",
+                "value": "-1",
+                "status": "ERR",
+            }
+
+            requests.post(
+                "http://localhost:8000/api/data-log-measures/",
+                headers={"Authorization": f"Bearer {access_token}"},
+                json=log_dict,
+            )
+
 
 
 class SchedulerService(rpyc.Service):

@@ -107,7 +107,7 @@ def decode_message(result, data_type):
 
     returns: Returns the decoded value in the specified data type format.
     """
-
+    
     decoder = BinaryPayloadDecoder.fromRegisters(
         result.registers, byteorder=Endian.Big, wordorder=Endian.Big
     )

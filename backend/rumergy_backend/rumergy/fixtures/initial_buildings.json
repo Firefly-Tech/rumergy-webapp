@@ -194,5 +194,19 @@
     "fields": {
       "name": "Sanchez Hall"
     }
+  },
+  {
+    "model": "rumergy.building",
+    "pk": 29,
+    "fields": {
+      "name": "Stefani"
+    }
+  },
+  {
+    "model": "rumergy.building",
+    "pk": 30,
+    "fields": {
+      "name": "Chardon"
+    }
   }
 ]

@@ -37,6 +37,8 @@ def read_points_list(log_id, meter_id, points_list):
     meter_ip = meter_record["ip"]
     meter_port = meter_record["port"]
 
+    server_logger.info(f"Start reading for meter with id {meter_id}")
+
     for point in points_list:
 
         data_point = requests.get(
@@ -67,6 +69,8 @@ def read_points_list(log_id, meter_id, points_list):
                 json=log_dict,
             )
 
+            server_logger.error(f"Read data point with id {point}")
+
         except:
             log_dict = {
                 "data_log": f"{log_id}",
@@ -90,6 +94,7 @@ class SchedulerService(rpyc.Service):
     """Scheduler rpyc service. Exposes functions for rpc commmunication."""
 
     def exposed_add_job(self, func, *args, **kwargs):
+        server_logger.info("Call for job to be added")
         return scheduler.add_job(func, *args, **kwargs)
 
     def exposed_modify_job(self, job_id, jobstore=None, **changes):

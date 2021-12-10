@@ -16,21 +16,59 @@ import { useRouteMatch } from "react-router-dom";
 const helpData = {
   "manage-meters": {
     title: "Manage Meters",
-    description: "this is description",
+    description: NewlineText("In this page, you can add, edit or remove meters. You can also use the search function to facilitate finding the meter you're looking for.\nRefer to the video below for details on the execution of such:"),
+    url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+  },
+  "manage-users": {
+    title: "Manage Users",
+    description: NewlineText("In this page, you can add, edit or remove users. You can also use the search function to facilitate finding the users you're looking for.\nRefer to the video below for details on the execution of such:"),
+    url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+  },
+  "manage-access-requests": {
+    title: "Manage Access Requests",
+    description: NewlineText("In this page, you can view, accept or deny access requests. You can also use the search function to facilitate finding the access request you're looking for.\nRefer to the video below for details on the execution of such:"),
+    url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+  },
+  "manage-buildings": {
+    title: "Manage Buildings",
+    description: NewlineText("In this page, you can add, edit or remove buildings. You can also use the search function to facilitate finding the building you're looking for.\nRefer to the video below for details on the execution of such:"),
     url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
   },
   "manage-meter-models": {
     title: "Manage Meter Models",
-    description: "This is the description",
+    description: NewlineText("In this page, you can add, edit or remove meter models. You can also use the search function to facilitate finding the meter model you're looking for.\nRefer to the video below for details on the execution of such:"),
     url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
   },
   dashboard: {
     title: "Dashboard",
-    description:
-      'contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source. Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of "de Finibus Bonorum et Malorum" (The Extremes of Good and Evil) by Cicero, written in 45 BC. This book is a treatise on the theory of ethics, very popular during the Renaissance. The first line of Lorem Ipsum, "Lorem ipsum dolor sit amet..", comes from a line in section 1.10.32.',
+    description: NewlineText("In this page, you can select up to five different meters to visualize either their consumption or demand in the last 24 hours, 7 days or 30 days.\nRefer to the video below for details on the execution of such:"),
     url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
   },
+  about: {
+    title: "About",
+    description: NewlineText("This is the about page. Here you'll find information about RUMergy and how it became to be."),
+    url: "",
+  },
+  "data-logging-scheduler": {
+    title: "Data Logging Scheduler",
+    description: NewlineText("In this page, you can create a data logging schedule (data log) to obtain readings from a specific meter on a specific time frame.\nRefer to the video below for details on the execution of such:"),
+    url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+  },
+  "data-logs": {
+    title: "Data Logs",
+    description: NewlineText("In this page, you can view the data logs you've created. You can cancel any ongoing data logs or download the results of ones that have been completed as a CSV file.\nRefer to the video below for details on the execution of such:"),
+    url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+  },
+  "real-time-monitor": {
+    title: "Real Time Monitor",
+    description: NewlineText("In this page, you can view real-time readings for an existing meter.\nRefer to the video below for details on the execution of such:"),
+    url: "",
+  },
 };
+
+function NewlineText(text) {
+  return text.split('\n').map(str => <p>{str}</p>);
+}
 
 /** Displays help for current page */
 function Help() {

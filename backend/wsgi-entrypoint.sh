@@ -26,7 +26,8 @@ echo "Creating user groups..."
 
 cd /app/backend/modbus
 echo "Setting up cron job..."
-./cron_setup.sh || cron_failed = 1
+path=`pwd`
+./cron_setup.sh $path || cron_failed = 1
 
 if [ ${cron_failed:-0} -eq 1 ]
 then

@@ -147,7 +147,7 @@ function MeterEditModal(props) {
               noValidate
               className="d-flex flex-column"
             >
-              <Modal.Body>
+              <Modal.Body className="modal-scroll overflow-auto px-3">
                 <Form.Group className="mb-3">
                   <Form.Label>Name</Form.Label>
                   <InputGroup hasValidation>

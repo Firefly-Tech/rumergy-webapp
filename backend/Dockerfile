@@ -9,5 +9,6 @@ RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 
 RUN apt update -y && apt install cron -y
+RUN service cron start
 
 COPY . .

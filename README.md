@@ -33,14 +33,26 @@ The docker compose depends on various environment variables that must be provide
 ```
 REACT_APP_API_HOST=http://localhost
 
-SECRET_KEY=key
+SECRET_KEY=key # Django secret key
+
 DB_NAME=dbname
 DB_HOST=db # Must be exactly this
 DB_USER=user
 DB_PASS=password
 DB_ROOT_PASS=password
 DB_CHAR_SET=utf8
+
 EMAIL_HOST=smtp.gmail.com
 EMAIL_HOST_USER=user@gmail.com
 EMAIL_HOST_PASSWORD=password
+
+APP_URL=url # URL to frontend app, used for sending links in emails
+
+# Required app credentials for modbus module
+RPYC_USER=user
+RPYC_PASS=password
+
+# Host information for RPYC server
+SCHED_SERVER_HOST=localhost # Must be localhost
+SCHED_SERVER_PORT=port
 ```

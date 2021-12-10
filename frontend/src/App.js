@@ -1,7 +1,7 @@
 import { React } from "react";
 import "./App.scss";
-import { Route, Redirect, Switch } from "react-router-dom";
-import { Container, Row, Col } from "react-bootstrap";
+import { Route, Redirect, Switch, useHistory } from "react-router-dom";
+import { Container, Row, Col, Button } from "react-bootstrap";
 import Sidebar from "./components/Sidebar";
 import { roles } from "./resources/constants";
 import Dashboard from "./components/Dashboard";
@@ -15,6 +15,7 @@ import ManageAccessRequests from "./components/ManageAccessRequests";
 import ManageMeterModels from "./components/ManageMeterModels";
 import RealTimeMonitor from "./components/RealTimeMonitor";
 import ManageBuildings from "./components/ManageBuildings";
+import About from "./components/About";
 
 const includeSidebar = ["/dashboard*", "/admin*", "/advanced*", "/about*"];
 
@@ -40,6 +41,8 @@ function App() {
     );
   };
 
+  const history = useHistory();
+
   return (
     <Container fluid className="overflow-hidden">
       <Row className="vh-100 overflow-hidden">
@@ -63,10 +66,7 @@ function App() {
               <LoginPages />
             </Route>
             <Route path="/advanced/data-logging-scheduler">
-              {(auth.role === roles.Admin && (
-                <Redirect to="/admin/manage-meters" />
-              )) || <DLSFormikWrapper />}
-              {/* <DataLoggingScheduler/> */}
+              <DLSFormikWrapper />
             </Route>
             <Route path="/advanced/data-logs">
               {/* <DataLogs/>  */}
@@ -90,13 +90,29 @@ function App() {
             <Route path="/admin/manage-buildings">
               <ManageBuildings />
             </Route>
+            <Route path="/about">
+              <About />
+            </Route>
             <Route path="/" exact>
               <Redirect to={rootRedirect()} />
             </Route>
-            
-            {/* TODO: Add 404 page */}
             <Route path="*">
-              <h3>Page not found</h3>
+              <Row className="h-100">
+                <Col className="d-flex flex-column">
+                  <div className="d-flex flex-column align-items-center my-auto mx-auto gap-2">
+                    <h2 className="bold">Oops!</h2>
+                    <h4>The page you requested was not found.</h4>
+                    <Button
+                      variant="primary"
+                      onClick={() => {
+                        history.push("/");
+                      }}
+                    >
+                      Home
+                    </Button>
+                  </div>
+                </Col>
+              </Row>
             </Route>
           </Switch>
         </Col>

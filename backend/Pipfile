@@ -22,12 +22,13 @@ gunicorn = "*"
 rpyc = "*"
 apscheduler = "*"
 sqlalchemy = "*"
+supervisor = "*"
+black = "*"
 
 [dev-packages]
 pynvim = "*"
 jedi = "*"
 autopep8 = "*"
-
 
 [requires]
 python_version = "3.9"

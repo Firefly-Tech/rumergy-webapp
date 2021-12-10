@@ -8,14 +8,22 @@ from decouple import config
 import modbus_client as Modbus
 
 import logging
+import sys
 
-logging.basicConfig(
-    filename="../logs/scheduler_server.log",
-    encoding="utf-8",
-    level=logging.INFO,
-    format="[%(levelname)-8s: %(asctime)s] %(message)s",
-    datefmt="%m/%d/%Y %I:%M:%S %p",
+
+# Logger config
+# Outputs to stdout and supervisor takes care of logfile
+
+log_formatter = logging.Formatter(
+    "[%(levelname)-8s: %(asctime)s] %(message)s", datefmt="%Y-%m-%d %H:%M:%S %Z"
 )
+handler = logging.StreamHandler(stream=sys.stdout)
+handler.setLevel(logging.INFO)
+handler.setFormatter(log_formatter)
+
+server_logger = logging.getLogger(__name__)
+server_logger.setLevel(logging.INFO)
+server_logger.addHandler(handler)
 
 
 def read_points_list(log_id, meter_id, points_list):
@@ -28,6 +36,8 @@ def read_points_list(log_id, meter_id, points_list):
     ).json()
     meter_ip = meter_record["ip"]
     meter_port = meter_record["port"]
+
+    server_logger.info(f"Start reading for meter with id {meter_id}")
 
     for point in points_list:
 
@@ -44,7 +54,7 @@ def read_points_list(log_id, meter_id, points_list):
         read_result = Modbus.read_point(meter, regtype, start_address, end_address)
         meter.close()
         try:
-            
+
             result = Modbus.decode_message(read_result, data_type)
             log_dict = {
                 "data_log": f"{log_id}",
@@ -59,6 +69,8 @@ def read_points_list(log_id, meter_id, points_list):
                 json=log_dict,
             )
 
+            server_logger.error(f"Read data point with id {point}")
+
         except:
             log_dict = {
                 "data_log": f"{log_id}",
@@ -72,18 +84,17 @@ def read_points_list(log_id, meter_id, points_list):
                 headers={"Authorization": f"Bearer {access_token}"},
                 json=log_dict,
             )
-            
-            logging.error(f"Error reading from data point with id {point}")
 
-        
-    logging.info(f"Done reading from meter with id {meter_id}")
+            server_logger.error(f"Error reading from data point with id {point}")
 
+    server_logger.info(f"Done reading from meter with id {meter_id}")
 
 
 class SchedulerService(rpyc.Service):
     """Scheduler rpyc service. Exposes functions for rpc commmunication."""
 
     def exposed_add_job(self, func, *args, **kwargs):
+        server_logger.info("Call for job to be added")
         return scheduler.add_job(func, *args, **kwargs)
 
     def exposed_modify_job(self, job_id, jobstore=None, **changes):
@@ -117,8 +128,9 @@ if __name__ == "__main__":
         url=f"mysql+mysqldb://{config('DB_USER')}:{config('DB_PASS')}@{config('DB_HOST')}/{config('DB_NAME')}",
     )
 
-    logging.info("Starting scheduler server...")
+    server_logger.info("Starting scheduler server")
     scheduler.start()
+    server_logger.info("Scheduler running")
 
     protocol_config = {"allow_public_attrs": True}
 
@@ -129,10 +141,10 @@ if __name__ == "__main__":
     )
 
     try:
-        logging.info("Starting rpyc server...")
+        server_logger.info("Start rpyc server")
         server.start()
     except (KeyboardInterrupt, SystemExit):
-        logging.error("Server has stopped")
+        server_logger.error("Server has stopped")
     finally:
-        logging.error("Shutting down server...")
+        server_logger.error("Shutting down server...")
         scheduler.shutdown()

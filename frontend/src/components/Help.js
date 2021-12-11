@@ -17,32 +17,32 @@ const helpData = {
   "manage-meters": {
     title: "Manage Meters",
     description: NewlineText("In this page, you can add, edit or remove meters. You can also use the search function to facilitate finding the meter you're looking for.\nRefer to the video below for details on the execution of such:"),
-    url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    url: "https://www.youtube.com/watch?v=4ulg0abR0RY",
   },
   "manage-users": {
     title: "Manage Users",
     description: NewlineText("In this page, you can add, edit or remove users. You can also use the search function to facilitate finding the users you're looking for.\nRefer to the video below for details on the execution of such:"),
-    url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    url: "https://www.youtube.com/watch?v=4ulg0abR0RY",
   },
   "manage-access-requests": {
     title: "Manage Access Requests",
     description: NewlineText("In this page, you can view, accept or deny access requests. You can also use the search function to facilitate finding the access request you're looking for.\nRefer to the video below for details on the execution of such:"),
-    url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    url: "https://www.youtube.com/watch?v=leQESKoN9vU",
   },
   "manage-buildings": {
     title: "Manage Buildings",
     description: NewlineText("In this page, you can add, edit or remove buildings. You can also use the search function to facilitate finding the building you're looking for.\nRefer to the video below for details on the execution of such:"),
-    url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    url: "https://www.youtube.com/watch?v=4ulg0abR0RY",
   },
   "manage-meter-models": {
     title: "Manage Meter Models",
     description: NewlineText("In this page, you can add, edit or remove meter models. You can also use the search function to facilitate finding the meter model you're looking for.\nRefer to the video below for details on the execution of such:"),
-    url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    url: "https://www.youtube.com/watch?v=4ulg0abR0RY",
   },
   dashboard: {
     title: "Dashboard",
     description: NewlineText("In this page, you can select up to five different meters to visualize either their consumption or demand in the last 24 hours, 7 days or 30 days.\nRefer to the video below for details on the execution of such:"),
-    url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    url: "https://www.youtube.com/watch?v=1RTILtPa3qM",
   },
   about: {
     title: "About",
@@ -52,12 +52,12 @@ const helpData = {
   "data-logging-scheduler": {
     title: "Data Logging Scheduler",
     description: NewlineText("In this page, you can create a data logging schedule (data log) to obtain readings from a specific meter on a specific time frame.\nRefer to the video below for details on the execution of such:"),
-    url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    url: "https://www.youtube.com/watch?v=wyssJ_lU2mk",
   },
   "data-logs": {
     title: "Data Logs",
-    description: NewlineText("In this page, you can view the data logs you've created. You can cancel any ongoing data logs or download the results of ones that have been completed as a CSV file.\nRefer to the video below for details on the execution of such:"),
-    url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    description: NewlineText("In this page, you can view the data logs you've created. You can also download the results of ones that have been completed as a CSV file.\nRefer to the video below for details on the execution of such:"),
+    url: "https://www.youtube.com/watch?v=EEdCQrcdFDk",
   },
   "real-time-monitor": {
     title: "Real Time Monitor",

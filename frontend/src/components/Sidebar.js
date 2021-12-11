@@ -88,7 +88,7 @@ const sidebarData = [
     link: "/admin/manage-meter-models",
     userRestrictions: [roles.Admin],
     icon: <FaBars className="fs-5" />,
-  }
+  },
 ];
 
 /** Navigation sidebar */

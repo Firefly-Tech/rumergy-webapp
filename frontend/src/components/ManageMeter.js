@@ -85,7 +85,7 @@ function ManageMeter() {
         (meter) =>
           meter.meterString
             .toLowerCase()
-            .includes(filterText.split(" ").join("").toLowerCase()) 
+            .includes(filterText.split(" ").join("").toLowerCase())
       )
     );
     setLoading(false);
@@ -346,7 +346,7 @@ function ManageMeter() {
     };
 
     return auth.userAxiosInstance
-      .patch(`${auth.apiHost}/api/meters/${id}/`, data) 
+      .patch(`${auth.apiHost}/api/meters/${id}/`, data)
       .then(() => {
         fetchMeters();
         fetchMeterModels();
@@ -394,7 +394,7 @@ function ManageMeter() {
   return (
     <>
       <Row className="h-100">
-        <Col className="d-flex-column px-4 pt-4">
+        <Col className="d-flex flex-column px-4 pt-4">
           <Row>
             <Col
               sm={12}

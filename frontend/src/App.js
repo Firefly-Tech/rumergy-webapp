@@ -13,6 +13,7 @@ import ManageMeter from "./components/ManageMeter";
 import ManageUsers from "./components/ManageUsers";
 import ManageAccessRequests from "./components/ManageAccessRequests";
 import ManageMeterModels from "./components/ManageMeterModels";
+import RealTimeMonitor from "./components/RealTimeMonitor";
 import ManageBuildings from "./components/ManageBuildings";
 import About from "./components/About";
 
@@ -82,6 +83,9 @@ function App() {
             </Route>
             <Route path="/admin/manage-meter-models">
               <ManageMeterModels />
+            </Route>
+            <Route path="/advanced/real-time-monitor">
+              <RealTimeMonitor />
             </Route>
             <Route path="/admin/manage-buildings">
               <ManageBuildings />

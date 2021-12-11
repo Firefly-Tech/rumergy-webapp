@@ -69,7 +69,7 @@ def read_points_list(log_id, meter_id, points_list):
                 json=log_dict,
             )
 
-            server_logger.error(f"Read data point with id {point}")
+            server_logger.info(f"Read data point with id {point}")
 
         except:
             log_dict = {

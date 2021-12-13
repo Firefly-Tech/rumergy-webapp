@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 from decouple import config
+from datetime import timedelta
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -137,7 +138,9 @@ REST_FRAMEWORK = {
     ],
 }
 
-SIMPLE_JWT = {}
+SIMPLE_JWT = {
+    'REFRESH_TOKEN_LIFETIME': timedelta(minutes=1),
+}
 
 CORS_ORIGIN_ALLOW_ALL = True
 

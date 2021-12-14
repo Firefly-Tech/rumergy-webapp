@@ -41,6 +41,7 @@ const decimationPlugin = {
   enabled: true,
   algorithm: "lttb",
   samples: 100,
+  threshold: 100,
 };
 
 function DashboardVisualization(props) {

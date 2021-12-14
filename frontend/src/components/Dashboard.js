@@ -288,6 +288,7 @@ function Dashboard() {
         fill: false,
         backgroundColor: lineColors[i],
         borderColor: lineColorsTransparent[i],
+        radius: 0,
       });
     }
 

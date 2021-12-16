@@ -1,4 +1,4 @@
-version: "3.3"
+version: "3.4"
 services:
   db:
     restart: always
@@ -51,23 +51,23 @@ services:
     expose:
       - 8000
   nginx:
-    restart: always
-    image: nginx:stable
+    container_name: nginx
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+      network: host
+      args:
+        - CERTBOT_EMAIL=${CERTBOT_EMAIL}
+        - DOMAIN_LIST=${DOMAIN_LIST}
     ports:
       - "80:80"
       - "443:443"
     volumes:
       - ./nginx/nginx-setup.conf:/etc/nginx/conf.d/default.conf:ro
       - react_build:/var/www/rumergy:ro
-      - ./certbot/www:/var/www/certbot/:ro
-      - ./certbot/conf/:/etc/nginx/ssl/:ro
+      - letsencrypt:/etc/letsencrypt
     depends_on:
       - backend
       - frontend
-  certbot:
-    image: certbot/certbot:latest
-    volumes:
-      - ./certbot/www/:/var/www/certbot/:rw
-      - ./certbot/conf/:/etc/letsencrypt/:rw
 volumes:
   react_build:

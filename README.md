@@ -55,4 +55,8 @@ RPYC_PASS=password
 # Host information for RPYC server
 SCHED_SERVER_HOST=localhost # Must be localhost
 SCHED_SERVER_PORT=port
+
+# Information for certbot
+CERTBOT_EMAIL=email@email.com
+DOMAIN_LIST=domain
 ```

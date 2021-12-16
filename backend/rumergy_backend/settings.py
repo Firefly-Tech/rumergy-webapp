@@ -14,7 +14,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = config("SECRET_KEY")
 
-ALLOWED_HOSTS = ["0.0.0.0", "localhost", "127.0.0.1", "rumergy.ddns.net"]
+ALLOWED_HOSTS = ["0.0.0.0", "localhost", "127.0.0.1", "rumergy.ece.uprm.edu"]
 
 
 # Application definition

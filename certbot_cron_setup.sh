@@ -6,5 +6,5 @@ then
   exit 0
 fi
 
-(crontab -l 2>/dev/null; echo "0 0 * * * $1/certbot_renew.sh $1 > /tmp/certbot_renew.out") | crontab -
+(crontab -l 2>/dev/null; echo "@daily $1/certbot_renew.sh $1 > /tmp/certbot_renew.out") | crontab -
 

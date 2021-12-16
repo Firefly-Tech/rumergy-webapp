@@ -103,8 +103,10 @@ function Dashboard() {
           })
         );
       } else {
-        setErrorName("Fetch Error");
-        setErrorMessage("Failed to fetch active meter list.");
+        setErrorName("No meters found");
+        setErrorMessage(
+          "No active meters are available right. Please try again later."
+        );
         handleShow();
       }
 

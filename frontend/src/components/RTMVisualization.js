@@ -1,22 +1,10 @@
 import { React, useState } from "react";
 import PropTypes from "prop-types";
-import {
-  Card,
-  Row,
-  Col,
-  Form,
-} from "react-bootstrap";
-import DropdownButton from 'react-bootstrap/DropdownButton'
-import Dropdown from 'react-bootstrap/Dropdown'
+import { Card, Row, Col, Form } from "react-bootstrap";
+import DropdownButton from "react-bootstrap/DropdownButton";
+import Dropdown from "react-bootstrap/Dropdown";
 import { Line } from "react-chartjs-2";
 import "chartjs-adapter-date-fns";
-
-/*<DropdownButton id="dropdown-basic-button" title={name1}>
-              <Dropdown.Item eventKey="option-1">option-1</Dropdown.Item>
-              <Dropdown.Item as="button"><div onClick={(e) => name1 = (e.target.textContent)}>Test</div></Dropdown.Item>
-              <Dropdown.Item eventKey="option-1">option-2</Dropdown.Item>
-              <Dropdown.Item eventKey="option-1">option-3</Dropdown.Item>
-            </DropdownButton>*/
 
 /**
  * Decimation plugin options.
@@ -70,29 +58,6 @@ function RTMVisualization(props) {
     },
   };
 
-  // var name1 = "Select a meter";
-  /**
-   * Meters dropdown menu
-   *
-   * @constant {object} meters
-   * */
-  const meters = props => 
-    <select>{
-      props.meterList.map( (x,y) => 
-        <option key={y}>{x}</option> )
-    }</select>;
-
-   /**
-   * DataPoints dropdown menu
-   *
-   * @constant {object} dataPoints
-   * */
-    const dataPoints = props => 
-    <select>{
-      props.selectedDataPoint.name.map( (x,y) => 
-        <option key={y}>{x}</option> )
-    }</select>;
-
   return (
     <Card as={Row} className="RTM-data-visualization-card mb-sm-4 h-100">
       <Col>
@@ -103,29 +68,39 @@ function RTMVisualization(props) {
         </Card.Body>
         <Card.Body as={Row} className="pt-sm-0">
           <Col className="d-flex px-3 align-items-sm-center justify-content-start">
-            <div className="align">
-              <Form.Select aria-label="Default select example">
-                onChange={e => {
-                  console.log("e.target.key", e.target.key);
-                }}
-               <option>Select a meter</option>
-               <option value="1">1</option>
-               <option value="2">2</option>
-               <option value="3">3</option>
-              </Form.Select>
-            </div>
+            <Form.Select
+              aria-label="Default select example"
+              value={props.selectedMeter}
+              onChange={(e) => props.setSelectedMeter(parseInt(e.target.value))}
+            >
+              <option value={-1} defaultValue>
+                Select a meter
+              </option>
+              {props.meterList.map((meter, index) => (
+                <option value={meter.id} key={index}>
+                  {meter.name}
+                </option>
+              ))}
+            </Form.Select>
           </Col>
           <Col className="d-flex px-3 align-items-sm-center justify-content-end">
-            <select id = "dropdown">
-              onChange={e => {
-                console.log("e.target.value", e.target.value);
-              }}
-              <option value="Initial">Select a datapoint</option>
-              <option value="1">1</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
-              <option value="4">4</option>
-            </select>
+            <Form.Select
+              aria-label="Default select example"
+              value={props.selectedDataPoint}
+              onChange={(e) =>
+                props.setSelectedDataPoint(parseInt(e.target.value))
+              }
+              disabled={props.selectedMeter < 0 || !props.dataPointList.length}
+            >
+              <option value={-1} defaultValue>
+                Select a data point
+              </option>
+              {props.dataPointList.map((dataPoint, index) => (
+                <option value={dataPoint.id} key={index}>
+                  {dataPoint.name}
+                </option>
+              ))}
+            </Form.Select>
           </Col>
         </Card.Body>
         <Card.Body as={Row} className="">
@@ -151,8 +126,13 @@ function RTMVisualization(props) {
 RTMVisualization.propTypes = {
   /** List of meters */
   meterList: PropTypes.array,
+  dataPointList: PropTypes.array,
   /** Data for the selected meter, according to selected parameter. */
   data: PropTypes.object,
+  setSelectedMeter: PropTypes.func,
+  selectedMeter: PropTypes.number,
+  setSelectedDataPoint: PropTypes.func,
+  selectedDataPoint: PropTypes.number,
 };
 
 export default RTMVisualization;

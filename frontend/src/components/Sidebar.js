@@ -53,12 +53,12 @@ const sidebarData = [
     userRestrictions: [roles.Advanced],
     icon: <FaClipboardCheck className="fs-5" />,
   },
-  //{
-    //menuName: "Real Time Monitor",
-    //link: "/advanced/real-time-monitor",
-    //userRestrictions: [roles.Advanced],
-    //icon: <FaSatelliteDish className="fs-5" />,
-  //},
+  {
+    menuName: "Real Time Monitor",
+    link: "/advanced/real-time-monitor",
+    userRestrictions: [roles.Advanced],
+    icon: <FaSatelliteDish className="fs-5" />,
+  },
   {
     menuName: "Meters",
     link: "/admin/manage-meters",

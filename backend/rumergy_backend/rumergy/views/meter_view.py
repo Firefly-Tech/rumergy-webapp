@@ -48,7 +48,10 @@ class MeterViewSet(viewsets.ModelViewSet):
     def live_reading(self, request, pk=None):
         """Get reading from specified meter and datapoint"""
 
-        data_point_id = request.query_params["datapoint"]
+        try:
+            data_point_id = request.query_params["datapoint"]
+        except Exception:
+            return Response("Invalid request format", status.HTTP_400_BAD_REQUEST)
 
         meter_obj = Meter.objects.get(pk=pk)
         ip = meter_obj.ip

@@ -105,7 +105,7 @@ function Dashboard() {
       } else {
         setErrorName("No meters found");
         setErrorMessage(
-          "No active meters are available right. Please try again later."
+          "No active meters are available right now. Please try again later."
         );
         handleShow();
       }

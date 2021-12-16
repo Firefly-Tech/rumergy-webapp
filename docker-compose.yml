@@ -71,3 +71,4 @@ services:
       - frontend
 volumes:
   react_build:
+  letsencrypt:

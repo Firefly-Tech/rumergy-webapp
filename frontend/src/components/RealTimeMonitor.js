@@ -146,17 +146,19 @@ function RealTimeMonitor() {
           handleShow();
           setDataPointList([]);
           setSelectedMeter(-1);
+          return [];
         });
-
-      setDataPointList(
-        data.map((dataPoint) => {
-          return {
-            id: dataPoint.id,
-            name: dataPoint.name,
-            units: dataPoint.unit,
-          };
-        })
-      );
+      if (data.length) {
+        setDataPointList(
+          data.map((dataPoint) => {
+            return {
+              id: dataPoint.id,
+              name: dataPoint.name,
+              units: dataPoint.unit,
+            };
+          })
+        );
+      }
     }
 
     if (selectedMeter !== -1) {

@@ -45,6 +45,7 @@ DB_CHAR_SET=utf8
 EMAIL_HOST=smtp.gmail.com
 EMAIL_HOST_USER=user@gmail.com
 EMAIL_HOST_PASSWORD=password
+EMAIL_PORT=port
 
 APP_URL=url # URL to frontend app, used for sending links in emails
 

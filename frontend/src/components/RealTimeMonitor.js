@@ -48,7 +48,7 @@ const emptyDataSet = {
   ],
 };
 
-const maxTimeout = 1 * 60 * 1000;
+const maxTimeout = 5 * 60 * 1000;
 const fetchInterval = 2 * 1000;
 
 /**

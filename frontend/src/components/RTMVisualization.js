@@ -70,7 +70,10 @@ function RTMVisualization(props) {
             <Form.Select
               aria-label="Default select example"
               value={props.selectedMeter}
-              onChange={(e) => props.setSelectedMeter(parseInt(e.target.value))}
+              onChange={(e) => {
+                props.setSelectedMeter(parseInt(e.target.value));
+                props.setSelectedDataPoint(-1);
+              }}
             >
               <option value={-1} defaultValue>
                 Select a meter

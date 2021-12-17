@@ -15,7 +15,7 @@ import "chartjs-adapter-date-fns";
 const decimationPlugin = {
   enabled: true,
   algorithm: "lttb",
-  samples: 100,
+  samples: 200,
 };
 
 function RTMVisualization(props) {
@@ -35,9 +35,9 @@ function RTMVisualization(props) {
       x: {
         type: "time",
         time: {
-          minUnit: "minute",
-          round: "minute",
-          unit: "hour",
+          minUnit: "second",
+          round: "second",
+          unit: "second",
         },
         ticks: {
           source: "auto",
@@ -48,8 +48,7 @@ function RTMVisualization(props) {
         beginAtZero: true,
         title: {
           display: true,
-          text: props.selectedDatatype === "consumption" ? "kWh" : "kW",
-          // text: selectedDataPoint.unit,
+          text: props.units,
         },
       },
     },
@@ -107,7 +106,7 @@ function RTMVisualization(props) {
           <Col
             className={`d-flex flex-column chart mx-3 mt-4 justify-content-center flex-grow-1 chart-bg-color`}
           >
-            <Line data={props.data} options={options} />
+            <Line data={props.data} options={options} ref={props.chartRef} />
             <div className="text-center">
               <h5 className="bold">
                 {props.data.datasets.length === 1 &&
@@ -118,6 +117,11 @@ function RTMVisualization(props) {
             </div>
           </Col>
         </Card.Body>
+        <Card.Footer>
+          <span>
+            <b>Note</b>: Time is given in UTC.
+          </span>
+        </Card.Footer>
       </Col>
     </Card>
   );
@@ -133,6 +137,8 @@ RTMVisualization.propTypes = {
   selectedMeter: PropTypes.number,
   setSelectedDataPoint: PropTypes.func,
   selectedDataPoint: PropTypes.number,
+  chartRef: PropTypes.object,
+  units: PropTypes.string,
 };
 
 export default RTMVisualization;

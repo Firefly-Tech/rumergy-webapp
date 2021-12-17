@@ -1,3 +1,4 @@
+from datetime import datetime
 from rest_framework import viewsets
 from rest_framework import permissions
 from rest_framework.decorators import action
@@ -73,6 +74,7 @@ class MeterViewSet(viewsets.ModelViewSet):
                 "meter": f"{pk}",
                 "data_point": f"{data_point_id}",
                 "value": f"{result}",
+                "timestamp": datetime.now().isoformat()
             },
             status.HTTP_200_OK,
         )

@@ -1,11 +1,12 @@
-import { React, useEffect, useState, useCallback } from "react";
+import { React, useEffect, useState, useRef, useCallback } from "react";
 import { Col, Row, Spinner } from "react-bootstrap";
 import RTMVisualization from "./RTMVisualization";
 import ErrorModal from "./ErrorModal";
-import { sub, formatISO, getTime, parseISO, set } from "date-fns";
+import { sub, formatISO, getTime, parseISO } from "date-fns";
 import { useRequireAuth } from "../resources/use-require-auth";
 import axios from "axios";
 import { roles } from "../resources/constants";
+import { setIn } from "formik";
 
 /** Line colors for graphs
  *
@@ -47,6 +48,9 @@ const emptyDataSet = {
   ],
 };
 
+const maxTimeout = 1 * 60 * 1000;
+const fetchInterval = 2 * 1000;
+
 /**
  * Real Time Monitor component
  *
@@ -68,6 +72,7 @@ function RealTimeMonitor() {
   const [loading, setLoading] = useState(false);
 
   const auth = useRequireAuth("/login", [roles.Advanced]);
+  const chartRef = useRef(null);
 
   useEffect(() => {
     /**
@@ -145,7 +150,11 @@ function RealTimeMonitor() {
 
       setDataPointList(
         data.map((dataPoint) => {
-          return { id: dataPoint.id, name: dataPoint.name };
+          return {
+            id: dataPoint.id,
+            name: dataPoint.name,
+            units: dataPoint.unit,
+          };
         })
       );
     }
@@ -159,11 +168,39 @@ function RealTimeMonitor() {
 
   useEffect(() => {
     if (selectedMeter !== -1 && selectedDataPoint !== -1) {
-      // Start reading
-    } else {
-      // Stop timer (?)
+      let meterName = meterList.filter((meter) => meter.id === selectedMeter)[0]
+        .name;
+      setMeterData({
+        datasets: [
+          {
+            label: `${meterName} live data`,
+            data: [],
+            fill: false,
+            backgroundColor: lineColors[0],
+            borderColor: lineColorsTransparent[0],
+          },
+        ],
+      });
+
+      let id = setInterval(fetchData, fetchInterval);
+      let timeoutID = setTimeout(() => {
+        setErrorName("Live reading timeout reached");
+        setErrorMessage(
+          `Live readings can only go on for ${
+            maxTimeout / (60 * 1000)
+          } minutes. Please select a meter to start reading again.`
+        );
+        handleShow();
+        setSelectedMeter(-1);
+        setSelectedDataPoint(-1);
+      }, maxTimeout);
+
+      return () => {
+        clearInterval(id);
+        clearTimeout(timeoutID);
+      };
     }
-  }, [selectedMeter, selectedDataPoint])
+  }, [selectedMeter, selectedDataPoint]);
 
   /* ERROR MODAL HANDLERS */
   const handleClose = () => setShow(false);
@@ -175,35 +212,42 @@ function RealTimeMonitor() {
    * @function fetchData
    * @async
    **/
-  const fetchData = async () => {};
+  const fetchData = async () => {
+    await auth.userAxiosInstance
+      .get(`${auth.apiHost}/api/meters/${selectedMeter}/live_reading`, {
+        params: { datapoint: selectedDataPoint },
+      })
+      .then((res) => {
+        let value = parseInt(res.data.value);
+        let timestamp = getTime(parseISO(res.data.timestamp));
 
-  /**
-   * Debounces the given function using timers
-   *
-   * @function debounce
-   * @param {function} func - Function to be debounced
-   * @param {number} timeout - Debounce delay in milliseconds
-   * */
-  const debounce = (func, timeout = 300) => {
-    let timer;
-    return (...args) => {
-      clearTimeout(timer);
-      timer = setTimeout(() => {
-        func.apply(this, args);
-      }, timeout);
-    };
+        addData(chartRef.current, { x: timestamp, y: value });
+      })
+      .catch(() => {
+        setErrorName("Failed to get data");
+        setErrorMessage(
+          "An error occurred while reading the meter's data. Please try again."
+        );
+        handleShow();
+        setDataPointList([]);
+        setSelectedMeter(-1);
+        setSelectedDataPoint(-1);
+      });
   };
 
-  /**
-   * Provides callback for the debounce function
-   *
-   * @function debounceCallback
-   * */
-  const debounceCallback = useCallback(
-    debounce((func) => {
-      func();
-    }, 175)
-  );
+  const addData = (chart, data) => {
+    chart.data.datasets[0].data.push(data);
+    chart.update();
+  };
+
+  const getUnits = () => {
+    if (selectedDataPoint !== -1 && dataPointList.length) {
+      return dataPointList.filter(
+        (dataPoint) => dataPoint.id === selectedDataPoint
+      )[0].units;
+    }
+    return "";
+  };
 
   return (
     <>
@@ -228,6 +272,8 @@ function RealTimeMonitor() {
                 selectedMeter={selectedMeter}
                 setSelectedDataPoint={setSelectedDataPoint}
                 selectedDataPoint={selectedDataPoint}
+                chartRef={chartRef}
+                units={getUnits()}
               />
             </Col>
           </Row>

@@ -44,8 +44,8 @@ function App() {
   const history = useHistory();
 
   return (
-    <Container fluid className="overflow-hidden">
-      <Row className="vh-100 overflow-hidden">
+    <Container fluid className="">
+      <Row className="vh-100">
         <Route path={includeSidebar}>
           <Col
             sm={3}

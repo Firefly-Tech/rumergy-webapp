@@ -264,8 +264,8 @@ function RealTimeMonitor() {
               {loading && <Spinner variant="secondary" animation="border" />}
             </Col>
           </Row>
-          <Row className="flex-grow-1">
-            <Col sm={10} className="d-flex flex-column px-4 pt-0">
+          <Row className="">
+            <Col sm={10} className="d-flex flex-column pt-0">
               <RTMVisualization
                 meterList={meterList}
                 dataPointList={dataPointList}

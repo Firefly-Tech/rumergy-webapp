@@ -58,7 +58,7 @@ function RTMVisualization(props) {
   };
 
   return (
-    <Card as={Row} className="RTM-data-visualization-card mb-sm-4 h-100">
+    <Card as={Row} className="RTM-data-visualization-card mb-sm-4 px-2">
       <Col>
         <Card.Body as={Row}>
           <Card.Title as={Col} className="px-3 pt-3">
@@ -120,7 +120,7 @@ function RTMVisualization(props) {
             </div>
           </Col>
         </Card.Body>
-        <Card.Footer>
+        <Card.Footer className="mb-4">
           <span>
             <b>Note</b>: Time is given in UTC.
           </span>

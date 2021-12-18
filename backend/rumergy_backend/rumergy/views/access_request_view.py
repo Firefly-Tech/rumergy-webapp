@@ -28,7 +28,7 @@ class AccessRequestViewSet(viewsets.ModelViewSet):
         send_mail(
             "RUMergy: Access Request Notification",
             "A new access request has been submitted.",
-            settings.EMAIL_HOST_USER,
+            settings.EMAIL_FROM,
             admin_emails,
             fail_silently=False,
         )
@@ -68,7 +68,7 @@ class AccessRequestViewSet(viewsets.ModelViewSet):
         send_mail(
             "RUMergy: Access Request Accepted",
             "Your access request has been accepted.",
-            settings.EMAIL_HOST_USER,
+            settings.EMAIL_FROM,
             [user.email],
             fail_silently=False,
         )
@@ -90,7 +90,7 @@ class AccessRequestViewSet(viewsets.ModelViewSet):
         send_mail(
             "RUMergy: Access Request Rejected",
             "Your access request has been rejected. Contact administrative staff if you still wish to gain access.",
-            settings.EMAIL_HOST_USER,
+            settings.EMAIL_FROM,
             [user.email],
             fail_silently=False,
         )

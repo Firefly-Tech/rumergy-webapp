@@ -43,7 +43,7 @@ def password_reset_token_created(
         # message:
         email_plaintext_message,
         # from:
-        settings.EMAIL_HOST_USER,
+        settings.EMAIL_FROM,
         # to:
         [reset_password_token.user.email],
     )

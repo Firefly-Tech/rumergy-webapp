@@ -32,7 +32,7 @@ REACT_APP_API_HOST=backend_uri
 The docker compose depends on various environment variables that must be provided in a .env file in the root directory (i.e. the same directory the docker-compose.yml file is located). A sample env file with the required variables is shown below:
 
 ```
-REACT_APP_API_HOST=http://localhost
+REACT_APP_API_HOST=host
 
 SECRET_KEY=key # Django secret key
 

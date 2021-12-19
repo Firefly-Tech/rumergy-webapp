@@ -42,10 +42,11 @@ DB_PASS=password
 DB_ROOT_PASS=password
 DB_CHAR_SET=utf8
 
-EMAIL_HOST=smtp.gmail.com
-EMAIL_HOST_USER=user@gmail.com
+EMAIL_HOST=smtphost
+EMAIL_HOST_USER=user
 EMAIL_HOST_PASSWORD=password
 EMAIL_PORT=port
+EMAIL_FROM=from@email.com
 
 APP_URL=url # URL to frontend app, used for sending links in emails
 

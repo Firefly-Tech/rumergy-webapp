@@ -16,6 +16,7 @@ DB_CHAR_SET=utf8
 EMAIL_HOST=smtp.gmail.com # Only gmail is supported right now
 EMAIL_HOST_USER=user@gmail.com
 EMAIL_HOST_PASSWORD=password
+EMAIL_FROM=from@email.com
 ```
 
 ### Frontend
